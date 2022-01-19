@@ -20,13 +20,11 @@ import login
 
 class User:
     def __init__(self,
-                 uname: str, fname: str, lname: str, passwd: str,
-                 sex: str, phone: int, email: str, role: str):
+                 uname: str, fname: str, lname: str, gender: str, phone: int, email: str, role: str):
         self.uname = uname
         self.fname = fname
         self.lname = lname
-       # self.passwd = passwd    # prob irrelevant
-       # self.sex = sex          # prob also
+        self.gender = gender
         self.phone = phone
         self.email = email
         self.role = role
@@ -39,11 +37,8 @@ class User:
 
 
 class Apartment:
-    def __init__(self, aprt_code: int, aprt_type: str,
-                 rooms_n: int, guests_n,  # perhaps
-                 location: tuple, availability: list,
-                 host: object, cost: int,
-                 status: bool, amenities: list):
+    def __init__(self, aprt_code: int, aprt_type: str, rooms_n: int, guests_n, location: tuple,
+                 availability: list, host: object, cost: int, status: bool, amenities: list):
         self.aprt_code = aprt_code
         self.aprt_type = aprt_type
         self.rooms_n = rooms_n
@@ -56,7 +51,6 @@ class Apartment:
         self.amenities = amenities
 
 
-# POSSIBLY UNNECESSARY (I could just use a list of tuples
 class Amenitiy:
     def __init__(self, amnt_code, name):
         self.amnt_code = amnt_code
@@ -77,13 +71,6 @@ class Reservation:  # apartment
         self.status = False
 
 
-
-### TO DO ###
-# change the menu from _createScreen to _showScreen
-# I think this way is bad
-
-# maybe it isnt tho
-
 # when the admin requests a table,
 #   only show the usernames,
 #   but when clicked,
@@ -95,7 +82,10 @@ class projekatWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("projekat_airbnb")
-        self.setFixedSize(800, 600) # maybe
+
+        # fixed size forces bspwm to make the window floating
+        # but it's still resizable (???)
+        self.setFixedSize(800, 600)
 
         self._clearScreen()
         self._createMenu()
@@ -188,7 +178,7 @@ class projekatWindow(QMainWindow):
 
             self._formMessage(msg=success)
 
-        ################
+            ################
             return
 
         print("login failed")
@@ -286,8 +276,8 @@ class projekatWindow(QMainWindow):
         self.generalLayout.addLayout(loginLayout)
 
 
-#class projekat_controller:
- #   def __init__(self):
+# class projekat_controller:
+#   def __init__(self):
 
 
 def main():
