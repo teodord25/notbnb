@@ -387,8 +387,4 @@ if __name__ == '__main__':
 #     view.show()
 #
 #     username = register()
-#
-#
-#
-# if __name__ == '__main__':
-#     main()
+
