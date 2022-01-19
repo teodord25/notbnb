@@ -380,11 +380,4 @@ if __name__ == '__main__':
 #     sys.exit(app.exec_())
 #
 #
-# def main():
-#     window()
-#
-#     view = LoginScreen()
-#     view.show()
-#
-#     username = register()
 
