@@ -1,4 +1,21 @@
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QFormLayout
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QComboBox
+from PyQt5.QtCore import Qt
+
+from functools import partial
+
 import time
+import sys
+import registration
+import login
 
 
 class User:
@@ -8,8 +25,8 @@ class User:
         self.uname = uname
         self.fname = fname
         self.lname = lname
-        self.passwd = passwd    # prob irrelevant
-        self.sex = sex          # prob also
+       # self.passwd = passwd    # prob irrelevant
+       # self.sex = sex          # prob also
         self.phone = phone
         self.email = email
         self.role = role
@@ -64,28 +81,11 @@ class Reservation:  # apartment
     # i.e. inherit its properties
 
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QGridLayout
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QFormLayout
-from PyQt5.QtWidgets import QLineEdit
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QComboBox
-
-import sys
-import time
-from functools import partial
-import registration
-import login
-
-
 ### TO DO ###
 # change the menu from _createScreen to _showScreen
 # I think this way is bad
+
+# maybe it isnt tho
 
 
 class projekatWindow(QMainWindow):
@@ -123,10 +123,10 @@ class projekatWindow(QMainWindow):
         if not (self.registerUsername.text() and
                 self.registerPassword.text() and
                 self.confirmPassword.text() and
-                self.registerPhone.text() and
-                self.registerEmail.text() and
                 self.registerFName.text() and
-                self.registerLName.text()
+                self.registerLName.text() and
+                self.registerPhone.text() and
+                self.registerEmail.text()
                 ):
 
             print("field left empty")
@@ -157,10 +157,10 @@ class projekatWindow(QMainWindow):
         print("saving user details...")
         registration.save_user_details([
             self.registerUsername.text(),
-            self.registerPhone.text(),
-            self.registerEmail.text(),
             self.registerFName.text(),
             self.registerLName.text(),
+            self.registerPhone.text(),
+            self.registerEmail.text(),
             self.genderCBox.currentText()
         ])
 
@@ -203,7 +203,7 @@ class projekatWindow(QMainWindow):
         self.formMsg.show()
 
     def _createMainPage(self):
-        apartmentLayout = QGridLayout
+        mainLayout = QGridLayout
 
         self._clearScreen()
 
@@ -222,10 +222,10 @@ class projekatWindow(QMainWindow):
         self.registerUsername = QLineEdit()
         self.registerPassword = QLineEdit()
         self.confirmPassword = QLineEdit()
-        self.registerPhone = QLineEdit()
-        self.registerEmail = QLineEdit()
         self.registerFName = QLineEdit()
         self.registerLName = QLineEdit()
+        self.registerPhone = QLineEdit()
+        self.registerEmail = QLineEdit()
 
         # Echo mode = hide characters "****"
         self.registerPassword.setEchoMode(QLineEdit.Password)
