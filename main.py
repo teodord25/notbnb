@@ -285,12 +285,6 @@ class projekatWindow(QMainWindow):
         loginLayout.addWidget(self.formMsg)
         self.formMsg.hide()
 
-#        loginLayout.addWidget(QLabel("Prijavite se"), 0, 0)
-#        loginLayout.addWidget(QLabel("Korisnicko ime"), 1, 0)
-#        loginLayout.addWidget(self.loginUsername, 2, 0)
-#        loginLayout.addWidget(QLabel("Lozinka"), 3, 0)
-#        loginLayout.addWidget(self.loginPassword, 4, 0)
-
         self.generalLayout.addLayout(loginLayout)
 
 
@@ -309,75 +303,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#
-#         if self.registerPassword.text():
-#             if self.registerPassword.text() == self.confirmPassword.text():
-#                 print("passwords match, registering...")
-#
-#                 registration.register(
-#                     self.registerUsername.text(), self.registerPassword.text()
-#                 )
-#
-#                 print(f"Registered user: \n\t{self.registerUsername.text()}")
-#             else:
-#                 print("passwords do not match.")
-#                 err = '<h3 style="background-color:Tomato;">Passwords must match.</h3>'
-#                 self._formMessage(msg=err)
-#         else:
-#             print("password too short")
-#             err = '<h3 style="background-color:Tomato;">Please enter a password.</h3>'
-#             self._formMessage(msg=err)
-#   def _clearScreen(self):
-  #       # app layout
-  #       self.generalLayout = QVBoxLayout()
-
-  #       # QWidget(self) == self as parent
-  #       self._centralWidget = QWidget(self)
-  #       self.setCentralWidget(self._centralWidget)
-  #       self._centralWidget.setLayout(self.generalLayout)
-
-# class MyWindow(QMainWindow):
-#     def __init__(self):
-#         # call the parent constructor (its init)
-#         super(MyWindow, self).__init__()
-#         self.setGeometry(99, 100, 800, 600)
-#         self.setWindowTitle("joe mama")
-#         self.initUI()
-#
-#     # this is where all the stuff that shows up
-#     # will be loaded
-#     def initUI(self):
-#         self.label = QtWidgets.QLabel(self)
-#         self.label.setText("bruh moment")
-#         self.label.move(49, 50)
-#
-#         self.btn_0 = QtWidgets.QPushButton(self)
-#         self.btn_0.setText("click me")
-#         self.btn_0.clicked.connect(self.clicked)
-#
-#         self.layout = QGridLayout()
-#         self.setLayout(self.layout)
-#
-#     def clicked(self):
-#         self.label.setText("i fucked ur momasdsdasdjahgsdfuyasgf")
-#         self.label.adjustSize()
-#
-#     def login_screen(self):
-#         screen = login_test_1
-#
-#         self.layout.addWidget(screen, -1, 1)
-#
-#
-# def window():
-#     app = QApplication(sys.argv)  # just some config?
-#     win = MyWindow()  # window
-#     win.show()  # show the window
-#
-#     widget
-#
-#     # "clean exit"
-#     sys.exit(app.exec_())
-#
-#
-
