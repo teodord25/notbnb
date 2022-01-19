@@ -76,9 +76,6 @@ class Reservation:  # apartment
     def cancel(self):
         self.status = False
 
-    # inherit from QMainWindow
-
-    # i.e. inherit its properties
 
 
 ### TO DO ###
@@ -86,6 +83,11 @@ class Reservation:  # apartment
 # I think this way is bad
 
 # maybe it isnt tho
+
+# when the admin requests a table,
+#   only show the usernames,
+#   but when clicked,
+#   open a combo box with their details
 
 
 class projekatWindow(QMainWindow):
@@ -99,7 +101,6 @@ class projekatWindow(QMainWindow):
         self._createMenu()
 
         self._createMainPage()
-
 
     def _clearScreen(self):
         # app layout
@@ -117,7 +118,6 @@ class projekatWindow(QMainWindow):
         self.menu.addAction('Registruj se', self._createRegisterScreen)
         self.menu.addAction('Odjavi se')
         self.menu = self.menuBar().addMenu("&Apartmani")
-
 
     def _submitRegistration(self):
         if not (self.registerUsername.text() and
@@ -208,8 +208,6 @@ class projekatWindow(QMainWindow):
         self._clearScreen()
 
         self.generalLayout.addWidget(QLabel("mainpage"))
-
-
 
     def _createRegisterScreen(self):
         registerLayout = QVBoxLayout()
