@@ -1,3 +1,4 @@
+import PyQt5.QtWidgets
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QWidget
@@ -8,19 +9,22 @@ from PyQt5.QtWidgets import QFormLayout
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTableWidget
+from PyQt5.QtWidgets import QLayout
+from PyQt5 import QtCore
 
 from functools import partial
-
+import pandas
 import time
 import sys
+import json
 import registration
 import login
 
 
 class User:
-    def __init__(self,
-                 uname: str, fname: str, lname: str, gender: str, phone: int, email: str, role: str):
+    def __init__(self, uname: str, fname: str, lname: str,
+                 gender: str, phone: int, email: str, role: str):
         self.uname = uname
         self.fname = fname
         self.lname = lname
@@ -29,11 +33,11 @@ class User:
         self.email = email
         self.role = role
 
-    def promote_to_admin(self):
-        self.role = "Admin"
-
-    def promote_to_host(self):
-        self.role = "Host"
+    # def promote_to_admin(self):
+    #     self.role = "Admin"
+    #
+    # def promote_to_host(self):
+    #     self.role = "Host"
 
 
 class Apartment:
@@ -101,13 +105,14 @@ class projekatWindow(QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generalLayout)
 
-    def _createMenu(self):
-        self.menu = self.menuBar().addMenu("&Korisnik")
-        # self.menu = self.menuBar().addMenu("&Register")
+    def _createMenu(self):                 # "&Korisnik" (?)
+        self.menu = self.menuBar().addMenu("Korisnik")
         self.menu.addAction('Prijavi se', self._createLoginScreen)
         self.menu.addAction('Registruj se', self._createRegisterScreen)
         self.menu.addAction('Odjavi se')
-        self.menu = self.menuBar().addMenu("&Apartmani")
+
+        self.menu = self.menuBar().addMenu("Apartmani")
+        self.menu.addAction('Table', self.tableTest)
 
     def _submitRegistration(self):
         if not (self.registerUsername.text() and
@@ -116,7 +121,8 @@ class projekatWindow(QMainWindow):
                 self.registerFName.text() and
                 self.registerLName.text() and
                 self.registerPhone.text() and
-                self.registerEmail.text()
+                self.registerEmail.text() and
+                self.genderCBox.currentText()
                 ):
 
             print("field left empty")
@@ -140,26 +146,41 @@ class projekatWindow(QMainWindow):
             return
 
         print("everything checks out, registering...")
-        registration.register(
+
+        # TODO create a file with hashed admin usernames
+        registration.register_user(
             self.registerUsername.text(), self.registerPassword.text()
         )
 
+        # print("saving user details...")
+        # registration.save_user_details([
+        #     self.registerUsername.text(),
+        #     self.registerFName.text(),
+        #     self.registerLName.text(),
+        #     self.registerPhone.text(),
+        #     self.registerEmail.text(),
+        #     self.genderCBox.currentText()
+        # ])
+
         print("saving user details...")
-        registration.save_user_details([
-            self.registerUsername.text(),
-            self.registerFName.text(),
-            self.registerLName.text(),
-            self.registerPhone.text(),
-            self.registerEmail.text(),
-            self.genderCBox.currentText()
-        ])
+        registration.save_user_details({
+            "username": self.registerUsername.text(),
+            "first_name": self.registerFName.text(),
+            "last_name": self.registerLName.text(),
+            "phone": self.registerPhone.text(),
+            "email": self.registerEmail.text(),
+            "gender": self.genderCBox.currentText()
+        })
 
         print(f"registered user: \n\t{self.registerUsername.text()}")
-        success = f'<h3 style="background-color:Lime;">Uspesno ste se registrovali {self.registerUsername.text()}</h3>'
+        success = f'<h3 style="background-color:Lime;">' \
+                  f'Uspesno ste se registrovali {self.registerUsername.text()}</h3>'
 
         self._formMessage(msg=success)
         return
 
+    # TODO implement "enter/return" key
+    #   submit for login and register
     def _attemptLogin(self):
         if not (self.loginUsername.text() and self.loginPassword.text()):
             print("one or both fields left empty")
@@ -234,7 +255,7 @@ class projekatWindow(QMainWindow):
         formLayout.addRow("Prezime:", self.registerLName)
 
         self.genderCBox = QComboBox()
-        self.genderCBox.addItems(["Musko", "Zensko", "Ostalo"])
+        self.genderCBox.addItems(["", "Musko", "Zensko", "Ostalo"])
         formLayout.addRow("Pol:", self.genderCBox)
 
         registerLayout.addWidget(QLabel('<h1>Registruj se</h1>'))
@@ -274,6 +295,41 @@ class projekatWindow(QMainWindow):
         self.formMsg.hide()
 
         self.generalLayout.addLayout(loginLayout)
+
+    def tableTest(self):
+
+        df = pandas.read_csv(filepath_or_buffer="fake_people.csv", delimiter=',')
+
+        self.model = testTableModel(df)
+        self.table = PyQt5.QtWidgets.QTableView()
+        self.table.setModel(self.model)
+
+        # so apparently _clearScreen is redundant
+        self.setCentralWidget(self.table)
+
+# Sooo, I need to make a custom table model (whatever that is?)
+
+# OK that was a little too easy
+
+class testTableModel(QtCore.QAbstractTableModel):
+    def __init__(self, data):
+        super(testTableModel, self).__init__()
+        self._data = data
+
+    def rowCount(self, parent=None):
+        return self._data.shape[0]
+
+    def columnCount(self, parent=None):
+        return self._data.shape[1]
+
+    # am I supposed to overwrite the data method?
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if index.isValid():
+            if role == QtCore.Qt.DisplayRole:
+                # iloc is a pandas method for locating values
+                return str(self._data.iloc[index.row(), index.column()])
+        return None
+
 
 
 # class projekat_controller:

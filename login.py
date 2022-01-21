@@ -2,6 +2,10 @@ import hashlib
 import base64
 
 
+def is_admin(username: str) -> None:
+    pass
+
+
 def log_in(username: str, password: str) -> bool:
     with open("data/hashed_login_data", "r") as f:
         lines = f.readlines()
@@ -10,7 +14,7 @@ def log_in(username: str, password: str) -> bool:
             items = [n for n in line.split('$')]
             _uname = items[0]
             _uname = eval(_uname).decode('utf-8')
-            # can this eval be exploited?
+            # can this eval() be exploited?
 
             _uname = base64.b64decode(_uname).decode('utf-8')
 
@@ -37,6 +41,6 @@ def log_in(username: str, password: str) -> bool:
 
                 return False
 
-
-if __name__ == "__main__":
-    log_in(input("username"), input("password"))
+#
+# if __name__ == "__main__":
+#     log_in(input("username"), input("password"))
