@@ -311,6 +311,11 @@ class projekatWindow(QMainWindow):
 
 # OK that was a little too easy
 
+# so, every item has a "role",
+# e.g. items with the DisplayRole role are to be displayed as text
+#  https://doc.qt.io/archives/qt-4.8/qt.html#ItemDataRole-enum 
+#
+
 class testTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(testTableModel, self).__init__()
@@ -322,7 +327,6 @@ class testTableModel(QtCore.QAbstractTableModel):
     def columnCount(self, parent=None):
         return self._data.shape[1]
 
-    # am I supposed to overwrite the data method?
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if index.isValid():
             if role == QtCore.Qt.DisplayRole:
@@ -330,7 +334,13 @@ class testTableModel(QtCore.QAbstractTableModel):
                 return str(self._data.iloc[index.row(), index.column()])
         return None
 
+    def headerData(self, section, orientation, role):
+        if role == QtCore.Qt.DisplayRole:
+            if orientation == QtCore.Qt.Horizontal:
+                return str(self._data.columns[section])
 
+            if orientation == QtCore.Qt.Vertical:
+                return str(self._data.index[section])
 
 # class projekat_controller:
 #   def __init__(self):
