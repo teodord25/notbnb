@@ -41,9 +41,6 @@ class PyCalcUi(QMainWindow):
         # read only so no direct editing
         self.display.setReadOnly(True)
 
-
-
-
         self.generalLayout.addWidget(self.display)
 
     def _createButtons(self):

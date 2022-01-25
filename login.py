@@ -1,6 +1,29 @@
 import hashlib
 import base64
+import pandas as pd
 
+
+# ',' is default delimiter?
+def get_role(username):
+    df = pd.read_csv("data/user_data.csv", delimiter=',', usecols=[0, 6])
+
+    try:
+        result_df = df[df["Korisnicko ime"].isin([username])]
+        result_df.reset_index(drop=True, inplace=True)
+        # reset the index to start from zero,
+        # without this, the result dataframe keeps the rows index
+        #
+        # e.g.  print(result_df)
+        #
+        #       Korisnicko ime  Uloga
+        # 200   test            Gost
+
+        return result_df.at[0, "Uloga"]
+
+    except KeyError:
+        return "Error"
+
+    # result = df[df["Korisnicko ime"].str.contains(username)]
 
 def is_admin(username: str) -> None:
     pass
@@ -41,6 +64,7 @@ def log_in(username: str, password: str) -> bool:
 
                 return False
 
-#
-# if __name__ == "__main__":
-#     log_in(input("username"), input("password"))
+
+if __name__ == "__main__":
+    # log_in(input("username"), input("password"))
+    get_role(input("username: "))

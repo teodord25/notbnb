@@ -1,10 +1,11 @@
 import os
 import hashlib
 import base64
+import pandas as pd
 import json
 
 
-def register_user(username: str, password: str) -> None:
+def register_user(username: str, password: str, admin_target_file=False) -> None:
     # 32-bits long
     salt = os.urandom(32)           # anti rainbow table and brute force
 
@@ -21,29 +22,36 @@ def register_user(username: str, password: str) -> None:
     # not sure why I used base64, but it didn't
     # work when I tried to do it without it
 
-    with open("data/hashed_login_data", "a") as f:
-        f.write(f"{b64_uname}${b64_salt}${b64_key}\n")
+    try:
+        with open("data/hashed_login_data", "a") as f:
+            f.write(f"{b64_uname}${b64_salt}${b64_key}\n")
+
+    except FileNotFoundError:
+        print("login data file is missing!")
+        print("creating new file...")
+
+        with open("data/hashed_login_data", "w") as f:
+            f.write(f"{b64_uname}${b64_salt}${b64_key}\n")
+
+    return
 
 
+# changing json to csv
 def save_user_details(user_dict: dict) -> None:
-    user_data = user_dict
+    data = pd.DataFrame({i: [j] for i, j in user_dict.items()})
 
     try:
-        with open("data/users.json", "r") as file:
-            users = json.load(file)
+        df = pd.read_csv(filepath_or_buffer="data/user_data.csv", delimiter=",")
+        df = df.append(data, ignore_index=True)
+        df.to_csv("data/user_data.csv", index=False)
 
     except FileNotFoundError:
         print("user data file is missing!")
         print("creating new file...")
 
-        with open("data/users.json", "w") as file:
-            json.dump(user_data, file)
-
-        return
-
-    with open("data/users.json", "w") as file:
-        users[user_dict["username"]] = user_dict
-        json.dump(users, file)
+        df = pd.DataFrame(data)
+       # print(df)
+        df.to_csv("data/user_data.csv", index=False)
 
     return
 
@@ -57,3 +65,4 @@ def add_to_admins(username: str) -> None:
 #
 # if __name__ == "__main__":
 #     register(input("username"), input("password"))
+#     save_user_details()

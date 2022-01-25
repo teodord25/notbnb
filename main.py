@@ -11,10 +11,14 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtWidgets import QTableWidget
 from PyQt5.QtWidgets import QLayout
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QHeaderView
+from PyQt5.QtWidgets import QTableView
+from PyQt5.QtWidgets import QMenuBar
 from PyQt5 import QtCore
 
 from functools import partial
-import pandas
+import pandas as pd
 import time
 import sys
 import json
@@ -23,21 +27,13 @@ import login
 
 
 class User:
-    def __init__(self, uname: str, fname: str, lname: str,
-                 gender: str, phone: int, email: str, role: str):
-        self.uname = uname
-        self.fname = fname
-        self.lname = lname
-        self.gender = gender
-        self.phone = phone
-        self.email = email
+    def __init__(self, username="Neregistrovan Korisnik", role="Neregistrovan"):
+        self.username = username
         self.role = role
 
-    # def promote_to_admin(self):
-    #     self.role = "Admin"
-    #
-    # def promote_to_host(self):
-    #     self.role = "Host"
+    def log_out(self):
+        self.username = "Neregistrovan Korisnik"
+        self.role = "Neregistrovan"
 
 
 class Apartment:
@@ -81,7 +77,7 @@ class Reservation:  # apartment
 #   open a combo box with their details
 
 
-class projekatWindow(QMainWindow):
+class ProjekatWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -91,10 +87,12 @@ class projekatWindow(QMainWindow):
         # but it's still resizable (???)
         self.setFixedSize(800, 600)
 
+        self.currentUser = User()
+        self.currentDF = pd.read_csv("data/user_data.csv")
+        # TODO remove all "delimiter=','"
+
         self._clearScreen()
         self._createMenu()
-
-        self._createMainPage()
 
     def _clearScreen(self):
         # app layout
@@ -105,14 +103,29 @@ class projekatWindow(QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generalLayout)
 
-    def _createMenu(self):                 # "&Korisnik" (?)
-        self.menu = self.menuBar().addMenu("Korisnik")
-        self.menu.addAction('Prijavi se', self._createLoginScreen)
-        self.menu.addAction('Registruj se', self._createRegisterScreen)
-        self.menu.addAction('Odjavi se')
+        # self._createTopRow()
 
-        self.menu = self.menuBar().addMenu("Apartmani")
-        self.menu.addAction('Table', self.tableTest)
+    def _createMenu(self):                 # "&Korisnik" (?)
+        # self.menu = self.menuBar().addMenu("Korisnik")
+        menu = QMenuBar()
+        self.setMenuBar(menu)
+        # self.menuBar is provided by default
+
+        userMenu = menu.addMenu("&Korisnik")
+        apartmentMenu = menu.addMenu("&Apartmani")
+
+        userMenu.addAction('Prijavi se', self._createLoginScreen)
+        userMenu.addAction('Registruj se', self._createRegisterScreen)
+        userMenu.addAction('Odjavi se', self.logOut)
+
+        apartmentMenu.addAction('Pretraga i pregled', self.tableTest)
+        apartmentMenu.addAction('Rezervacija', self.tableTest)
+
+        if self.currentUser.role == "Domacin":
+            apartmentMenu.addAction('Registracija', self.tableTest)
+
+        # self.menu.addAction('Registracija', self.tableTest)
+        # self.menu.addAction('Table', self.tableTest)
 
     def _submitRegistration(self):
         if not (self.registerUsername.text() and
@@ -126,80 +139,88 @@ class projekatWindow(QMainWindow):
                 ):
 
             print("field left empty")
-            err = '<h3 style="background-color:Tomato;">Morate popuniti sva polja.</h3>'
+            err = color_msg("Morate popuniti sva polja.", "Tomato")
+            # err = '<h3 style="background-color:Tomato;">Morate popuniti sva polja.</h3>'
 
             self._formMessage(msg=err)
             return
 
         if len(self.registerPassword.text()) < 8:
             print("password too short")
-            err = '<h3 style="background-color:Tomato;">Lozinka mora biti sadrzati najmanje 8 karaktera.</h3>'
+            err = color_msg("Lozinka mora sadrzati najmanje 8 karaktera.", "Tomato")
+            # err = '<h3 style="background-color:Tomato;">Lozinka mora biti sadrzati najmanje 8 karaktera.</h3>'
 
             self._formMessage(msg=err)
             return
 
         if self.registerPassword.text() != self.confirmPassword.text():
             print("passwords do not match")
-            err = '<h3 style="background-color:Tomato;">Lozinke se ne podudaraju.</h3>'
+            err = color_msg("Lozinke se ne podudaraju", "Tomato")
+            # err = '<h3 style="background-color:Tomato;">Lozinke se ne podudaraju.</h3>'
 
             self._formMessage(msg=err)
             return
 
         print("everything checks out, registering...")
 
-        # TODO create a file with hashed admin usernames
         registration.register_user(
             self.registerUsername.text(), self.registerPassword.text()
         )
 
-        # print("saving user details...")
-        # registration.save_user_details([
-        #     self.registerUsername.text(),
-        #     self.registerFName.text(),
-        #     self.registerLName.text(),
-        #     self.registerPhone.text(),
-        #     self.registerEmail.text(),
-        #     self.genderCBox.currentText()
-        # ])
-
         print("saving user details...")
         registration.save_user_details({
-            "username": self.registerUsername.text(),
-            "first_name": self.registerFName.text(),
-            "last_name": self.registerLName.text(),
-            "phone": self.registerPhone.text(),
-            "email": self.registerEmail.text(),
-            "gender": self.genderCBox.currentText()
+            "Korisnicko ime": self.registerUsername.text(),
+            "Ime": self.registerFName.text(),
+            "Prezime": self.registerLName.text(),
+            "Kontakt telefon": self.registerPhone.text(),
+            "Email adresa": self.registerEmail.text(),
+            "Pol": self.genderCBox.currentText(),
+            "Uloga": "Gost"
         })
 
         print(f"registered user: \n\t{self.registerUsername.text()}")
-        success = f'<h3 style="background-color:Lime;">' \
-                  f'Uspesno ste se registrovali {self.registerUsername.text()}</h3>'
+        success = color_msg(
+            f"Uspesno ste se registrovali. {self.registerUsername.text()}", "Lime"
+            )
+
+        # success = f'<h3 style="background-color:Lime;">' \
+        #           f'Uspesno ste se registrovali {self.registerUsername.text()}</h3>'
 
         self._formMessage(msg=success)
         return
 
-    # TODO implement "enter/return" key
-    #   submit for login and register
     def _attemptLogin(self):
-        if not (self.loginUsername.text() and self.loginPassword.text()):
+        username = self.loginUsername.text()
+        password = self.loginPassword.text()
+
+        if not (username and password):
             print("one or both fields left empty")
-            err = '<h3 style="background-color:Tomato;">Popunite polja.</h3>'
+            err = color_msg("Popunite polja.", "Tomato")
 
             self._formMessage(msg=err)
             return
 
         # log_in() returns a bool
-        if login.log_in(self.loginUsername.text(), self.loginPassword.text()):
+        if login.log_in(username, password):
+
+            role = login.get_role(username)
+            if role == "Error":
+                print("no such user in data/user_data.csv")
+                err = color_msg("Korisnik ne postoji u bazi podataka.", "Tomato")
+                # err = '<h3 style="background-color:Tomato;">Korisnik ne postoji u bazi podataka</h3>'
+
+                self._formMessage(err)
+                return
+
+            self.currentUser.username = username
+            self.currentUser.role = role
+
             print("login successful")
 
-            time.sleep(1)
-
-            success = f'<h3 style="background-color:Lime;">Dobrodosao/la {self.loginUsername.text()}</h3>'
+            success = f'<h3 style="background-color:Lime;">Dobrodosao/la {username}</h3>'
 
             self._formMessage(msg=success)
-
-            ################
+            self._createMenu()
             return
 
         print("login failed")
@@ -213,12 +234,47 @@ class projekatWindow(QMainWindow):
         self.formMsg.setText(msg)
         self.formMsg.show()
 
-    def _createMainPage(self):
-        mainLayout = QGridLayout
+    def _submitSearch(self):
+        df = pd.read_csv("data/user_data.csv")
+        df = df[df["Korisnicko ime"].str.contains(self.searchLocation.text())]
+        df = df[df["Kontakt telefon"].str.contains(self.searchPrice.text())]
 
-        self._clearScreen()
+        self.currentDF = df
+        self.tableTest()
+        # TODO be able to explain why df[df[]] works
 
-        self.generalLayout.addWidget(QLabel("mainpage"))
+        print("msgg")
+
+    def _createTopRow(self):
+        topLayout = QGridLayout()
+
+        self.searchLocation = QLineEdit()
+        self.searchAvailability = QLineEdit()
+        self.searchRooms = QLineEdit()
+        self.searchPersons = QLineEdit()
+        self.searchPrice = QLineEdit()
+
+        # TODO fix shishana latinica
+        self.searchButton = QPushButton("Pretrazi")
+        self.searchButton.clicked.connect(self._submitSearch)
+
+        topLayout.addWidget(QLabel(f"<h4>Vi ste: {self.currentUser.username}</h4>"), 0, 0)
+        topLayout.addWidget(QLabel(f"<h4>Uloga: {self.currentUser.role}</h4>"), 1, 0)
+
+        # (widget, y, x)
+        topLayout.addWidget(QLabel("Mesto"), 0, 1)
+        topLayout.addWidget(self.searchLocation, 0, 2, 1, 7)
+        topLayout.addWidget(QLabel("Dostupnost"), 1, 1)
+        topLayout.addWidget(self.searchAvailability, 1, 2)
+        topLayout.addWidget(QLabel("Broj soba"), 1, 3)
+        topLayout.addWidget(self.searchRooms, 1, 4)
+        topLayout.addWidget(QLabel("Broj osoba"), 1, 5)
+        topLayout.addWidget(self.searchPersons, 1, 6)
+        topLayout.addWidget(QLabel("Cena"), 1, 7)
+        topLayout.addWidget(self.searchPrice, 1, 8)
+        topLayout.addWidget(self.searchButton, 0, 9, 2, 1)
+
+        self.generalLayout.addLayout(topLayout, 1)
 
     def _createRegisterScreen(self):
         registerLayout = QVBoxLayout()
@@ -231,10 +287,10 @@ class projekatWindow(QMainWindow):
         self.registerUsername = QLineEdit()
         self.registerPassword = QLineEdit()
         self.confirmPassword = QLineEdit()
-        self.registerFName = QLineEdit()
-        self.registerLName = QLineEdit()
         self.registerPhone = QLineEdit()
         self.registerEmail = QLineEdit()
+        self.registerFName = QLineEdit()
+        self.registerLName = QLineEdit()
 
         # Echo mode = hide characters "****"
         self.registerPassword.setEchoMode(QLineEdit.Password)
@@ -249,10 +305,10 @@ class projekatWindow(QMainWindow):
         formLayout.addRow("Korisnicko ime:", self.registerUsername)
         formLayout.addRow("Lozinka:", self.registerPassword)
         formLayout.addRow("Potvrda lozinke:", self.confirmPassword)
-        formLayout.addRow("Kontakt telefon:", self.registerPhone)
-        formLayout.addRow("Email adresa:", self.registerEmail)
         formLayout.addRow("Ime:", self.registerFName)
         formLayout.addRow("Prezime:", self.registerLName)
+        formLayout.addRow("Kontakt telefon:", self.registerPhone)
+        formLayout.addRow("Email adresa:", self.registerEmail)
 
         self.genderCBox = QComboBox()
         self.genderCBox.addItems(["", "Musko", "Zensko", "Ostalo"])
@@ -264,9 +320,9 @@ class projekatWindow(QMainWindow):
 
         self.formMsg = QLabel("")
         registerLayout.addWidget(self.formMsg)
-        self.formMsg.hide()
+        # self.formMsg.hide()
 
-        self.generalLayout.addLayout(registerLayout)
+        self.generalLayout.addLayout(registerLayout, 9)
 
     def _createLoginScreen(self):
         loginLayout = QVBoxLayout()
@@ -278,6 +334,10 @@ class projekatWindow(QMainWindow):
 
         self.loginUsername = QLineEdit()
         self.loginPassword = QLineEdit()
+
+        self.loginUsername.returnPressed.connect(self._attemptLogin)
+        self.loginPassword.returnPressed.connect(self._attemptLogin)
+
         self.loginPassword.setEchoMode(QLineEdit.Password)
 
         self.loginButton = QPushButton("Prijavi se")
@@ -286,26 +346,55 @@ class projekatWindow(QMainWindow):
         formLayout.addRow("Korisnicko ime:", self.loginUsername)
         formLayout.addRow("Lozinka:", self.loginPassword)
 
-        loginLayout.addWidget(QLabel('<h1>Prijavi se</h1>'))
+        loginLayout.addWidget(QLabel('<h1>Prijavi se</h1>'), 3)
         loginLayout.addLayout(formLayout)
         loginLayout.addWidget(self.loginButton)
 
         self.formMsg = QLabel("")
-        loginLayout.addWidget(self.formMsg)
-        self.formMsg.hide()
+        loginLayout.addWidget(self.formMsg, 1)
+        # self.formMsg.hide()
 
-        self.generalLayout.addLayout(loginLayout)
+        self.generalLayout.addLayout(loginLayout, 9)
 
-    def tableTest(self):
+    def tableTest(self): #, dataframe=pd.read_csv("data/user_data.csv", delimiter=',')):
+        tableLayout = QVBoxLayout()
 
-        df = pandas.read_csv(filepath_or_buffer="fake_people.csv", delimiter=',')
+        self._clearScreen()
+        self._createTopRow()
+
+        df = self.currentDF
+        # df = pd.read_csv("data/user_data.csv", delimiter=',')
 
         self.model = testTableModel(df)
-        self.table = PyQt5.QtWidgets.QTableView()
+        self.table = QTableView()
         self.table.setModel(self.model)
 
+        # TODO .clearScreen might be redundant
+        # TODO instance attribute defined outside __init__
+
+        # set the top row to fit the data
+        header = self.table.horizontalHeader()
+        [header.setSectionResizeMode(i, QHeaderView.ResizeToContents) for i in range(df.shape[1] - 1)]
+        header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
+
+        tableLayout.addWidget(self.table)
+        self.generalLayout.addLayout(tableLayout)
         # so apparently _clearScreen is redundant
-        self.setCentralWidget(self.table)
+        # self.setCentralWidget(self.table)
+
+    def logOut(self):
+        self._clearScreen()
+        # self._createLoginScreen()
+
+        if self.currentUser.role == "Neregistrovan":
+            self.setCentralWidget(QLabel(color_msg("Niste prijavljeni", "OrangeRed", 1)))
+            return
+
+        self.currentUser.log_out()
+        self.setCentralWidget(QLabel(color_msg("Odjavili ste se", "OrangeRed", 1)))
+        return
+
+# TODO explicit return or just let be
 
 # Sooo, I need to make a custom table model (whatever that is?)
 
@@ -342,14 +431,21 @@ class testTableModel(QtCore.QAbstractTableModel):
             if orientation == QtCore.Qt.Vertical:
                 return str(self._data.index[section])
 
-# class projekat_controller:
-#   def __init__(self):
+
+class user:
+    pass
+
+
+def color_msg(msg, color, size=3):
+    colored_msg = f'<h{size} style="background-color:{color};">{msg}</h{size}>'
+
+    return colored_msg
 
 
 def main():
     app = QApplication([])
 
-    view = projekatWindow()
+    view = ProjekatWindow()
     view.show()
 
     sys.exit(app.exec_())
@@ -357,3 +453,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+# you can change the ratios by passing a number in .addWidget or .addLayout
+# e.g. .addWidget(widget_one, 1) .addWidget(widget_two, 9)
+#   this will make widget_two take up 9 times as much space as widget_one
