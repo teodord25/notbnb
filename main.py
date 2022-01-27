@@ -85,10 +85,10 @@ class ProjekatWindow(QMainWindow):
 
         # fixed size forces bspwm to make the window floating
         # but it's still resizable (???)
-        self.setFixedSize(800, 600)
+        self.setFixedSize(1280, 720)
 
         self.currentUser = User()
-        self.currentDF = pd.read_csv("data/user_data.csv")
+        self.currentDF = pd.read_csv("data/apartment_data.csv")
         # TODO remove all "delimiter=','"
 
         self._clearScreen()
@@ -103,7 +103,7 @@ class ProjekatWindow(QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generalLayout)
 
-        # self._createTopRow()
+        self._createMenu()
 
     def _createMenu(self):                 # "&Korisnik" (?)
         # self.menu = self.menuBar().addMenu("Korisnik")
@@ -118,14 +118,11 @@ class ProjekatWindow(QMainWindow):
         userMenu.addAction('Registruj se', self._createRegisterScreen)
         userMenu.addAction('Odjavi se', self.logOut)
 
-        apartmentMenu.addAction('Pretraga i pregled', self.tableTest)
-        apartmentMenu.addAction('Rezervacija', self.tableTest)
-
-        if self.currentUser.role == "Domacin":
-            apartmentMenu.addAction('Registracija', self.tableTest)
-
-        # self.menu.addAction('Registracija', self.tableTest)
-        # self.menu.addAction('Table', self.tableTest)
+        apartmentMenu.addAction('Pretraga i pregled', self.apartmentSearch)
+        # apartmentMenu.addAction('Rezervacija', self.apartmentReservation)
+        #
+        # if self.currentUser.role == "Domacin":
+        #     apartmentMenu.addAction('Registracija', self.apartmentRegistration)
 
     def _submitRegistration(self):
         if not (self.registerUsername.text() and
@@ -235,15 +232,27 @@ class ProjekatWindow(QMainWindow):
         self.formMsg.show()
 
     def _submitSearch(self):
-        df = pd.read_csv("data/user_data.csv")
-        df = df[df["Korisnicko ime"].str.contains(self.searchLocation.text())]
-        df = df[df["Kontakt telefon"].str.contains(self.searchPrice.text())]
+        # df = self.currentDF
+
+        df = pd.read_csv("data/apartment_data.csv")
+
+        df = df[df["Adresa"].str.contains(self.searchLocation.text())]
+        df = df[df["Domacin"].str.contains(self.searchPersons.text())]
+        # df = df[df[""].str.contains(self.search.text())]
+        # df = df[df[""].str.contains(self.search.text())]
+        # df = df[df[""].str.contains(self.search.text())]
+        # df = df[df[""].str.contains(self.search.text())]
+        # df = df[df[""].str.contains(self.search.text())]
 
         self.currentDF = df
-        self.tableTest()
+        self.apartmentSearch()
         # TODO be able to explain why df[df[]] works
+        # TODO decide how to display location and swap sirina and duzina
 
-        print("msgg")
+        # print("msgg")
+
+    # TODO add a secret thing where when you enter "sv_cheats 1"
+    # you register as an admin
 
     def _createTopRow(self):
         topLayout = QGridLayout()
@@ -356,7 +365,7 @@ class ProjekatWindow(QMainWindow):
 
         self.generalLayout.addLayout(loginLayout, 9)
 
-    def tableTest(self): #, dataframe=pd.read_csv("data/user_data.csv", delimiter=',')):
+    def apartmentSearch(self): #, dataframe=pd.read_csv("data/user_data.csv", delimiter=',')):
         tableLayout = QVBoxLayout()
 
         self._clearScreen()
@@ -365,10 +374,11 @@ class ProjekatWindow(QMainWindow):
         df = self.currentDF
         # df = pd.read_csv("data/user_data.csv", delimiter=',')
 
-        self.model = testTableModel(df)
+        self.model = tableModel(df)
         self.table = QTableView()
         self.table.setModel(self.model)
 
+        # TODO registracija still shows up when logged out
         # TODO .clearScreen might be redundant
         # TODO instance attribute defined outside __init__
 
@@ -383,7 +393,6 @@ class ProjekatWindow(QMainWindow):
         # self.setCentralWidget(self.table)
 
     def logOut(self):
-        self._clearScreen()
         # self._createLoginScreen()
 
         if self.currentUser.role == "Neregistrovan":
@@ -391,6 +400,7 @@ class ProjekatWindow(QMainWindow):
             return
 
         self.currentUser.log_out()
+        self._clearScreen()
         self.setCentralWidget(QLabel(color_msg("Odjavili ste se", "OrangeRed", 1)))
         return
 
@@ -405,9 +415,11 @@ class ProjekatWindow(QMainWindow):
 #  https://doc.qt.io/archives/qt-4.8/qt.html#ItemDataRole-enum 
 #
 
-class testTableModel(QtCore.QAbstractTableModel):
+# pycharm complains that I'm overriding methods,
+# but according to the internet this is what I'm supposed to do
+class tableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
-        super(testTableModel, self).__init__()
+        super(tableModel, self).__init__()
         self._data = data
 
     def rowCount(self, parent=None):
@@ -432,10 +444,7 @@ class testTableModel(QtCore.QAbstractTableModel):
                 return str(self._data.index[section])
 
 
-class user:
-    pass
-
-
+# returns a html heading of the desired color and size
 def color_msg(msg, color, size=3):
     colored_msg = f'<h{size} style="background-color:{color};">{msg}</h{size}>'
 

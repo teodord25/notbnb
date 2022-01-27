@@ -3,32 +3,28 @@ import base64
 import pandas as pd
 
 
-# ',' is default delimiter?
 def get_role(username):
-    df = pd.read_csv("data/user_data.csv", delimiter=',', usecols=[0, 6])
+    df = pd.read_csv("data/user_data.csv", usecols=[0, 6])
 
     try:
         result_df = df[df["Korisnicko ime"].isin([username])]
         result_df.reset_index(drop=True, inplace=True)
         # reset the index to start from zero,
-        # without this, the result dataframe keeps the rows index
+        # without this, the resulting dataframe keeps the row's index
         #
         # e.g.  print(result_df)
         #
         #       Korisnicko ime  Uloga
         # 200   test            Gost
 
+        # return value at row 0, uloga column
         return result_df.at[0, "Uloga"]
 
     except KeyError:
         return "Error"
 
-    # result = df[df["Korisnicko ime"].str.contains(username)]
 
-def is_admin(username: str) -> None:
-    pass
-
-
+# bunch of probably unnecessary encoding/decoding business
 def log_in(username: str, password: str) -> bool:
     with open("data/hashed_login_data", "r") as f:
         lines = f.readlines()
@@ -37,7 +33,6 @@ def log_in(username: str, password: str) -> bool:
             items = [n for n in line.split('$')]
             _uname = items[0]
             _uname = eval(_uname).decode('utf-8')
-            # can this eval() be exploited?
 
             _uname = base64.b64decode(_uname).decode('utf-8')
 
