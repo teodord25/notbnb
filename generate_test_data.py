@@ -1,10 +1,12 @@
 import pandas as pd
 import registration
 import random
+import convert
 
 
 def generate_users():
-    df = pd.read_csv("fake_people.csv", delimiter=',', usecols=range(7))
+    df = convert.to_df("fake_people.csv", use_cols=range(7))
+    # df = pd.read_csv("fake_people.csv", delimiter=',', usecols=range(7))
 
     # translate columns
     df = df.rename(columns={
@@ -15,10 +17,9 @@ def generate_users():
         "EmailAddress": "Email adresa",
         "Gender": "Pol"
     })
-    # possibly catastrophic comma removal in dict
 
-    # set every fake users role to guest
-    df["Uloga"] = ["Gost" for _ in range(df.shape[0])]
+    # add an "uloga" column and set all values to gost
+    df["Uloga"] = "Gost"
 
     for index in range(df.shape[0]):
         row = df.iloc[index]
@@ -35,37 +36,22 @@ def generate_users():
         registration.save_user_details(row_dict)
 
         print(f"{index} registered: {row_dict['Korisnicko ime']}")
-    print(pd.read_csv("data/user_data.csv", delimiter=','))
 
-    # df_in = df_in.rename(columns={
-    #     "Longitude": "Geografska duzina",
-    #     "Latitude": "Geografska sirina",
-    #     "StreetAddress": "Ulica i broj",
-    #     "City": "Naseljeno Mesto",
-    #     "ZipCode": "Postanski broj"
-    # })
-
-    # df_in.insert(loc=0, column="Sifra", value=[0 for _ in range(df_in.shape[0])])
-    # df_in.insert(loc=1, column="Tip", value=["" for _ in range(df_in.shape[0])])
-    # df_in.insert(loc=2, column="Broj soba", value=[0 for _ in range(df_in.shape[0])])
-    # df_in.insert(loc=3, column="Broj gostiju", value=[0 for _ in range(df_in.shape[0])])
-    # print(df_in)
 
 def generate_apartments():
-    df = pd.read_csv("fake_people.csv", usecols=range(7, 12))
+    df = convert.to_df("fake_people.csv", use_cols=range(7, 12))
 
     user_df = pd.read_csv("data/user_data.csv")
-    print(user_df)
+    # print(user_df)
 
     # .loc[] slicing includes both bounds
     hosts = user_df.iloc[0:20, 1:3]
-    # admins = user_df.iloc[21:23, 1:3]
 
-    # print(hosts)
-    # df = pd.read_csv("data/user_data.csv")
     user_df.loc[0:20, "Uloga"] = 'Domacin'
     user_df.loc[21:22, "Uloga"] = 'Admin'
     lst_out = []
+
+    amnt_lst = []
 
     # .loc[] slices include both bounds,
     # but .iloc[] slices work normally (???)
@@ -87,34 +73,58 @@ def generate_apartments():
         lat = df.iat[index, 1]
         lon = df.iat[index, 0]
         zip = df.iat[index, 4]
-        location = f"({lat}, {lon})"
+        location = f"({lat} | {lon})"
 
         address = df.iat[index, 2].split()
         address.append(address[0])
         address.pop(0)
         address = " ".join(address)
-        address = f"{address}, {city} {zip}"
+        address = f"{address} | {city} {zip}"
 
-        price = round((1.2**rooms) * 20)
+        k = random.randint(0, 5)
+        amenities = random.sample(["parking", "kuhinja", "pegla", "ves masina", "klima uredjaj"], k=k)
+
+        price = round((1.2**rooms) * 18) + (2 * len(amenities))
+        price = str(price)# + " eur"
+
+        dodaci = "da" if len(amenities) else "ne"
 
         row = [index, tip, rooms, guests, location, address, "24/7",
-               host, price, random.choice(["yes", "no"]), ["foo", "bar"]]
+               host, price, random.choice(["aktivan", "neaktivan"]), dodaci]
 
         lst_out.append(row)
+        amnt_lst.append([index, *amenities])
+
+    amntdf = pd.DataFrame(amnt_lst, columns=["Sifra stana", "Dodatak 1", "Dodatak 2",
+                                              "Dodatak 3", "Dodatak 4", "Dodatak 5"])
+
+    convert.to_csv(amntdf, "data/amenities.csv")
+    # amntdf.to_csv("data/amenities.csv", index=False)
 
     df_out = pd.DataFrame(
         lst_out,
         columns=["Sifra", "Tip", "Broj soba", "Broj gostiju", "Lokacija", "Adresa",
-                 "Dostupnost", "Domacin", "Cena po noci", "Status", "Ameniti"]
+                 "Dostupnost", "Domacin", "Cena po noci (eur)", "Status", "Ameniti"]
     )
 
-    df_out.to_csv("data/apartment_data.csv", index=False)
-    print(df_out)
+    convert.to_csv(df_out, "data/apartment_data.csv")
+    # df_out.to_csv("data/apartment_data.csv", index=False)
+    # print(df_out)
+
+
+def generate_reservations():
+    header = ["Sifra apartmana", "Pocetni datum rezervacije",
+              "Broj nocenja", "Ukupna cena", "Gost", "Status"]
+
+    aprt_df = convert.to_df("data/apartment_data.csv")
+    aprt_df = aprt_df[aprt_df["Status"] == "aktivan"]
+    print(aprt_df)
 
 
 if __name__ == "__main__":
     generate_apartments()
     # generate_users()
+    # generate_reservations()
 
 # .loc[] not .loc()
 #        why

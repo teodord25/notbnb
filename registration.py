@@ -2,6 +2,7 @@ import os
 import hashlib
 import base64
 import pandas as pd
+import convert
 
 
 def register_user(username: str, password: str) -> None:
@@ -33,22 +34,23 @@ def register_user(username: str, password: str) -> None:
     return
 
 
-# changed json to csv
 def save_user_details(user_dict: dict) -> None:
     data = pd.DataFrame({i: [j] for i, j in user_dict.items()})
 
     try:
-        df = pd.read_csv(filepath_or_buffer="data/user_data.csv", delimiter=",")
-        # add inplace= maybe
+        # df = pd.read_csv(filepath_or_buffer="data/user_data.csv", delimiter=",")
+        df = convert.to_df("data/user_data.csv")
+
         df = df.append(data, ignore_index=True)
-        df.to_csv("data/user_data.csv", index=False)
+
+        convert.to_csv(df, "data/user_data.csv")
 
     except FileNotFoundError:
         print("user data file is missing!")
         print("creating new file...")
 
         df = pd.DataFrame(data)
-        df.to_csv("data/user_data.csv", index=False)
+        convert.to_csv(df, "data/user_data.csv")
 
     return
 

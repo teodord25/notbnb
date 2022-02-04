@@ -1,14 +1,19 @@
 import hashlib
 import base64
 import pandas as pd
+import convert
 
 
 def get_role(username):
-    df = pd.read_csv("data/user_data.csv", usecols=[0, 6])
+    df = convert.to_df("data/user_data.csv", use_cols=[0, 6])
+    # df = pd.read_csv("data/user_data.csv", usecols=[0, 6])
 
     try:
         result_df = df[df["Korisnicko ime"].isin([username])]
         result_df.reset_index(drop=True, inplace=True)
+
+        # this should be refactored...
+
         # reset the index to start from zero,
         # without this, the resulting dataframe keeps the row's index
         #
@@ -60,6 +65,6 @@ def log_in(username: str, password: str) -> bool:
                 return False
 
 
-if __name__ == "__main__":
-    # log_in(input("username"), input("password"))
-    get_role(input("username: "))
+# if __name__ == "__main__":
+#     # log_in(input("username"), input("password"))
+#     get_role(input("username: "))
