@@ -95,7 +95,7 @@ def generate_apartments():
         lst_out.append(row)
         amnt_lst.append([index, *amenities])
 
-    amntdf = pd.DataFrame(amnt_lst, columns=["Sifra stana", "Dodatak 1", "Dodatak 2",
+    amntdf = pd.DataFrame(amnt_lst, columns=["Sifra apartmana", "Dodatak 1", "Dodatak 2",
                                               "Dodatak 3", "Dodatak 4", "Dodatak 5"])
 
     convert.to_csv(amntdf, "data/amenities.csv")

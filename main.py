@@ -159,8 +159,13 @@ def filter_df(dataframe, query, x):
 
 class User:
     def __init__(self, username="Neregistrovan Korisnik", role="Neregistrovan"):
-        self.username = username
-        self.role = role
+        if username == "Neregistrovan Korisnik":
+            self.username = username
+
+        if role == "Neregistrovan":
+            self.role = role
+
+        user_details = convert.to_df("data/user_data.csv").loc[[""]]
 
     def log_out(self):
         self.username = "Neregistrovan Korisnik"
@@ -338,7 +343,6 @@ class ProjekatWindow(QMainWindow):
 
             print("login successful")
 
-            # success = f'<h3 style="background-color:Lime;">Dobrodosao/la {username}</h3>'
             succ = color_msg(f"Dobrodosao/la {username}", "Lime")
 
             self._formMessage(msg=succ)
@@ -346,8 +350,6 @@ class ProjekatWindow(QMainWindow):
             return
 
         print("login failed")
-        # TODO ayo
-        # err = '<h3 style="background-color:Tomato;">Pogresno korisnicko ime ili lozinka.</h3>'
         err = color_msg("Pogresno korisnicko ime ili lozinka.", "Tomato")
 
         self._formMessage(msg=err)
@@ -397,7 +399,7 @@ class ProjekatWindow(QMainWindow):
         self.currentDF = df
         self._createTable()
 
-        # TODO be able to explain why df[df[]] works
+        # I'm not sure how df[df[]] works
 
     def _createReview(self):
         reviewLayout = QVBoxLayout
@@ -417,7 +419,6 @@ class ProjekatWindow(QMainWindow):
         self.searchPrice = QLineEdit()
         self.popularCities = QCheckBox()
         self.showActive = QCheckBox()
-        # TODO show active
 
         # TODO fix shishana latinica
         self.searchButton = QPushButton("Pretrazi")
@@ -444,7 +445,6 @@ class ProjekatWindow(QMainWindow):
         topLayout.addWidget(self.popularCities, 2, 2)
         topLayout.addWidget(QLabel("Prikazi samo aktivne apartmane"), 3, 1)
         topLayout.addWidget(self.showActive, 3, 2)
-        # topLayout.addWidget(PyQt5.QtWidgets.QCheckBox, 2, 1)
         textLayout.addWidget(QLabel("Primeri koriscenja pretrage:"))
         textLayout.addWidget(QLabel("Vrednost manja od: x < 3 je isto sto i 3 > x, isto vazi i za vece."))
         textLayout.addWidget(QLabel("Vrednost izmedju: 2 < x < 5, ili samo unesite tacnu vrednost koju trazite."))
@@ -530,11 +530,6 @@ class ProjekatWindow(QMainWindow):
 
         self.generalLayout.addLayout(loginLayout, 9)
 
-    # TODO I could literally return the relevant details in each method
-
-    def apartmentReview(self):
-        tableLayout = QVBoxLayout()
-
     def _createTable(self):
         tableLayout = QHBoxLayout()
 
@@ -547,9 +542,6 @@ class ProjekatWindow(QMainWindow):
         self.table = QTableView()
         self.table.setModel(self.model)
 
-        # TODO .clearScreen might be redundant
-        # TODO instance attribute defined outside __init__
-
         # set the top row to fit the data
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
@@ -558,15 +550,10 @@ class ProjekatWindow(QMainWindow):
 
         tableLayout.addWidget(self.table, 2)
         tableLayout.addWidget(QPushButton("AYO"), 1)
-        # tableLayout.addWidget(self.table2)
 
         self.generalLayout.addLayout(tableLayout)
-        # so apparently _clearScreen is redundant
-        # self.setCentralWidget(self.table)
 
     def logOut(self):
-        # self._createLoginScreen()
-
         if self.currentUser.role == "Neregistrovan":
             self.setCentralWidget(QLabel(color_msg("Niste prijavljeni", "OrangeRed", 1)))
             return
@@ -576,11 +563,8 @@ class ProjekatWindow(QMainWindow):
         self.setCentralWidget(QLabel(color_msg("Odjavili ste se", "OrangeRed", 1)))
         return
 
-# TODO explicit return or just let be
 
-# Sooo, I need to make a custom table model (whatever that is?)
-
-# OK that was a little too easy
+# So, I need to make a custom table model (whatever that is?)
 
 # so, every item has a "role",
 # e.g. items with the DisplayRole role are to be displayed as text
@@ -636,6 +620,7 @@ if __name__ == '__main__':
     main()
 
 
+# the option is called stretch
 # you can change the ratios by passing a number in .addWidget or .addLayout
 # e.g. .addWidget(widget_one, 1) .addWidget(widget_two, 9)
 #   this will make widget_two take up 9 times as much space as widget_one

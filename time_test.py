@@ -1,3 +1,8 @@
+from user_test import User
+from user_test import Apartment
+# TODO create separate user file?
+
+
 class TimeFrame:
     def __init__(self, start: str, duration: int, end=""):
         self.start = start
@@ -78,10 +83,27 @@ class Reservation(TimeFrame):
     def __init__(self, start, duration, apartment_id, username, status="Kreirana"):
         super().__init__(start, duration)
 
-        self.id = apartment_id
-        self.username = username
+        self.apt_id = apartment_id
+        self.user = User(username=username)
+        self.apartment = Apartment(self.apt_id)
         self.status = status
+        self.guests = []
 
+    def cancel(self):
+        self.status = "Odustanak"
+
+    def deny(self):
+        self.status = "Odbijena"
+
+    def accept(self):
+        self.status = "Prihvacena"
+
+    # manual
+    def finish(self):
+        self.status = "Zavrsena"
+
+    # TODO check if current date is past the end date for
+    #   every active reservation on startup?
 
 
 def compare(date1, sign, date2) -> bool:
@@ -109,4 +131,10 @@ def compare(date1, sign, date2) -> bool:
 
 if __name__ == "__main__":
     # tf = TimeFrame("2020-01-01", 366)
-    print(compare("2022-02-01", "<", "2022-02-02"))
+    # print(compare("2022-02-01", "<", "2022-02-02"))
+    res = Reservation("2022-02-04", 30, apartment_id="1", username="testuser")
+    print(res.user.role)
+    print(res.status)
+    print(res.end)
+    print(res.apartment.amenities)
+

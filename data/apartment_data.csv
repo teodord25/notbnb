@@ -1,101 +1,101 @@
-Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci,Status,Ameniti
-0,Ceo,4,8,"(31.255765, -97.911385)","Sussex Court 1417, Copperas Cove 76552",24/7,Elena Jovanović,41,yes,"['foo', 'bar']"
-1,Ceo,2,2,"(40.832218, -101.739662)","Romrog Way 4346, Grant 69140",24/7,Iva Lončar,29,yes,"['foo', 'bar']"
-2,Soba,1,1,"(42.319553, -71.012592)","Stadium Drive 4208, Cambridge 2141",24/7,Grgur Barišić,24,yes,"['foo', 'bar']"
-3,Soba,1,2,"(35.946079, -86.72983)","Buffalo Creek Road 2616, Antioch 37013",24/7,Maja Grubišić,24,no,"['foo', 'bar']"
-4,Soba,1,3,"(41.71741, -87.998992)","Thomas Street 2392, Burr Ridge 61257",24/7,Zdravka Rukavina,24,yes,"['foo', 'bar']"
-5,Ceo,3,9,"(47.900667, -122.251481)","Ryder Avenue 336, Everett 98203",24/7,Štefanija Miletić,35,yes,"['foo', 'bar']"
-6,Ceo,3,3,"(40.307994, -75.042294)","Quincy Street 2000, Warminster 18974",24/7,Mojmir Bačić,35,yes,"['foo', 'bar']"
-7,Ceo,2,6,"(42.443908, -83.190562)","Perry Street 4171, Southfield 48075",24/7,Vjekoslav Petrović,29,no,"['foo', 'bar']"
-8,Ceo,2,6,"(30.512035, -87.076124)","American Drive 1916, Pace 32571",24/7,Zdenko Vidović,29,yes,"['foo', 'bar']"
-9,Soba,1,3,"(39.909338, -96.654181)","Sigley Road 4667, Marysville 66508",24/7,Vinko Horvat,24,yes,"['foo', 'bar']"
-10,Soba,1,3,"(41.370003, -83.20072)","Olive Street 1531, Fremont 43420",24/7,Sanja Vuković,24,no,"['foo', 'bar']"
-11,Ceo,3,9,"(35.261138, -80.88441)","Swick Hill Street 2508, Charlotte 28202",24/7,Danica Jović,35,yes,"['foo', 'bar']"
-12,Soba,1,1,"(45.642622, -122.767162)","Terra Street 4064, Vancouver 98660",24/7,Ksenija Perić,24,no,"['foo', 'bar']"
-13,Soba,1,3,"(40.074852, -75.140042)","Callison Lane 3101, Philadelphia 19108",24/7,Blaženka Novosel,24,no,"['foo', 'bar']"
-14,Ceo,2,2,"(43.103306, -77.587986)","Walt Nuzum Farm Road 4486, Rochester 14604",24/7,Ozren Jovanović,29,yes,"['foo', 'bar']"
-15,Soba,1,2,"(32.312543, -80.818132)","Jerry Dove Drive 1993, Bluffton 29910",24/7,Anto Bačić,24,yes,"['foo', 'bar']"
-16,Soba,1,2,"(34.825981, -79.420975)","Ray Court 691, Laurinburg 28352",24/7,Držislav Hrvatin,24,no,"['foo', 'bar']"
-17,Ceo,2,6,"(40.644581, -73.543157)","Westwood Avenue 3572, Copperas Cove 11530",24/7,Elena Jovanović,29,no,"['foo', 'bar']"
-18,Soba,1,2,"(42.109022, -94.906497)","Woodland Drive 1757, Cambridge 51401",24/7,Grgur Barišić,24,no,"['foo', 'bar']"
-19,Soba,1,2,"(42.457555, -71.116178)","Tenmile Road 1540, Cambridge 2110",24/7,Grgur Barišić,24,no,"['foo', 'bar']"
-20,Ceo,3,6,"(49.010525, -122.687254)","Terra Street 4605, Antioch 98240",24/7,Maja Grubišić,35,yes,"['foo', 'bar']"
-21,Ceo,4,4,"(34.068251, -117.515291)","Middleville Road 2258, Warminster 91761",24/7,Mojmir Bačić,41,yes,"['foo', 'bar']"
-22,Soba,1,1,"(33.526965, -112.082641)","Parkway Drive 2026, Everett 85034",24/7,Štefanija Miletić,24,yes,"['foo', 'bar']"
-23,Soba,1,2,"(33.806438, -118.39258)","Meadowbrook Mall Road 2208, Antioch 90247",24/7,Maja Grubišić,24,yes,"['foo', 'bar']"
-24,Ceo,4,8,"(41.741067, -88.278069)","Steele Street 2252, Everett 60505",24/7,Štefanija Miletić,41,no,"['foo', 'bar']"
-25,Ceo,3,9,"(38.072778, -84.582601)","Counts Lane 3898, Everett 40507",24/7,Štefanija Miletić,35,yes,"['foo', 'bar']"
-26,Ceo,4,8,"(39.820727, -86.210217)","Barfield Lane 4868, Southfield 46225",24/7,Vjekoslav Petrović,41,no,"['foo', 'bar']"
-27,Soba,1,3,"(42.414044, -71.106677)","Rainy Day Drive 2621, Pace 2199",24/7,Zdenko Vidović,24,yes,"['foo', 'bar']"
-28,Soba,1,1,"(38.407695, -81.678047)","Augusta Park 3813, Pace 25064",24/7,Zdenko Vidović,24,no,"['foo', 'bar']"
-29,Soba,1,3,"(33.9642, -84.244056)","Hanifan Lane 3179, Rochester 30071",24/7,Ozren Jovanović,24,yes,"['foo', 'bar']"
-30,Soba,1,3,"(29.414696, -98.356841)","Farland Avenue 4359, Fremont 78218",24/7,Sanja Vuković,24,no,"['foo', 'bar']"
-31,Ceo,3,3,"(40.648697, -75.400612)","Franklee Lane 1014, Philadelphia 18109",24/7,Blaženka Novosel,35,no,"['foo', 'bar']"
-32,Ceo,2,4,"(35.263776, -80.791883)","Hannah Street 4497, Copperas Cove 28263",24/7,Elena Jovanović,29,yes,"['foo', 'bar']"
-33,Soba,1,1,"(39.728149, -77.548427)","Bobcat Drive 1576, Laurinburg 21783",24/7,Držislav Hrvatin,24,no,"['foo', 'bar']"
-34,Soba,1,3,"(41.730823, -72.891583)","Maxwell Street 2507, Burr Ridge 6062",24/7,Zdravka Rukavina,24,yes,"['foo', 'bar']"
-35,Soba,1,3,"(35.027801, -117.025511)","Parkway Street 3338, Everett 92311",24/7,Štefanija Miletić,24,yes,"['foo', 'bar']"
-36,Soba,1,3,"(33.819445, -84.384087)","Clement Street 1301, Cambridge 30303",24/7,Grgur Barišić,24,yes,"['foo', 'bar']"
-37,Soba,1,1,"(39.297114, -93.029409)","Blair Court 3707, Carroll 65349",24/7,Slavica Tomić,24,no,"['foo', 'bar']"
-38,Ceo,3,6,"(29.580546, -98.682844)","Fidler Drive 1073, Warminster 78255",24/7,Mojmir Bačić,35,no,"['foo', 'bar']"
-39,Ceo,2,4,"(38.886012, -81.787)","Walnut Hill Drive 4996, Southfield 45204",24/7,Vjekoslav Petrović,29,no,"['foo', 'bar']"
-40,Soba,1,2,"(35.439008, -99.064783)","Dovetail Estates 4869, Burr Ridge 73601",24/7,Zdravka Rukavina,24,yes,"['foo', 'bar']"
-41,Soba,1,2,"(27.696503, -97.532886)","Washington Street 455, Everett 78476",24/7,Štefanija Miletić,24,no,"['foo', 'bar']"
-42,Ceo,3,6,"(36.124179, -80.346861)","Jones Avenue 4849, Cambridge 27001",24/7,Grgur Barišić,35,yes,"['foo', 'bar']"
-43,Ceo,2,2,"(45.56739, -122.609498)","Renwick Drive 1204, Marysville 97205",24/7,Vinko Horvat,29,no,"['foo', 'bar']"
-44,Soba,1,2,"(40.236923, -80.207365)","Pine Street 103, Pace 15301",24/7,Zdenko Vidović,24,no,"['foo', 'bar']"
-45,Ceo,2,6,"(39.99568, -74.157202)","Pooz Street 560, Copperas Cove 8753",24/7,Elena Jovanović,29,no,"['foo', 'bar']"
-46,Soba,1,2,"(35.376011, -120.90142)","Leisure Lane 4288, Rochester 93401",24/7,Ozren Jovanović,24,yes,"['foo', 'bar']"
-47,Ceo,4,8,"(33.668058, -80.168152)","Still Pastures Drive 2942, Marysville 29102",24/7,Vinko Horvat,41,yes,"['foo', 'bar']"
-48,Soba,1,2,"(38.952916, -76.926523)","Perine Street 3045, Fremont 20705",24/7,Sanja Vuković,24,yes,"['foo', 'bar']"
-49,Ceo,2,6,"(27.846886, -82.585528)","Maryland Avenue 730, Grant 34622",24/7,Iva Lončar,29,no,"['foo', 'bar']"
-50,Ceo,4,8,"(34.345153, -85.779237)","Ritter Street 4816, Vancouver 35967",24/7,Ksenija Perić,41,no,"['foo', 'bar']"
-51,Soba,1,3,"(36.582765, -82.449342)","Raver Croft Drive 2884, Warminster 37617",24/7,Mojmir Bačić,24,yes,"['foo', 'bar']"
-52,Soba,1,1,"(38.101385, -84.441738)","Mayo Street 709, Laurinburg 40507",24/7,Držislav Hrvatin,24,yes,"['foo', 'bar']"
-53,Ceo,3,9,"(39.239714, -85.521513)","Heliport Loop 1614, Philadelphia 47240",24/7,Blaženka Novosel,35,no,"['foo', 'bar']"
-54,Ceo,4,8,"(34.013692, -83.699473)","Flint Street 1250, Laurinburg 30680",24/7,Držislav Hrvatin,41,yes,"['foo', 'bar']"
-55,Soba,1,1,"(33.945923, -118.115855)","Gordon Street 1380, Fremont 90670",24/7,Sanja Vuković,24,no,"['foo', 'bar']"
-56,Ceo,2,2,"(45.431983, -94.172277)","Red Hawk Road 1904, Carroll 56301",24/7,Slavica Tomić,29,no,"['foo', 'bar']"
-57,Soba,1,3,"(42.364052, -96.192965)","Woodland Drive 2743, Vancouver 51054",24/7,Ksenija Perić,24,no,"['foo', 'bar']"
-58,Soba,1,1,"(32.661513, -116.595632)","Ashcraft Court 3051, Philadelphia 92017",24/7,Blaženka Novosel,24,no,"['foo', 'bar']"
-59,Soba,1,3,"(46.619259, -120.561533)","Mudlick Road 4989, Rochester 98902",24/7,Ozren Jovanović,24,yes,"['foo', 'bar']"
-60,Soba,1,3,"(34.062263, -118.122562)","Rosemont Avenue 1225, Antioch 90031",24/7,Maja Grubišić,24,yes,"['foo', 'bar']"
-61,Soba,1,3,"(41.933234, -87.742858)","Cecil Street 4243, Southfield 60607",24/7,Vjekoslav Petrović,24,yes,"['foo', 'bar']"
-62,Soba,1,1,"(42.481892, -71.470356)","Pearlman Avenue 1555, Cambridge 1720",24/7,Grgur Barišić,24,yes,"['foo', 'bar']"
-63,Ceo,3,6,"(42.271343, -111.648948)","Modoc Alley 447, Antioch 83263",24/7,Maja Grubišić,35,yes,"['foo', 'bar']"
-64,Ceo,3,3,"(39.788808, -104.884317)","Clay Lick Road 826, Copperas Cove 80203",24/7,Elena Jovanović,35,no,"['foo', 'bar']"
-65,Soba,1,1,"(40.656774, -96.916204)","Poling Farm Road 1251, Grant 68333",24/7,Iva Lončar,24,no,"['foo', 'bar']"
-66,Soba,1,2,"(33.325265, -84.516777)","Lakeland Park Drive 4675, Marysville 30269",24/7,Vinko Horvat,24,yes,"['foo', 'bar']"
-67,Soba,1,3,"(38.348463, -122.813015)","Marietta Street 1206, Fremont 95401",24/7,Sanja Vuković,24,no,"['foo', 'bar']"
-68,Soba,1,1,"(28.783176, -100.411427)","Crestview Terrace 1094, Rochester 78852",24/7,Ozren Jovanović,24,yes,"['foo', 'bar']"
-69,Ceo,3,3,"(42.439714, -83.266317)","Perry Street 4302, Marysville 48219",24/7,Vinko Horvat,35,yes,"['foo', 'bar']"
-70,Ceo,4,8,"(42.485664, -83.262387)","Bartlett Avenue 2655, Laurinburg 48219",24/7,Držislav Hrvatin,41,no,"['foo', 'bar']"
-71,Soba,1,3,"(27.896301, -82.139306)","County Line Road 466, Antioch 33566",24/7,Maja Grubišić,24,no,"['foo', 'bar']"
-72,Soba,1,3,"(43.212631, -88.198986)","Oakridge Farm Lane 3657, Vancouver 53051",24/7,Ksenija Perić,24,yes,"['foo', 'bar']"
-73,Ceo,3,3,"(34.091874, -118.68934)","New York Avenue 2513, Philadelphia 91302",24/7,Blaženka Novosel,35,yes,"['foo', 'bar']"
-74,Soba,1,2,"(40.155594, -75.324042)","Argonne Street 2786, Cambridge 19403",24/7,Grgur Barišić,24,no,"['foo', 'bar']"
-75,Ceo,2,4,"(28.160338, -80.7486)","Rosemont Avenue 4356, Bluffton 32935",24/7,Anto Bačić,29,yes,"['foo', 'bar']"
-76,Soba,1,3,"(38.907325, -85.903214)","Lucy Lane 2878, Laurinburg 47274",24/7,Držislav Hrvatin,24,no,"['foo', 'bar']"
-77,Ceo,4,8,"(47.045293, -122.951571)","Pinnickinick Street 2948, Cambridge 98501",24/7,Grgur Barišić,41,yes,"['foo', 'bar']"
-78,Ceo,2,6,"(40.047073, -75.195483)","Franklee Lane 4907, Fremont 19034",24/7,Sanja Vuković,29,no,"['foo', 'bar']"
-79,Soba,1,2,"(30.499697, -91.105169)","Washburn Street 1182, Antioch 70802",24/7,Maja Grubišić,24,no,"['foo', 'bar']"
-80,Ceo,3,9,"(32.879656, -97.012212)","Oliver Street 2988, Copperas Cove 76051",24/7,Elena Jovanović,35,yes,"['foo', 'bar']"
-81,Soba,1,3,"(42.417044, -71.108512)","Lynn Street 2206, Marysville 2141",24/7,Vinko Horvat,24,yes,"['foo', 'bar']"
-82,Soba,1,3,"(36.701075, -97.858637)","Cody Ridge Road 3303, Cambridge 73766",24/7,Grgur Barišić,24,no,"['foo', 'bar']"
-83,Ceo,3,3,"(29.635453, -95.475874)","Wines Lane 2573, Bluffton 77030",24/7,Anto Bačić,35,no,"['foo', 'bar']"
-84,Ceo,4,8,"(36.614923, -121.719673)","Emily Renzelli Boulevard 2460, Burr Ridge 93901",24/7,Zdravka Rukavina,41,yes,"['foo', 'bar']"
-85,Soba,1,2,"(40.801402, -73.544065)","Redbud Drive 2577, Fremont 11530",24/7,Sanja Vuković,24,no,"['foo', 'bar']"
-86,Soba,1,1,"(37.258376, -93.223865)","Twin House Lane 2149, Grant 65806",24/7,Iva Lončar,24,yes,"['foo', 'bar']"
-87,Ceo,2,6,"(45.574004, -122.724419)","Seneca Drive 1891, Cambridge 97205",24/7,Grgur Barišić,29,yes,"['foo', 'bar']"
-88,Soba,1,1,"(37.149855, -93.312669)","Chandler Drive 1954, Philadelphia 65806",24/7,Blaženka Novosel,24,no,"['foo', 'bar']"
-89,Soba,1,1,"(40.37574, -76.823577)","Simpson Avenue 221, Rochester 17111",24/7,Ozren Jovanović,24,no,"['foo', 'bar']"
-90,Ceo,3,9,"(27.992735, -82.735754)","Badger Pond Lane 1854, Copperas Cove 34623",24/7,Elena Jovanović,35,yes,"['foo', 'bar']"
-91,Soba,1,1,"(32.353855, -90.117125)","Devils Hill Road 358, Grant 39211",24/7,Iva Lončar,24,yes,"['foo', 'bar']"
-92,Ceo,2,6,"(45.792687, -90.481729)","Orphan Road 2273, Vancouver 54739",24/7,Ksenija Perić,29,no,"['foo', 'bar']"
-93,Ceo,2,4,"(42.36088, -83.185694)","Prudence Street 2740, Antioch 48221",24/7,Maja Grubišić,29,yes,"['foo', 'bar']"
-94,Ceo,4,8,"(40.605431, -86.265096)","Capitol Avenue 4912, Marysville 46901",24/7,Vinko Horvat,41,no,"['foo', 'bar']"
-95,Ceo,4,4,"(40.598219, -79.871455)","Stuart Street 1196, Copperas Cove 15044",24/7,Elena Jovanović,41,yes,"['foo', 'bar']"
-96,Soba,1,2,"(41.5742, -91.920189)","Pyramid Valley Road 1315, Charlotte 52356",24/7,Danica Jović,24,yes,"['foo', 'bar']"
-97,Ceo,2,4,"(40.743169, -74.572631)","Hedge Street 3222, Vancouver 7924",24/7,Ksenija Perić,29,no,"['foo', 'bar']"
-98,Ceo,3,6,"(38.243032, -85.488622)","Gregory Lane 2322, Pace 40299",24/7,Zdenko Vidović,35,no,"['foo', 'bar']"
-99,Soba,1,3,"(33.522047, -84.108811)","Elk Creek Road 1539, Antioch 30281",24/7,Maja Grubišić,24,yes,"['foo', 'bar']"
+Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci (eur),Status,Ameniti
+0,Soba,1,2,(31.255765 | -97.911385),Sussex Court 1417 | Copperas Cove 76552,24/7,Elena Jovanović,22,neaktivan,ne
+1,Soba,1,1,(40.832218 | -101.739662),Romrog Way 4346 | Grant 69140,24/7,Iva Lončar,24,aktivan,da
+2,Ceo,4,4,(42.319553 | -71.012592),Stadium Drive 4208 | Cambridge 02141,24/7,Grgur Barišić,43,aktivan,da
+3,Ceo,4,12,(35.946079 | -86.72983),Buffalo Creek Road 2616 | Antioch 37013,24/7,Maja Grubišić,37,aktivan,ne
+4,Soba,1,3,(41.71741 | -87.998992),Thomas Street 2392 | Burr Ridge 61257,24/7,Zdravka Rukavina,24,aktivan,da
+5,Ceo,2,2,(47.900667 | -122.251481),Ryder Avenue 336 | Everett 98203,24/7,Štefanija Miletić,32,neaktivan,da
+6,Ceo,3,9,(40.307994 | -75.042294),Quincy Street 2000 | Warminster 18974,24/7,Mojmir Bačić,31,neaktivan,ne
+7,Ceo,2,6,(42.443908 | -83.190562),Perry Street 4171 | Southfield 48075,24/7,Vjekoslav Petrović,26,neaktivan,ne
+8,Soba,1,2,(30.512035 | -87.076124),American Drive 1916 | Pace 32571,24/7,Zdenko Vidović,28,neaktivan,da
+9,Ceo,3,6,(39.909338 | -96.654181),Sigley Road 4667 | Marysville 66508,24/7,Vinko Horvat,37,neaktivan,da
+10,Ceo,4,12,(41.370003 | -83.20072),Olive Street 1531 | Fremont 43420,24/7,Sanja Vuković,39,neaktivan,da
+11,Ceo,4,8,(35.261138 | -80.88441),Swick Hill Street 2508 | Charlotte 28202,24/7,Danica Jović,41,aktivan,da
+12,Ceo,2,2,(45.642622 | -122.767162),Terra Street 4064 | Vancouver 98660,24/7,Ksenija Perić,26,neaktivan,ne
+13,Soba,1,3,(40.074852 | -75.140042),Callison Lane 3101 | Philadelphia 19108,24/7,Blaženka Novosel,26,aktivan,da
+14,Soba,1,1,(43.103306 | -77.587986),Walt Nuzum Farm Road 4486 | Rochester 14604,24/7,Ozren Jovanović,22,neaktivan,ne
+15,Ceo,3,3,(32.312543 | -80.818132),Jerry Dove Drive 1993 | Copperas Cove 29910,24/7,Elena Jovanović,37,neaktivan,da
+16,Soba,1,1,(34.825981 | -79.420975),Ray Court 691 | Laurinburg 28352,24/7,Držislav Hrvatin,28,aktivan,da
+17,Soba,1,1,(40.644581 | -73.543157),Westwood Avenue 3572 | Cambridge 11530,24/7,Grgur Barišić,30,neaktivan,da
+18,Soba,1,1,(42.109022 | -94.906497),Woodland Drive 1757 | Carroll 51401,24/7,Slavica Tomić,28,aktivan,da
+19,Ceo,2,4,(42.457555 | -71.116178),Tenmile Road 1540 | Copperas Cove 02110,24/7,Elena Jovanović,30,neaktivan,da
+20,Soba,1,2,(49.010525 | -122.687254),Terra Street 4605 | Copperas Cove 98240,24/7,Elena Jovanović,24,neaktivan,da
+21,Soba,1,2,(34.068251 | -117.515291),Middleville Road 2258 | Warminster 91761,24/7,Mojmir Bačić,30,aktivan,da
+22,Soba,1,3,(33.526965 | -112.082641),Parkway Drive 2026 | Burr Ridge 85034,24/7,Zdravka Rukavina,24,aktivan,da
+23,Ceo,2,4,(33.806438 | -118.39258),Meadowbrook Mall Road 2208 | Antioch 90247,24/7,Maja Grubišić,30,aktivan,da
+24,Ceo,2,6,(41.741067 | -88.278069),Steele Street 2252 | Burr Ridge 60505,24/7,Zdravka Rukavina,26,neaktivan,ne
+25,Soba,1,2,(38.072778 | -84.582601),Counts Lane 3898 | Fremont 40507,24/7,Sanja Vuković,22,neaktivan,ne
+26,Soba,1,2,(39.820727 | -86.210217),Barfield Lane 4868 | Marysville 46225,24/7,Vinko Horvat,32,aktivan,da
+27,Ceo,4,4,(42.414044 | -71.106677),Rainy Day Drive 2621 | Marysville 02199,24/7,Vinko Horvat,41,neaktivan,da
+28,Ceo,2,2,(38.407695 | -81.678047),Augusta Park 3813 | Philadelphia 25064,24/7,Blaženka Novosel,26,neaktivan,ne
+29,Ceo,2,2,(33.9642 | -84.244056),Hanifan Lane 3179 | Marysville 30071,24/7,Vinko Horvat,28,aktivan,da
+30,Soba,1,1,(29.414696 | -98.356841),Farland Avenue 4359 | Fremont 78218,24/7,Sanja Vuković,24,neaktivan,da
+31,Ceo,2,2,(40.648697 | -75.400612),Franklee Lane 1014 | Grant 18109,24/7,Iva Lončar,30,neaktivan,da
+32,Ceo,3,9,(35.263776 | -80.791883),Hannah Street 4497 | Rochester 28263,24/7,Ozren Jovanović,39,neaktivan,da
+33,Ceo,4,4,(39.728149 | -77.548427),Bobcat Drive 1576 | Grant 21783,24/7,Iva Lončar,45,neaktivan,da
+34,Soba,1,3,(41.730823 | -72.891583),Maxwell Street 2507 | Burr Ridge 06062,24/7,Zdravka Rukavina,24,neaktivan,da
+35,Ceo,4,4,(35.027801 | -117.025511),Parkway Street 3338 | Garden City 92311,24/7,Klara Pranjić,39,aktivan,da
+36,Soba,1,1,(33.819445 | -84.384087),Clement Street 1301 | Laurinburg 30303,24/7,Držislav Hrvatin,30,neaktivan,da
+37,Soba,1,1,(39.297114 | -93.029409),Blair Court 3707 | Carroll 65349,24/7,Slavica Tomić,32,neaktivan,da
+38,Soba,1,3,(29.580546 | -98.682844),Fidler Drive 1073 | Copperas Cove 78255,24/7,Elena Jovanović,22,aktivan,ne
+39,Soba,1,2,(38.886012 | -81.787),Walnut Hill Drive 4996 | Everett 45204,24/7,Štefanija Miletić,32,neaktivan,da
+40,Soba,1,3,(35.439008 | -99.064783),Dovetail Estates 4869 | Warminster 73601,24/7,Mojmir Bačić,28,aktivan,da
+41,Soba,1,1,(27.696503 | -97.532886),Washington Street 455 | Southfield 78476,24/7,Vjekoslav Petrović,22,neaktivan,ne
+42,Ceo,2,6,(36.124179 | -80.346861),Jones Avenue 4849 | Cambridge 27001,24/7,Grgur Barišić,28,aktivan,da
+43,Ceo,2,2,(45.56739 | -122.609498),Renwick Drive 1204 | Antioch 97205,24/7,Maja Grubišić,32,neaktivan,da
+44,Ceo,4,8,(40.236923 | -80.207365),Pine Street 103 | Pace 15301,24/7,Zdenko Vidović,41,aktivan,da
+45,Ceo,2,2,(39.99568 | -74.157202),Pooz Street 560 | Philadelphia 08753,24/7,Blaženka Novosel,36,aktivan,da
+46,Soba,1,1,(35.376011 | -120.90142),Leisure Lane 4288 | Grant 93401,24/7,Iva Lončar,30,aktivan,da
+47,Soba,1,1,(33.668058 | -80.168152),Still Pastures Drive 2942 | Cambridge 29102,24/7,Grgur Barišić,30,neaktivan,da
+48,Ceo,2,2,(38.952916 | -76.926523),Perine Street 3045 | Vancouver 20705,24/7,Ksenija Perić,36,aktivan,da
+49,Ceo,4,12,(27.846886 | -82.585528),Maryland Avenue 730 | Grant 34622,24/7,Iva Lončar,43,neaktivan,da
+50,Soba,1,3,(34.345153 | -85.779237),Ritter Street 4816 | Cambridge 35967,24/7,Grgur Barišić,30,aktivan,da
+51,Ceo,4,4,(36.582765 | -82.449342),Raver Croft Drive 2884 | Antioch 37617,24/7,Maja Grubišić,41,aktivan,da
+52,Ceo,4,8,(38.101385 | -84.441738),Mayo Street 709 | Grant 40507,24/7,Iva Lončar,37,neaktivan,ne
+53,Ceo,3,3,(39.239714 | -85.521513),Heliport Loop 1614 | Bluffton 47240,24/7,Anto Bačić,33,aktivan,da
+54,Ceo,4,4,(34.013692 | -83.699473),Flint Street 1250 | Rochester 30680,24/7,Ozren Jovanović,39,aktivan,da
+55,Ceo,3,9,(33.945923 | -118.115855),Gordon Street 1380 | Bluffton 90670,24/7,Anto Bačić,31,neaktivan,ne
+56,Soba,1,2,(45.431983 | -94.172277),Red Hawk Road 1904 | Laurinburg 56301,24/7,Držislav Hrvatin,26,aktivan,da
+57,Ceo,4,12,(42.364052 | -96.192965),Woodland Drive 2743 | Warminster 51054,24/7,Mojmir Bačić,47,aktivan,da
+58,Ceo,3,3,(32.661513 | -116.595632),Ashcraft Court 3051 | Fremont 92017,24/7,Sanja Vuković,39,aktivan,da
+59,Soba,1,2,(46.619259 | -120.561533),Mudlick Road 4989 | Charlotte 98902,24/7,Danica Jović,30,neaktivan,da
+60,Ceo,3,9,(34.062263 | -118.122562),Rosemont Avenue 1225 | Copperas Cove 90031,24/7,Elena Jovanović,31,aktivan,ne
+61,Ceo,2,2,(41.933234 | -87.742858),Cecil Street 4243 | Grant 60607,24/7,Iva Lončar,34,neaktivan,da
+62,Ceo,4,12,(42.481892 | -71.470356),Pearlman Avenue 1555 | Cambridge 01720,24/7,Grgur Barišić,43,aktivan,da
+63,Soba,1,1,(42.271343 | -111.648948),Modoc Alley 447 | Antioch 83263,24/7,Maja Grubišić,22,neaktivan,ne
+64,Ceo,3,9,(39.788808 | -104.884317),Clay Lick Road 826 | Fremont 80203,24/7,Sanja Vuković,33,aktivan,da
+65,Ceo,4,8,(40.656774 | -96.916204),Poling Farm Road 1251 | Everett 68333,24/7,Štefanija Miletić,43,aktivan,da
+66,Ceo,3,3,(33.325265 | -84.516777),Lakeland Park Drive 4675 | Cambridge 30269,24/7,Grgur Barišić,39,aktivan,da
+67,Ceo,3,9,(38.348463 | -122.813015),Marietta Street 1206 | Fremont 95401,24/7,Sanja Vuković,35,aktivan,da
+68,Soba,1,1,(28.783176 | -100.411427),Crestview Terrace 1094 | Charlotte 78852,24/7,Danica Jović,30,neaktivan,da
+69,Ceo,3,9,(42.439714 | -83.266317),Perry Street 4302 | Grant 48219,24/7,Iva Lončar,33,aktivan,da
+70,Ceo,2,4,(42.485664 | -83.262387),Bartlett Avenue 2655 | Cambridge 48219,24/7,Grgur Barišić,32,aktivan,da
+71,Ceo,2,4,(27.896301 | -82.139306),County Line Road 466 | Southfield 33566,24/7,Vjekoslav Petrović,28,neaktivan,da
+72,Ceo,2,2,(43.212631 | -88.198986),Oakridge Farm Lane 3657 | Burr Ridge 53051,24/7,Zdravka Rukavina,34,aktivan,da
+73,Soba,1,2,(34.091874 | -118.68934),New York Avenue 2513 | Grant 91302,24/7,Iva Lončar,28,neaktivan,da
+74,Soba,1,2,(40.155594 | -75.324042),Argonne Street 2786 | Rochester 19403,24/7,Ozren Jovanović,24,neaktivan,da
+75,Ceo,4,4,(28.160338 | -80.7486),Rosemont Avenue 4356 | Charlotte 32935,24/7,Danica Jović,39,neaktivan,da
+76,Ceo,2,2,(38.907325 | -85.903214),Lucy Lane 2878 | Pace 47274,24/7,Zdenko Vidović,28,aktivan,da
+77,Ceo,2,6,(47.045293 | -122.951571),Pinnickinick Street 2948 | Cambridge 98501,24/7,Grgur Barišić,32,neaktivan,da
+78,Soba,1,1,(40.047073 | -75.195483),Franklee Lane 4907 | Warminster 19034,24/7,Mojmir Bačić,26,neaktivan,da
+79,Soba,1,3,(30.499697 | -91.105169),Washburn Street 1182 | Antioch 70802,24/7,Maja Grubišić,28,neaktivan,da
+80,Soba,1,2,(32.879656 | -97.012212),Oliver Street 2988 | Burr Ridge 76051,24/7,Zdravka Rukavina,22,aktivan,ne
+81,Soba,1,3,(42.417044 | -71.108512),Lynn Street 2206 | Grant 02141,24/7,Iva Lončar,30,neaktivan,da
+82,Ceo,4,8,(36.701075 | -97.858637),Cody Ridge Road 3303 | Fremont 73766,24/7,Sanja Vuković,47,aktivan,da
+83,Ceo,3,3,(29.635453 | -95.475874),Wines Lane 2573 | Antioch 77030,24/7,Maja Grubišić,41,neaktivan,da
+84,Ceo,3,6,(36.614923 | -121.719673),Emily Renzelli Boulevard 2460 | Burr Ridge 93901,24/7,Zdravka Rukavina,37,neaktivan,da
+85,Soba,1,1,(40.801402 | -73.544065),Redbud Drive 2577 | Marysville 11530,24/7,Vinko Horvat,26,aktivan,da
+86,Soba,1,2,(37.258376 | -93.223865),Twin House Lane 2149 | Fremont 65806,24/7,Sanja Vuković,32,aktivan,da
+87,Soba,1,3,(45.574004 | -122.724419),Seneca Drive 1891 | Vancouver 97205,24/7,Ksenija Perić,28,neaktivan,da
+88,Soba,1,2,(37.149855 | -93.312669),Chandler Drive 1954 | Philadelphia 65806,24/7,Blaženka Novosel,26,neaktivan,da
+89,Ceo,3,9,(40.37574 | -76.823577),Simpson Avenue 221 | Marysville 17111,24/7,Vinko Horvat,39,neaktivan,da
+90,Soba,1,2,(27.992735 | -82.735754),Badger Pond Lane 1854 | Copperas Cove 34623,24/7,Elena Jovanović,24,aktivan,da
+91,Ceo,3,6,(32.353855 | -90.117125),Devils Hill Road 358 | Warminster 39211,24/7,Mojmir Bačić,41,aktivan,da
+92,Soba,1,3,(45.792687 | -90.481729),Orphan Road 2273 | Cambridge 54739,24/7,Grgur Barišić,28,aktivan,da
+93,Soba,1,3,(42.36088 | -83.185694),Prudence Street 2740 | Antioch 48221,24/7,Maja Grubišić,22,aktivan,ne
+94,Ceo,3,9,(40.605431 | -86.265096),Capitol Avenue 4912 | Rochester 46901,24/7,Ozren Jovanović,41,neaktivan,da
+95,Ceo,2,2,(40.598219 | -79.871455),Stuart Street 1196 | Copperas Cove 15044,24/7,Elena Jovanović,28,aktivan,da
+96,Ceo,3,9,(41.5742 | -91.920189),Pyramid Valley Road 1315 | Charlotte 52356,24/7,Danica Jović,33,aktivan,da
+97,Ceo,2,6,(40.743169 | -74.572631),Hedge Street 3222 | Vancouver 07924,24/7,Ksenija Perić,36,aktivan,da
+98,Soba,1,1,(38.243032 | -85.488622),Gregory Lane 2322 | Carroll 40299,24/7,Slavica Tomić,32,neaktivan,da
+99,Soba,1,1,(33.522047 | -84.108811),Elk Creek Road 1539 | Antioch 30281,24/7,Maja Grubišić,26,aktivan,da
