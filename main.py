@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QHeaderView
 from PyQt5.QtWidgets import QTableView
 from PyQt5.QtWidgets import QMenuBar
+from PyQt5.QtWidgets import QCheckBox
 from PyQt5 import QtCore
 
 from functools import partial
@@ -24,12 +25,147 @@ import sys
 import json
 import registration
 import login
+import convert
+import time_test
+
+
+# date = start.split("-")
+# self.year = date[0]
+# self.month = date[1]
+# self.day = date[2]
+
+
+# format 2022-06-09
+# MAX DAYS TO BOOK 30
+# no need to check validity of date as it is picked from a drop-down menu
+# class TimeFrame:
+#     def __init__(self, start:str, duration:int, end=""):
+#         self.start = start
+#         self.duration = duration
+#         self.end = end
+#
+#         self.year, self.month, self.day = start.split("-")
+#
+#         if self.end == "":
+#             self.compute_end()
+#
+#     def leap_check(self, year=None):
+#         leap_year = False
+#
+#         year = int(self.year) if year is None else year
+#
+#         if year % 4 == 0:
+#             leap_year = True
+#
+#             if year % 100 == 0:
+#                 if year % 400 == 0:
+#                     leap_year = True
+#                 else:
+#                     leap_year = False
+#
+#         return leap_year
+#
+#     def compute_end(self, start="", duration=0):
+#         if not duration:
+#             duration = self.duration
+#
+#         if start:
+#             start_year, start_month, start_day = [int(i) for i in start.split("-")]
+#         else:
+#             start_year = self.year
+#             start_month = self.month
+#             start_day = self.day
+#
+#         leap = self.leap_check(start_year)
+#
+#         lookup = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+#
+#         lookup[1] += leap
+#
+#         if start_day + duration <= lookup[start_month - 1]:
+#             end_month = start_month
+#             end_day = start_day + duration
+#             return f"{start_year}-{end_month}-{end_day}"
+#
+#         remaining = lookup[start_month - 1] - start_day
+#         duration -= remaining
+#
+#         curr_month = start_month + 1
+#         while duration > lookup[curr_month - 1]:
+#             duration -= lookup[curr_month]
+#
+#         end_month = curr_month
+#         end_day = duration
+#
+#         print(f"{start_year}-{end_month}-{end_day}")
+#
+#         #
+#         # if start_month <= 7:
+#         #     days = 30 + (start_month % 2)
+#         # else:
+#         #     days = 31 - (start_month % 2)
+#         #
+#         # end_day = (start_day + length) % days
+
+def filter_df(dataframe, query, x):
+
+    df = dataframe
+    qr = query
+
+    try:
+        qr = int(qr)
+        return df[df[x] == qr]
+
+    except ValueError:
+        print("not int... doing comparison filter")
+
+    try:
+        qr = qr.replace(" ", "")
+        for ch in qr:
+            if ch not in "<>0123456789x":
+                print("invalid input, illegal char")
+                return df
+
+        i = qr.index("x")
+
+        if qr[i-1:i] == qr[i+1:i+2]:
+            qr1 = qr[i:]
+            qr1 = qr1.replace("x", f'df["{x}"]')
+            qr1 = f"df[{qr1}]"
+
+            df = eval(qr1)
+
+            qr2 = qr[:i+1]
+            qr2 = qr2.replace("x", f'df["{x}"]')
+            qr2 = f"df[{qr2}]"
+
+            df = eval(qr2)
+
+        else:
+            qr = qr.replace("x", f'df["{x}"]')
+            qr = f"df[{qr}]"
+            df = eval(qr)
+
+        return df
+
+    except ValueError:
+        print("value error")
+        print("invalid input")
+
+    except TypeError:
+        print("type error")
+        print("invalid input")
 
 
 class User:
     def __init__(self, username="Neregistrovan Korisnik", role="Neregistrovan"):
-        self.username = username
-        self.role = role
+        if username == "Neregistrovan Korisnik":
+            self.username = username
+
+        if role == "Neregistrovan":
+            self.role = role
+
+        user_details = convert.to_df("data/user_data.csv").loc[[""]]
 
     def log_out(self):
         self.username = "Neregistrovan Korisnik"
@@ -85,11 +221,10 @@ class ProjekatWindow(QMainWindow):
 
         # fixed size forces bspwm to make the window floating
         # but it's still resizable (???)
-        self.setFixedSize(800, 600)
+        self.setFixedSize(1280, 720)
 
         self.currentUser = User()
-        self.currentDF = pd.read_csv("data/user_data.csv")
-        # TODO remove all "delimiter=','"
+        self.currentDF = convert.to_df("data/apartment_data.csv", use_cols=[0, 1, 2, 3, 5, 6, 8])
 
         self._clearScreen()
         self._createMenu()
@@ -103,13 +238,11 @@ class ProjekatWindow(QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generalLayout)
 
-        # self._createTopRow()
+        self._createMenu()
 
-    def _createMenu(self):                 # "&Korisnik" (?)
-        # self.menu = self.menuBar().addMenu("Korisnik")
+    def _createMenu(self):
         menu = QMenuBar()
         self.setMenuBar(menu)
-        # self.menuBar is provided by default
 
         userMenu = menu.addMenu("&Korisnik")
         apartmentMenu = menu.addMenu("&Apartmani")
@@ -118,14 +251,14 @@ class ProjekatWindow(QMainWindow):
         userMenu.addAction('Registruj se', self._createRegisterScreen)
         userMenu.addAction('Odjavi se', self.logOut)
 
-        apartmentMenu.addAction('Pretraga i pregled', self.tableTest)
-        apartmentMenu.addAction('Rezervacija', self.tableTest)
-
-        if self.currentUser.role == "Domacin":
-            apartmentMenu.addAction('Registracija', self.tableTest)
-
-        # self.menu.addAction('Registracija', self.tableTest)
-        # self.menu.addAction('Table', self.tableTest)
+        apartmentMenu.addAction(
+            'Pretraga apartmana', self._createTable
+        )
+        apartmentMenu.addAction('Pregled i rezervacija apartmana', self._createTable)
+        # apartmentMenu.addAction('Rezervacija', self.apartmentReservation)
+        #
+        # if self.currentUser.role == "Domacin":
+        #     apartmentMenu.addAction('Registracija', self.apartmentRegistration)
 
     def _submitRegistration(self):
         if not (self.registerUsername.text() and
@@ -140,7 +273,6 @@ class ProjekatWindow(QMainWindow):
 
             print("field left empty")
             err = color_msg("Morate popuniti sva polja.", "Tomato")
-            # err = '<h3 style="background-color:Tomato;">Morate popuniti sva polja.</h3>'
 
             self._formMessage(msg=err)
             return
@@ -148,7 +280,6 @@ class ProjekatWindow(QMainWindow):
         if len(self.registerPassword.text()) < 8:
             print("password too short")
             err = color_msg("Lozinka mora sadrzati najmanje 8 karaktera.", "Tomato")
-            # err = '<h3 style="background-color:Tomato;">Lozinka mora biti sadrzati najmanje 8 karaktera.</h3>'
 
             self._formMessage(msg=err)
             return
@@ -156,7 +287,6 @@ class ProjekatWindow(QMainWindow):
         if self.registerPassword.text() != self.confirmPassword.text():
             print("passwords do not match")
             err = color_msg("Lozinke se ne podudaraju", "Tomato")
-            # err = '<h3 style="background-color:Tomato;">Lozinke se ne podudaraju.</h3>'
 
             self._formMessage(msg=err)
             return
@@ -183,9 +313,6 @@ class ProjekatWindow(QMainWindow):
             f"Uspesno ste se registrovali. {self.registerUsername.text()}", "Lime"
             )
 
-        # success = f'<h3 style="background-color:Lime;">' \
-        #           f'Uspesno ste se registrovali {self.registerUsername.text()}</h3>'
-
         self._formMessage(msg=success)
         return
 
@@ -207,7 +334,6 @@ class ProjekatWindow(QMainWindow):
             if role == "Error":
                 print("no such user in data/user_data.csv")
                 err = color_msg("Korisnik ne postoji u bazi podataka.", "Tomato")
-                # err = '<h3 style="background-color:Tomato;">Korisnik ne postoji u bazi podataka</h3>'
 
                 self._formMessage(err)
                 return
@@ -217,14 +343,14 @@ class ProjekatWindow(QMainWindow):
 
             print("login successful")
 
-            success = f'<h3 style="background-color:Lime;">Dobrodosao/la {username}</h3>'
+            succ = color_msg(f"Dobrodosao/la {username}", "Lime")
 
-            self._formMessage(msg=success)
+            self._formMessage(msg=succ)
             self._createMenu()
             return
 
         print("login failed")
-        err = '<h3 style="background-color:Tomato;">Pogresno korisnicko ime ili lozinka.</h3>'
+        err = color_msg("Pogresno korisnicko ime ili lozinka.", "Tomato")
 
         self._formMessage(msg=err)
         return
@@ -234,29 +360,71 @@ class ProjekatWindow(QMainWindow):
         self.formMsg.setText(msg)
         self.formMsg.show()
 
-    def _submitSearch(self):
-        df = pd.read_csv("data/user_data.csv")
-        df = df[df["Korisnicko ime"].str.contains(self.searchLocation.text())]
-        df = df[df["Kontakt telefon"].str.contains(self.searchPrice.text())]
+    def _submitSearch(self, mode="search", aprt_id=0):
+        # if mode == "review":
+        #     df = pd.read_csv("data/apartment_data.csv").iloc[[aprt_id]]
+        #     amenity_df = pd.read_csv("data/amenities.csv").iloc[[aprt_id]]
+        # elif mode == "search":
+        df_base = convert.to_df("data/apartment_data.csv")
+        df = df_base.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
+                         "Adresa", "Dostupnost", "Cena po noci (eur)"]]
+
+        # TODO 10 most pop na osnovu broja izdatih apartmana u tom gradu
+        # u poslednjih godinu dana
+
+        # TODO case insensitive search
+        # current is sensitive
+        df = df[df["Adresa"].str.contains(self.searchLocation.text())]
+
+        rooms = self.searchRooms.text()
+        if rooms:
+            df = filter_df(df, query=rooms, x="Broj soba")
+
+        persons = self.searchPersons.text()
+        if persons:
+            df = filter_df(df, query=persons, x="Broj gostiju")
+
+        price = self.searchPrice.text()
+        if price:
+            df = filter_df(df, query=price, x="Cena po noci (eur)")
+
+        if self.showActive.isChecked():
+            df = df_base[df_base["Status"] == "aktivan"]
+            df = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
+                            "Adresa", "Dostupnost", "Cena po noci (eur)"]]
+            # [:, [cols]]
+            # : -> all rows
+            # [cols] -> only "cols" columns
 
         self.currentDF = df
-        self.tableTest()
-        # TODO be able to explain why df[df[]] works
+        self._createTable()
 
-        print("msgg")
+        # I'm not sure how df[df[]] works
+
+    def _createReview(self):
+        reviewLayout = QVBoxLayout
+
+        self._clearScreen()
+
+        self.generalLayout.addLayout(reviewLayout)
 
     def _createTopRow(self):
         topLayout = QGridLayout()
+        textLayout = QGridLayout()
 
         self.searchLocation = QLineEdit()
         self.searchAvailability = QLineEdit()
         self.searchRooms = QLineEdit()
         self.searchPersons = QLineEdit()
         self.searchPrice = QLineEdit()
+        self.popularCities = QCheckBox()
+        self.showActive = QCheckBox()
 
         # TODO fix shishana latinica
         self.searchButton = QPushButton("Pretrazi")
-        self.searchButton.clicked.connect(self._submitSearch)
+        self.searchButton.clicked.connect(
+            partial(self._submitSearch, mode="search", aprt_id=20)
+        )
 
         topLayout.addWidget(QLabel(f"<h4>Vi ste: {self.currentUser.username}</h4>"), 0, 0)
         topLayout.addWidget(QLabel(f"<h4>Uloga: {self.currentUser.role}</h4>"), 1, 0)
@@ -270,10 +438,18 @@ class ProjekatWindow(QMainWindow):
         topLayout.addWidget(self.searchRooms, 1, 4)
         topLayout.addWidget(QLabel("Broj osoba"), 1, 5)
         topLayout.addWidget(self.searchPersons, 1, 6)
-        topLayout.addWidget(QLabel("Cena"), 1, 7)
+        topLayout.addWidget(QLabel("Cena po noci"), 1, 7)
         topLayout.addWidget(self.searchPrice, 1, 8)
         topLayout.addWidget(self.searchButton, 0, 9, 2, 1)
+        topLayout.addWidget(QLabel("Prikazi 10 najpopularnijih gradova"), 2, 1)
+        topLayout.addWidget(self.popularCities, 2, 2)
+        topLayout.addWidget(QLabel("Prikazi samo aktivne apartmane"), 3, 1)
+        topLayout.addWidget(self.showActive, 3, 2)
+        textLayout.addWidget(QLabel("Primeri koriscenja pretrage:"))
+        textLayout.addWidget(QLabel("Vrednost manja od: x < 3 je isto sto i 3 > x, isto vazi i za vece."))
+        textLayout.addWidget(QLabel("Vrednost izmedju: 2 < x < 5, ili samo unesite tacnu vrednost koju trazite."))
 
+        topLayout.addLayout(textLayout, 3, 3, 1, 6)
         self.generalLayout.addLayout(topLayout, 1)
 
     def _createRegisterScreen(self):
@@ -320,7 +496,6 @@ class ProjekatWindow(QMainWindow):
 
         self.formMsg = QLabel("")
         registerLayout.addWidget(self.formMsg)
-        # self.formMsg.hide()
 
         self.generalLayout.addLayout(registerLayout, 9)
 
@@ -352,62 +527,55 @@ class ProjekatWindow(QMainWindow):
 
         self.formMsg = QLabel("")
         loginLayout.addWidget(self.formMsg, 1)
-        # self.formMsg.hide()
 
         self.generalLayout.addLayout(loginLayout, 9)
 
-    def tableTest(self): #, dataframe=pd.read_csv("data/user_data.csv", delimiter=',')):
-        tableLayout = QVBoxLayout()
+    def _createTable(self):
+        tableLayout = QHBoxLayout()
 
         self._clearScreen()
         self._createTopRow()
 
         df = self.currentDF
-        # df = pd.read_csv("data/user_data.csv", delimiter=',')
 
-        self.model = testTableModel(df)
+        self.model = tableModel(df)
         self.table = QTableView()
         self.table.setModel(self.model)
 
-        # TODO .clearScreen might be redundant
-        # TODO instance attribute defined outside __init__
-
         # set the top row to fit the data
         header = self.table.horizontalHeader()
-        [header.setSectionResizeMode(i, QHeaderView.ResizeToContents) for i in range(df.shape[1] - 1)]
         header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
+        for i in range(df.shape[1] - 1):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
 
-        tableLayout.addWidget(self.table)
+        tableLayout.addWidget(self.table, 2)
+        tableLayout.addWidget(QPushButton("AYO"), 1)
+
         self.generalLayout.addLayout(tableLayout)
-        # so apparently _clearScreen is redundant
-        # self.setCentralWidget(self.table)
 
     def logOut(self):
-        self._clearScreen()
-        # self._createLoginScreen()
-
         if self.currentUser.role == "Neregistrovan":
             self.setCentralWidget(QLabel(color_msg("Niste prijavljeni", "OrangeRed", 1)))
             return
 
         self.currentUser.log_out()
+        self._clearScreen()
         self.setCentralWidget(QLabel(color_msg("Odjavili ste se", "OrangeRed", 1)))
         return
 
-# TODO explicit return or just let be
 
-# Sooo, I need to make a custom table model (whatever that is?)
-
-# OK that was a little too easy
+# So, I need to make a custom table model (whatever that is?)
 
 # so, every item has a "role",
 # e.g. items with the DisplayRole role are to be displayed as text
 #  https://doc.qt.io/archives/qt-4.8/qt.html#ItemDataRole-enum 
 #
 
-class testTableModel(QtCore.QAbstractTableModel):
+# pycharm complains that I'm overriding methods,
+# but according to the internet this is what I'm supposed to do
+class tableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
-        super(testTableModel, self).__init__()
+        super(tableModel, self).__init__()
         self._data = data
 
     def rowCount(self, parent=None):
@@ -432,10 +600,7 @@ class testTableModel(QtCore.QAbstractTableModel):
                 return str(self._data.index[section])
 
 
-class user:
-    pass
-
-
+# returns a html heading of the desired color and size
 def color_msg(msg, color, size=3):
     colored_msg = f'<h{size} style="background-color:{color};">{msg}</h{size}>'
 
@@ -455,6 +620,7 @@ if __name__ == '__main__':
     main()
 
 
+# the option is called stretch
 # you can change the ratios by passing a number in .addWidget or .addLayout
 # e.g. .addWidget(widget_one, 1) .addWidget(widget_two, 9)
 #   this will make widget_two take up 9 times as much space as widget_one
