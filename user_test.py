@@ -14,6 +14,7 @@ class Apartment:
     def __init__(self, apartment_id):
         self.apt_id = apartment_id
 
+        # TODO refactor this
         df = convert.to_df("data/apartment_data.csv")
         details = df[df["Sifra"] == apartment_id]
         self.type = details.iat[0, 1]
@@ -21,7 +22,11 @@ class Apartment:
         self.guests = details.iat[0, 3]
         self.location = details.iat[0, 4]
         self.address = details.iat[0, 5]
+
         self.avlb = details.iat[0, 6]
+        # TODO this might be unnecessary
+        #   (assume available for all undefined dates)
+
         self.host = details.iat[0, 7]
         self.price_per_night = details.iat[0, 8]
         self.status = details.iat[0, 9]
@@ -33,23 +38,31 @@ class Apartment:
 
 
 class User:
-    def __init__(self, username="Neregistrovan Korisnik", role="Neregistrovan"):
-        if username == "Neregistrovan Korisnik":
-            self.username = username
-            self.role = role
+    def __init__(self, user_id=None, username=None):
+        if user_id is None and username is None:
+            self.username = "Neregistrovan Korisnik"
+            self.role = "Neregistrovan"
+            self.usr_id = -1
 
         else:
             df = convert.to_df("data/user_data.csv")
-            user_details = df[df["Korisnicko ime"] == username]
-            # this is bad ------------^
-            self.username = user_details.iat[0, 0]
-            self.fname = user_details.iat[0, 1]
-            self.lname = user_details.iat[0, 2]
-            self.phone = user_details.iat[0, 3]
-            self.email = user_details.iat[0, 4]
-            self.gender = user_details.iat[0, 5]
-            self.role = user_details.iat[0, 6]
-            # this is also bad probably -^
+
+            # select by username
+            if username is not None:
+                user_details = df[df["Korisnicko ime"] == username].squeeze()
+                # this is probably bad -----^
+
+            # select by id
+            else:
+                user_details = df.iloc[user_id]
+
+            self.username = user_details["Korisnicko ime"]
+            self.fname = user_details.iat["Ime"]
+            self.lname = user_details.iat["Prezime"]
+            self.phone = user_details.iat["Kontakt telefon"]
+            self.email = user_details.iat["Email adresa"]
+            self.gender = user_details.iat["Pol"]
+            self.role = user_details.iat["Uloga"]
 
 
 if __name__ == "__main__":

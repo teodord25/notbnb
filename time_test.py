@@ -80,14 +80,16 @@ class TimeFrame:
 
 
 class Reservation(TimeFrame):
-    def __init__(self, start, duration, apartment_id, username, status="Kreirana"):
+    def __init__(self, reservation_id, start, duration, apartment_id, username, status="Kreirana", guests=None):
         super().__init__(start, duration)
+
+        self.res_id = reservation_id
 
         self.apt_id = apartment_id
         self.user = User(username=username)
         self.apartment = Apartment(self.apt_id)
         self.status = status
-        self.guests = []
+        self.guests = guests
 
     def cancel(self):
         self.status = "Odustanak"

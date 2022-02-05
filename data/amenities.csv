@@ -1,101 +1,101 @@
 Sifra apartmana,Dodatak 1,Dodatak 2,Dodatak 3,Dodatak 4,Dodatak 5
-0,None,None,None,None,None
-1,klima uredjaj,None,None,None,None
-2,ves masina,parking,kuhinja,None,None
-3,None,None,None,None,None
-4,ves masina,None,None,None,None
-5,parking,ves masina,klima uredjaj,None,None
+0,kuhinja,ves masina,None,None,None
+1,pegla,ves masina,None,None,None
+2,parking,klima uredjaj,pegla,ves masina,kuhinja
+3,klima uredjaj,ves masina,None,None,None
+4,pegla,None,None,None,None
+5,klima uredjaj,None,None,None,None
 6,None,None,None,None,None
-7,None,None,None,None,None
-8,ves masina,pegla,klima uredjaj,None,None
-9,ves masina,klima uredjaj,kuhinja,None,None
-10,kuhinja,None,None,None,None
-11,kuhinja,pegla,None,None,None
-12,None,None,None,None,None
-13,kuhinja,parking,None,None,None
+7,parking,kuhinja,klima uredjaj,ves masina,pegla
+8,kuhinja,pegla,ves masina,parking,None
+9,ves masina,pegla,parking,klima uredjaj,kuhinja
+10,ves masina,parking,klima uredjaj,None,None
+11,pegla,kuhinja,parking,ves masina,None
+12,klima uredjaj,parking,pegla,None,None
+13,parking,ves masina,klima uredjaj,pegla,kuhinja
 14,None,None,None,None,None
-15,kuhinja,ves masina,klima uredjaj,None,None
-16,parking,ves masina,pegla,None,None
-17,kuhinja,ves masina,pegla,klima uredjaj,None
-18,klima uredjaj,parking,ves masina,None,None
-19,kuhinja,pegla,None,None,None
-20,ves masina,None,None,None,None
-21,ves masina,pegla,parking,klima uredjaj,None
-22,ves masina,None,None,None,None
-23,kuhinja,parking,None,None,None
-24,None,None,None,None,None
-25,None,None,None,None,None
-26,parking,ves masina,kuhinja,pegla,klima uredjaj
-27,ves masina,parking,None,None,None
-28,None,None,None,None,None
-29,ves masina,None,None,None,None
-30,pegla,None,None,None,None
-31,klima uredjaj,kuhinja,None,None,None
-32,pegla,parking,kuhinja,klima uredjaj,None
-33,pegla,kuhinja,ves masina,parking,None
-34,ves masina,None,None,None,None
+15,parking,pegla,ves masina,None,None
+16,kuhinja,klima uredjaj,pegla,None,None
+17,parking,klima uredjaj,pegla,kuhinja,None
+18,pegla,None,None,None,None
+19,None,None,None,None,None
+20,ves masina,klima uredjaj,parking,kuhinja,pegla
+21,kuhinja,klima uredjaj,ves masina,None,None
+22,None,None,None,None,None
+23,pegla,None,None,None,None
+24,pegla,None,None,None,None
+25,ves masina,pegla,klima uredjaj,None,None
+26,klima uredjaj,ves masina,parking,pegla,None
+27,parking,klima uredjaj,None,None,None
+28,kuhinja,None,None,None,None
+29,parking,pegla,None,None,None
+30,kuhinja,klima uredjaj,pegla,None,None
+31,klima uredjaj,kuhinja,pegla,parking,None
+32,ves masina,kuhinja,parking,klima uredjaj,None
+33,parking,klima uredjaj,ves masina,pegla,kuhinja
+34,None,None,None,None,None
 35,klima uredjaj,None,None,None,None
-36,parking,ves masina,klima uredjaj,kuhinja,None
-37,pegla,klima uredjaj,kuhinja,ves masina,parking
-38,None,None,None,None,None
-39,pegla,ves masina,kuhinja,parking,klima uredjaj
-40,klima uredjaj,kuhinja,ves masina,None,None
-41,None,None,None,None,None
-42,kuhinja,None,None,None,None
-43,ves masina,klima uredjaj,kuhinja,None,None
-44,ves masina,parking,None,None,None
-45,klima uredjaj,ves masina,pegla,parking,kuhinja
-46,pegla,ves masina,klima uredjaj,parking,None
-47,klima uredjaj,ves masina,kuhinja,pegla,None
-48,klima uredjaj,pegla,parking,kuhinja,ves masina
-49,kuhinja,pegla,ves masina,None,None
-50,kuhinja,pegla,klima uredjaj,ves masina,None
-51,ves masina,parking,None,None,None
-52,None,None,None,None,None
-53,parking,None,None,None,None
-54,kuhinja,None,None,None,None
-55,None,None,None,None,None
-56,parking,pegla,None,None,None
-57,parking,klima uredjaj,kuhinja,ves masina,pegla
-58,parking,ves masina,pegla,klima uredjaj,None
-59,pegla,parking,kuhinja,ves masina,None
-60,None,None,None,None,None
-61,ves masina,kuhinja,pegla,parking,None
-62,klima uredjaj,pegla,kuhinja,None,None
+36,pegla,ves masina,kuhinja,parking,klima uredjaj
+37,parking,klima uredjaj,ves masina,pegla,None
+38,parking,pegla,kuhinja,None,None
+39,kuhinja,parking,pegla,ves masina,None
+40,None,None,None,None,None
+41,pegla,None,None,None,None
+42,parking,klima uredjaj,ves masina,None,None
+43,klima uredjaj,parking,ves masina,kuhinja,None
+44,kuhinja,pegla,klima uredjaj,parking,None
+45,None,None,None,None,None
+46,klima uredjaj,parking,ves masina,pegla,None
+47,klima uredjaj,kuhinja,parking,ves masina,None
+48,ves masina,None,None,None,None
+49,ves masina,klima uredjaj,None,None,None
+50,parking,None,None,None,None
+51,kuhinja,ves masina,pegla,parking,klima uredjaj
+52,kuhinja,klima uredjaj,parking,None,None
+53,parking,kuhinja,ves masina,None,None
+54,None,None,None,None,None
+55,parking,klima uredjaj,kuhinja,ves masina,pegla
+56,kuhinja,pegla,None,None,None
+57,ves masina,None,None,None,None
+58,pegla,ves masina,kuhinja,parking,klima uredjaj
+59,kuhinja,klima uredjaj,parking,pegla,ves masina
+60,parking,None,None,None,None
+61,None,None,None,None,None
+62,klima uredjaj,None,None,None,None
 63,None,None,None,None,None
-64,kuhinja,None,None,None,None
-65,klima uredjaj,kuhinja,parking,None,None
-66,pegla,ves masina,parking,klima uredjaj,None
-67,pegla,parking,None,None,None
-68,kuhinja,ves masina,klima uredjaj,parking,None
-69,kuhinja,None,None,None,None
-70,klima uredjaj,kuhinja,parking,None,None
-71,ves masina,None,None,None,None
-72,parking,ves masina,klima uredjaj,pegla,None
-73,kuhinja,klima uredjaj,ves masina,None,None
-74,pegla,None,None,None,None
-75,klima uredjaj,None,None,None,None
-76,ves masina,None,None,None,None
-77,kuhinja,ves masina,parking,None,None
-78,parking,ves masina,None,None,None
-79,ves masina,pegla,parking,None,None
-80,None,None,None,None,None
-81,kuhinja,klima uredjaj,ves masina,pegla,None
-82,ves masina,klima uredjaj,kuhinja,parking,pegla
-83,parking,ves masina,kuhinja,pegla,klima uredjaj
-84,pegla,klima uredjaj,kuhinja,None,None
-85,pegla,parking,None,None,None
-86,klima uredjaj,ves masina,pegla,kuhinja,parking
-87,kuhinja,ves masina,klima uredjaj,None,None
-88,ves masina,pegla,None,None,None
-89,parking,ves masina,klima uredjaj,pegla,None
-90,ves masina,None,None,None,None
-91,klima uredjaj,parking,ves masina,pegla,kuhinja
-92,kuhinja,parking,ves masina,None,None
-93,None,None,None,None,None
-94,ves masina,klima uredjaj,kuhinja,parking,pegla
-95,parking,None,None,None,None
-96,parking,None,None,None,None
-97,klima uredjaj,pegla,parking,kuhinja,ves masina
-98,parking,kuhinja,ves masina,klima uredjaj,pegla
-99,klima uredjaj,kuhinja,None,None,None
+64,pegla,kuhinja,klima uredjaj,parking,ves masina
+65,ves masina,kuhinja,klima uredjaj,pegla,parking
+66,kuhinja,pegla,klima uredjaj,None,None
+67,pegla,ves masina,parking,None,None
+68,kuhinja,ves masina,None,None,None
+69,pegla,ves masina,klima uredjaj,kuhinja,parking
+70,parking,kuhinja,None,None,None
+71,klima uredjaj,parking,None,None,None
+72,None,None,None,None,None
+73,parking,klima uredjaj,kuhinja,pegla,None
+74,ves masina,parking,kuhinja,None,None
+75,pegla,kuhinja,parking,klima uredjaj,None
+76,kuhinja,parking,None,None,None
+77,klima uredjaj,ves masina,None,None,None
+78,parking,ves masina,klima uredjaj,kuhinja,pegla
+79,ves masina,kuhinja,parking,klima uredjaj,None
+80,pegla,kuhinja,ves masina,klima uredjaj,None
+81,ves masina,parking,pegla,klima uredjaj,kuhinja
+82,klima uredjaj,None,None,None,None
+83,kuhinja,ves masina,parking,pegla,None
+84,pegla,None,None,None,None
+85,klima uredjaj,ves masina,None,None,None
+86,klima uredjaj,ves masina,parking,pegla,kuhinja
+87,pegla,kuhinja,None,None,None
+88,kuhinja,None,None,None,None
+89,kuhinja,pegla,None,None,None
+90,None,None,None,None,None
+91,pegla,klima uredjaj,None,None,None
+92,None,None,None,None,None
+93,parking,klima uredjaj,None,None,None
+94,None,None,None,None,None
+95,ves masina,klima uredjaj,parking,kuhinja,None
+96,klima uredjaj,parking,None,None,None
+97,klima uredjaj,None,None,None,None
+98,ves masina,kuhinja,parking,pegla,None
+99,klima uredjaj,parking,pegla,ves masina,None
