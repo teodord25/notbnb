@@ -1,4 +1,5 @@
 import convert
+import datetime
 
 
 def compare(date1, sign, date2) -> bool:
@@ -34,10 +35,9 @@ def amenity_search(apartment_id):
 
 
 class Apartment:
-    def __init__(self, apartment_id):
+    def __init__(self, apartment_id, compute_avlb=False):
         self.apt_id = apartment_id
 
-        # TODO refactor this
         df = convert.to_df("data/apartment_data.csv")
         details = df[df["Sifra"] == str(apartment_id)].squeeze()
         self.type = details["Tip"]
@@ -46,9 +46,8 @@ class Apartment:
         self.location = details["Lokacija"]
         self.address = details["Adresa"]
 
-        self.avlb = details["Dostupnost"]
-        # TODO this might be unnecessary
-        #   (assume available for all undefined dates)
+        if compute_avlb:
+            self.avlb = free_time(self.apt_id)
 
         self.host = details["Domacin"]
         self.price_per_night = details["Cena po noci (eur)"]
@@ -88,8 +87,9 @@ class User:
             self.role = user_details["Uloga"]
 
 
+# pls tell me I didn't mess something up by setting a default duration
 class TimeFrame:
-    def __init__(self, start: str, duration: int, end=""):
+    def __init__(self, start: str, duration=1, end=""):
         self.start = start
         self.duration = duration
         self.end = end
@@ -193,3 +193,176 @@ class Reservation(TimeFrame):
     # TODO check if current date is past the end date for
     #   every active reservation on startup?
 
+#
+# Long explanation of the check_availability() function
+#
+
+# Check every reservation and determines if the passed time frame
+# is overlapping with any existing reservation
+#
+# The function does this by returning False,
+# if the date being checked doesn't either:
+#   start after the end of each reservation
+#   end before the start of each reservation
+#
+# It's a little difficult to comprehend like this, so here's a visual proof:
+#
+# s_n - start of date being checked
+# e_n - end of date being checked
+#
+# s_i - start of an existing reservation
+# e_i - end of an existing reservation
+#
+# # checking every (start, end) pair of the existing reservations
+# for (s_i, e_i) in existing_reservations:
+#     if not (s_n > e_i  or  e_n < s_i):
+#          return False
+# return True
+#
+# occupied
+# case 1:  s_n-------e_n            not(False  or  False) => not(False) => True
+#               s_i------e_i        s_n > e_i  or  e_n < s_i => return False
+#
+# occupied
+# case 2:       s_n-------e_n       not(False  or  False) => not(False) => True
+#          s_i------e_i             s_n > e_i  or  e_n < s_i => return False
+#
+# occupied
+# case 3:       s_n----e_n          not(False  or  False) => not(False) => True
+#          s_i--------------e_i     s_n > e_i  or  e_n < s_i => return False
+#
+# occupied
+# case 4:  s_n--------------e_n     not(False  or  False) => not(False) => True
+#               s_i----e_i          s_n > e_i  or  e_n < s_i => return False
+#
+# not occupied (anywhere) == available
+# case 5:  s_n----e_n               not(False  or  True) => not(True) => False
+#                       s_i----e_i  s_n > e_i  or  e_n < s_i => do nothing
+#
+# not occupied (anywhere) == available
+# case 6:               s_n----e_n  not(True  or  False) => not(True) => True
+#          s_i----e_i               s_n > e_i  or  e_n < s_i => do nothing
+
+
+def check_availability(start, end, apt_id, df=None, normal_mode=True):
+    if not compare(start, "<", end):
+        print("invalid date")
+        return
+
+    if df is None:
+        try:
+            df = convert.to_df("data/reservations.csv", use_cols=[2, 4])
+        except FileNotFoundError:
+            return True
+
+    # filter for reservations only at this apartment
+    df = df[df["Sifra apartmana"] == apt_id]
+
+    # start and end of the potential date that was passed as an argument
+    s_n = start
+    e_n = end
+
+    for index in range(df.shape[0]):
+        res = df.iloc[index]
+
+        # start and end of each reservation in "reservations.csv"
+        s_i = res["Pocetak"]
+        e_i = res["Kraj"]
+
+        if not (compare(s_n, ">", e_i) or compare(e_n, "<", s_i)):
+            print(f"conflict with {s_i}, {e_i}")
+            if normal_mode:
+                return False
+            else:
+                return TimeFrame(s_i, end=e_i)
+    return True
+
+
+def free_time(apt_id):
+    res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4])
+    df = res_df[res_df["Sifra apartmana"] == apt_id]
+    # only the reservations for this apartment
+
+    date = str(datetime.date.today())
+
+    tf = TimeFrame(date, 30)
+    ctf = False
+    pairs = []
+
+    s = tf.start
+    e = tf.end
+
+    while ctf is not True:
+        ctf = check_availability(s, e, df=df, apt_id=apt_id, normal_mode=False)
+
+        cs = ctf.start
+        ce = ctf.end
+
+        # case 1
+        if compare(cs, "<", s) and compare(ce, ">", e):
+            return "no free time"
+
+        # case 2
+        if compare(cs, ">", s) and compare(ce, ">", e):
+            pairs.append([s, cs])
+            return pairs
+
+        # case 3
+        if compare(cs, "<", s) and compare(ce, "<", e):
+            pairs.append([ce, e])
+            return pairs
+
+        # case 4
+        if compare(cs, ">", s) and compare(ce, "<", e):
+            pairs.append([s, cs])
+            s = ce
+    #
+    #
+    # if not isinstance(ctf, TimeFrame):
+    #     break
+    #
+    # free = False
+    # if free:
+    #     return pairs
+    #
+    # s = start
+    # e = end
+    #
+        # s = tf.start
+        # e = tf.end
+        # id = apt_id
+        #
+        # pairs = []
+        # free = False
+
+    # def check_tf(tf, df, apt_id): #start, end, df, id, p, free):
+
+    # # conflicting time frame
+    # # conf_tf = check_availability(s, e, df=res_df, apt_id=id, normal_mode=False)
+    # pair = [s, ctf.start]
+    # pairs.append(pair)
+    # s = ctf.end
+    # if compare()
+    #
+    # ctf =
+    #
+    # check_tf()
+    # return True
+    #
+    # if check_availability(s, e, df=res_df, apt_id=id) is True:
+    #     return [tf.start[-5:], tf.end[-5:]]
+    # else:
+    #     while True:
+    #
+    #     # while isinstance((check_availability(s, e, df=res_df, apt_id=id, normal_mode=False)), TimeFrame):
+    #     #     # conflicting time frame
+    #     #     conf_tf = check_availability(s, e, df=res_df, apt_id=id, normal_mode=False)
+    #     #     pair = [s, conf_tf.start]
+    #     #     pairs.append(pair)
+    #     #     s = conf_tf.end
+    #     pairs.append(pair)
+    #
+    # self.avlb = pairs
+    #
+    # self.avlb = details["Dostupnost"]
+    # # TODO change to only apply to the next 30 days

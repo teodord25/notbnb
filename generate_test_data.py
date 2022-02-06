@@ -10,6 +10,7 @@ from classes_and_stuff import Reservation
 from classes_and_stuff import Apartment
 from classes_and_stuff import compare
 from classes_and_stuff import amenity_search
+from classes_and_stuff import check_availability
 
 
 def generate_users():
@@ -96,7 +97,7 @@ def generate_apartments():
 
         dodaci = "da" if len(amenities) else "ne"
 
-        row = [index, tip, rooms, guests, location, address, "24/7",
+        row = [index, tip, rooms, guests, location, address,
                host, price, random.choice(["aktivan", "neaktivan"]), dodaci]
 
         lst_out.append(row)
@@ -110,7 +111,7 @@ def generate_apartments():
     df_out = pd.DataFrame(
         lst_out,
         columns=["Sifra", "Tip", "Broj soba", "Broj gostiju", "Lokacija", "Adresa",
-                 "Dostupnost", "Domacin", "Cena po noci (eur)", "Status", "Ameniti"]
+                 "Domacin", "Cena po noci (eur)", "Status", "Ameniti"]
     )
 
     convert.to_csv(df_out, "data/apartment_data.csv")
@@ -125,13 +126,17 @@ def generate_reservations():
     i = usr_rows // 3
     j = usr_rows
 
-    # pick random apartments from all apartments, approx 1.5 times
-    apt_indices = random.choices(range(apt_rows), k=apt_rows + apt_rows // 2)
-    usr_indices = range(i)  # random.choices(range(usr_rows // 2), k=)
+    # pick random apartments from all apartments, 4 times as many times (?) (diminishing returns after this point
+    apt_indices = random.choices(range(apt_rows), k=apt_rows*4)
+    usr_indices = range(i)
     guests_range = range(i, j)
     n = 0
 
     reservations = []
+
+    header = ["Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
+              "Kraj", "Ukupna cena", "Gost/Kontakt osoba", "Status", "Gost1",
+              "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"]
 
     for index in apt_indices:
         n += 1
@@ -139,23 +144,22 @@ def generate_reservations():
 
         date = str(datetime.date.today())
 
-        yr = random.randint(1970, int(date[:4]))
+        yr = random.randint(2020, int(date[:4]))
         mo = random.randint(1, 12)
         day = random.randint(1, 27)
         st = f"{yr}-{str(mo).zfill(2)}-{str(day).zfill(2)}"
-        dur = random.randint(1, 30)
+        dur = random.randint(1, 15)
 
         user = User(user_id=random.choice(usr_indices))
-        spots_left = int(apt.rooms) - 1
+        spots_left = int(apt.guests) - 1
 
-        guests = [None for _ in range(9)]
+        guests = ["ne postoji" for _ in range(9)]
         if spots_left:
             for _ in range(spots_left):
                 id = random.choice(guests_range)
                 guest = User(user_id=id)
                 fname = guest.fname
                 lname = guest.lname
-                # are getter methods necessary?
 
                 guests.insert(0, f"{fname} {lname}")
                 guests.pop()
@@ -177,22 +181,31 @@ def generate_reservations():
             if i == 1:
                 reservation.accept()
 
-        # creating a reservation object wasn't really necessary I guess
+        # mfw
+        city = " ".join(reservation.apartment.address.split(" | ")[1].split()[:-1])
 
         row = [
             reservation.res_id, reservation.apt_id, reservation.start,
             reservation.duration, reservation.end,
+            int(reservation.apartment.price_per_night) * reservation.duration,
+
             f"{reservation.user.fname} {reservation.user.lname} ({reservation.user.username})",
+
             reservation.status,
+
             reservation.guests[0], reservation.guests[1], reservation.guests[2],
             reservation.guests[3], reservation.guests[4], reservation.guests[5],
-            reservation.guests[6], reservation.guests[7]
+            reservation.guests[6], reservation.guests[7], city
         ]
-        reservations.append(row)
 
-    header = ["Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
-              "Kraj", "Gost/Kontakt osoba", "Status", "Gost1", "Gost2", "Gost3",
-              "Gost4", "Gost5", "Gost6", "Gost7", "Gost8"]
+        # not the most efficient way of doing this, but it's whatever now
+        temp_df = pd.DataFrame(reservations, columns=header)
+        if check_availability(
+            reservation.start, reservation.end, reservation.apt_id, df=temp_df
+        ):
+            print(f"{n} {reservation.apt_id} {reservation.apartment.host} "
+                  f"{reservation.apartment.rooms} {len([i for i in guests if i != 'ne postoji'])}")
+            reservations.append(row)
 
     df = pd.DataFrame(reservations, columns=header)
     convert.to_csv(df, "data/reservations.csv")
@@ -204,4 +217,4 @@ if __name__ == "__main__":
     generate_reservations()
 
 # Why spend 1 hour creating testing data when you can
-# spend 30 hours automating testing data generation
+# spend 40 hours automating testing data generation
