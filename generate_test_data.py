@@ -134,9 +134,6 @@ def generate_reservations():
 
     reservations = []
 
-    header = ["Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
-              "Kraj", "Ukupna cena", "Gost/Kontakt osoba", "Status", "Gost1",
-              "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"]
 
     for index in apt_indices:
         n += 1
@@ -184,19 +181,19 @@ def generate_reservations():
         # mfw
         city = " ".join(reservation.apartment.address.split(" | ")[1].split()[:-1])
 
-        row = [
-            reservation.res_id, reservation.apt_id, reservation.start,
-            reservation.duration, reservation.end,
-            int(reservation.apartment.price_per_night) * reservation.duration,
-
-            f"{reservation.user.fname} {reservation.user.lname} ({reservation.user.username})",
-
-            reservation.status,
-
-            reservation.guests[0], reservation.guests[1], reservation.guests[2],
-            reservation.guests[3], reservation.guests[4], reservation.guests[5],
-            reservation.guests[6], reservation.guests[7], city
-        ]
+        # row = [
+        #     reservation.res_id, reservation.apt_id, reservation.start,
+        #     reservation.duration, reservation.end,
+        #     int(reservation.apartment.price_per_night) * reservation.duration,
+        #
+        #     f"{reservation.user.fname} {reservation.user.lname} ({reservation.user.username})",
+        #
+        #     reservation.status,
+        #
+        #     reservation.guests[0], reservation.guests[1], reservation.guests[2],
+        #     reservation.guests[3], reservation.guests[4], reservation.guests[5],
+        #     reservation.guests[6], reservation.guests[7], city
+        # ]
 
         # not the most efficient way of doing this, but it's whatever now
         temp_df = pd.DataFrame(reservations, columns=header)

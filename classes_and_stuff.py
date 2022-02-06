@@ -6,6 +6,13 @@ def compare(date1, sign, date2) -> bool:
     y1, m1, d1 = [int(i) for i in date1.split("-")]
     y2, m2, d2 = [int(i) for i in date2.split("-")]
 
+    if "=" in sign:
+        if y1 == y2 and m1 == m2 and d1 == d2:
+            return True
+        else:
+            sign = sign.replace("=", "")
+            # str.replace returns a copy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     if eval(f"{y1}{sign}{y2}"):
         return True
 
@@ -190,6 +197,35 @@ class Reservation(TimeFrame):
     def finish(self):
         self.status = "Zavrsena"
 
+    def header(self, header=None):
+        header = [
+            "Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
+            "Kraj", "Ukupna cena", "Gost/Kontakt osoba", "Status", "Gost1",
+            "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"
+        ]
+
+        return header
+
+    def list(self):
+        # mfw
+        city = " ".join(self.apartment.address.split(" | ")[1].split()[:-1])
+
+        row = [
+            self.res_id, self.apt_id, self.start, self.duration, self.end,
+
+            int(self.apartment.price_per_night) * self.duration,
+
+            f"{self.user.fname} {self.user.lname} ({self.user.username})",
+
+            self.status,
+
+            self.guests[0], self.guests[1], self.guests[2],
+            self.guests[3], self.guests[4], self.guests[5],
+            self.guests[6], self.guests[7], city
+        ]
+
+        return row
+
     # TODO check if current date is past the end date for
     #   every active reservation on startup?
 
@@ -257,6 +293,7 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
 
     # filter for reservations only at this apartment
     df = df[df["Sifra apartmana"] == apt_id]
+    # am I doing this twice??
 
     # start and end of the potential date that was passed as an argument
     s_n = start
@@ -269,7 +306,8 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
         s_i = res["Pocetak"]
         e_i = res["Kraj"]
 
-        if not (compare(s_n, ">", e_i) or compare(e_n, "<", s_i)):
+        # is sn >= ei
+        if not (compare(s_n, ">=", e_i) or compare(e_n, "<=", s_i)):
             print(f"conflict with {s_i}, {e_i}")
             if normal_mode:
                 return False
@@ -293,27 +331,33 @@ def free_time(apt_id):
     e = tf.end
 
     while ctf is not True:
-        ctf = check_availability(s, e, df=df, apt_id=apt_id, normal_mode=False)
+        ctf = check_availability(start=s, end=e, df=df, apt_id=apt_id, normal_mode=False)
+
+        if ctf is True:
+            pairs.append([s, e])
+            return pairs
 
         cs = ctf.start
         ce = ctf.end
 
         # case 1
-        if compare(cs, "<", s) and compare(ce, ">", e):
-            return "no free time"
+        if compare(cs, "<=", s) and compare(ce, ">=", e):
+            return [[0, 0]]
 
         # case 2
-        if compare(cs, ">", s) and compare(ce, ">", e):
+        elif compare(cs, ">", s) and compare(ce, ">=", e):
             pairs.append([s, cs])
             return pairs
+            # return pairs
 
         # case 3
-        if compare(cs, "<", s) and compare(ce, "<", e):
-            pairs.append([ce, e])
-            return pairs
+        elif compare(cs, "<=", s) and compare(ce, "<", e):
+            s = ce
+            # pairs.append([ce, e])
+            # return pairs
 
         # case 4
-        if compare(cs, ">", s) and compare(ce, "<", e):
+        elif compare(cs, ">", s) and compare(ce, "<", e):
             pairs.append([s, cs])
             s = ce
     #
