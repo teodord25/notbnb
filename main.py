@@ -1,4 +1,5 @@
 import PyQt5.QtWidgets
+import datetime
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QWidget
@@ -27,6 +28,11 @@ import registration
 import login
 import convert
 import time_test
+from classes_and_stuff import User
+from classes_and_stuff import Apartment
+from classes_and_stuff import compare
+from classes_and_stuff import check_availability
+from collections import Counter
 
 
 # date = start.split("-")
@@ -157,54 +163,54 @@ def filter_df(dataframe, query, x):
         print("invalid input")
 
 
-class User:
-    def __init__(self, username="Neregistrovan Korisnik", role="Neregistrovan"):
-        if username == "Neregistrovan Korisnik":
-            self.username = username
+# class User:
+#     def __init__(self, username="Neregistrovan Korisnik", role="Neregistrovan"):
+#         if username == "Neregistrovan Korisnik":
+#             self.username = username
+#
+#         if role == "Neregistrovan":
+#             self.role = role
+#
+#         user_details = convert.to_df("data/user_data.csv").loc[[""]]
+#
+#     def log_out(self):
+#         self.username = "Neregistrovan Korisnik"
+#         self.role = "Neregistrovan"
 
-        if role == "Neregistrovan":
-            self.role = role
-
-        user_details = convert.to_df("data/user_data.csv").loc[[""]]
-
-    def log_out(self):
-        self.username = "Neregistrovan Korisnik"
-        self.role = "Neregistrovan"
-
-
-class Apartment:
-    def __init__(self, aprt_code: int, aprt_type: str, rooms_n: int, guests_n, location: tuple,
-                 availability: list, host: object, cost: int, status: bool, amenities: list):
-        self.aprt_code = aprt_code
-        self.aprt_type = aprt_type
-        self.rooms_n = rooms_n
-        self.guests_n = guests_n
-        self.location = location
-        self.availability = availability
-        self.host = host
-        self.cost = cost
-        self.status = status
-        self.amenities = amenities
-
-
-class Amenitiy:
-    def __init__(self, amnt_code, name):
-        self.amnt_code = amnt_code
-        self.name = name
-
-
-class Reservation:  # apartment
-    def __init__(self, aprt_code: int, start_date: str, duration_of_stay: int,
-                 total_cost: int, guest: object, status: str):
-        self.aprt_code = aprt_code
-        self.start_date = start_date
-        self.duration_of_stay = duration_of_stay
-        self.total_cost = total_cost
-        self.guest = guest
-        self.status = status
-
-    def cancel(self):
-        self.status = False
+#
+# class Apartment:
+#     def __init__(self, aprt_code: int, aprt_type: str, rooms_n: int, guests_n, location: tuple,
+#                  availability: list, host: object, cost: int, status: bool, amenities: list):
+#         self.aprt_code = aprt_code
+#         self.aprt_type = aprt_type
+#         self.rooms_n = rooms_n
+#         self.guests_n = guests_n
+#         self.location = location
+#         self.availability = availability
+#         self.host = host
+#         self.cost = cost
+#         self.status = status
+#         self.amenities = amenities
+#
+#
+# class Amenitiy:
+#     def __init__(self, amnt_code, name):
+#         self.amnt_code = amnt_code
+#         self.name = name
+#
+#
+# class Reservation:  # apartment
+#     def __init__(self, aprt_code: int, start_date: str, duration_of_stay: int,
+#                  total_cost: int, guest: object, status: str):
+#         self.aprt_code = aprt_code
+#         self.start_date = start_date
+#         self.duration_of_stay = duration_of_stay
+#         self.total_cost = total_cost
+#         self.guest = guest
+#         self.status = status
+#
+#     def cancel(self):
+#         self.status = False
 
 
 # when the admin requests a table,
@@ -224,7 +230,8 @@ class ProjekatWindow(QMainWindow):
         self.setFixedSize(1280, 720)
 
         self.currentUser = User()
-        self.currentDF = convert.to_df("data/apartment_data.csv", use_cols=[0, 1, 2, 3, 5, 6, 8])
+        self.currentDF = convert.to_df("data/apartment_data.csv", use_cols=[0, 1, 2, 3, 5, 8])
+        # self.currentDF = convert.to_df("data/reservations.csv")
 
         self._clearScreen()
         self._createMenu()
@@ -360,6 +367,47 @@ class ProjekatWindow(QMainWindow):
         self.formMsg.setText(msg)
         self.formMsg.show()
 
+    def _showPopularCities(self):
+        df = convert.to_df("data/reservations.csv", use_cols=[2, 7, 16])
+
+        date = str(datetime.date.today()).split("-")
+        date[0] = str(int(date[0]) - 1)
+        date = "-".join(date)
+
+        lst = []
+        for i in range(df.shape[0]):
+            row = list(df.iloc[i])
+            if compare(row[0], ">", date):
+                lst.append(row)
+
+        df = pd.DataFrame(lst, columns=["Pocetak", "Status", "Grad"])
+
+        # df = df[compare(df["Pocetak"], ">", date)]
+            # a =
+            # a = convert.to_df("data/reservations.csv", use_cols=[8, 16])
+            # b = convert.to_df("data/reservations.csv", use_cols=[8, 16])
+
+        a = df[df["Status"] == "Zavrsena"]
+        b = df[df["Status"] == "Prihvacena"]
+
+        df = pd.concat([a, b])
+
+        df = df.loc[:, "Grad"]
+        cities = Counter(list(df))
+
+        # lst = sorted(list({j: i for i, j in cities.items()}.items()))[-10:]
+
+        rvrs_dct = {j: i for i, j in cities.items()}
+        lst = list(rvrs_dct.items())
+        lst = sorted(lst)
+        pop_cities = reversed(lst[-10:])
+
+        df = pd.DataFrame(pop_cities, columns=["Broj ostvarenih rezervacija", "Grad"])
+        self.currentDF = df
+        self._createTable()
+        # self.currentDF = convert.to_df("data/apartment_data.csv")
+
+
     def _submitSearch(self, mode="search", aprt_id=0):
         # if mode == "review":
         #     df = pd.read_csv("data/apartment_data.csv").iloc[[aprt_id]]
@@ -391,22 +439,27 @@ class ProjekatWindow(QMainWindow):
         if self.showActive.isChecked():
             df = df_base[df_base["Status"] == "aktivan"]
             df = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
-                            "Adresa", "Dostupnost", "Cena po noci (eur)"]]
+                            "Adresa", "Cena po noci (eur)"]]
             # [:, [cols]]
             # : -> all rows
             # [cols] -> only "cols" columns
+
+        # if self.popularCities.isChecked():
+        #     df = convert.to_df("data/reservations.csv", use_cols=[16])
+        #
+        #     df = df_base[df_base[""]]
 
         self.currentDF = df
         self._createTable()
 
         # I'm not sure how df[df[]] works
 
-    def _createReview(self):
-        reviewLayout = QVBoxLayout
-
-        self._clearScreen()
-
-        self.generalLayout.addLayout(reviewLayout)
+    # def _createReview(self):
+    #     reviewLayout = QVBoxLayout
+    #
+    #     self._clearScreen()
+    #
+    #     self.generalLayout.addLayout(reviewLayout)
 
     def _createTopRow(self):
         topLayout = QGridLayout()
@@ -417,7 +470,7 @@ class ProjekatWindow(QMainWindow):
         self.searchRooms = QLineEdit()
         self.searchPersons = QLineEdit()
         self.searchPrice = QLineEdit()
-        self.popularCities = QCheckBox()
+        self.popularCities = QPushButton("Prikazi 10 najpopularnijih gradova")
         self.showActive = QCheckBox()
 
         # TODO fix shishana latinica
@@ -426,9 +479,12 @@ class ProjekatWindow(QMainWindow):
             partial(self._submitSearch, mode="search", aprt_id=20)
         )
 
+        self.popularCities.clicked.connect(self._showPopularCities)
+
         topLayout.addWidget(QLabel(f"<h4>Vi ste: {self.currentUser.username}</h4>"), 0, 0)
         topLayout.addWidget(QLabel(f"<h4>Uloga: {self.currentUser.role}</h4>"), 1, 0)
 
+        # TODO do something about the lack of dostupnost searching
         # (widget, y, x)
         topLayout.addWidget(QLabel("Mesto"), 0, 1)
         topLayout.addWidget(self.searchLocation, 0, 2, 1, 7)
@@ -441,16 +497,17 @@ class ProjekatWindow(QMainWindow):
         topLayout.addWidget(QLabel("Cena po noci"), 1, 7)
         topLayout.addWidget(self.searchPrice, 1, 8)
         topLayout.addWidget(self.searchButton, 0, 9, 2, 1)
-        topLayout.addWidget(QLabel("Prikazi 10 najpopularnijih gradova"), 2, 1)
-        topLayout.addWidget(self.popularCities, 2, 2)
+        topLayout.addWidget(self.popularCities, 2, 1, 1, 2)
+        # topLayout.addWidget(self.popularCities, 2, 2)
         topLayout.addWidget(QLabel("Prikazi samo aktivne apartmane"), 3, 1)
         topLayout.addWidget(self.showActive, 3, 2)
         textLayout.addWidget(QLabel("Primeri koriscenja pretrage:"))
         textLayout.addWidget(QLabel("Vrednost manja od: x < 3 je isto sto i 3 > x, isto vazi i za vece."))
         textLayout.addWidget(QLabel("Vrednost izmedju: 2 < x < 5, ili samo unesite tacnu vrednost koju trazite."))
+        textLayout.addWidget(QLabel("Dostupnost se racuna kad prikazete detalje apartmana"))
 
         topLayout.addLayout(textLayout, 3, 3, 1, 6)
-        self.generalLayout.addLayout(topLayout, 1)
+        self.generalLayout.addLayout(topLayout)
 
     def _createRegisterScreen(self):
         registerLayout = QVBoxLayout()
@@ -530,8 +587,45 @@ class ProjekatWindow(QMainWindow):
 
         self.generalLayout.addLayout(loginLayout, 9)
 
+    def _createReview(self):
+        try:
+            int(self.requestApt.text())
+
+            self.reviewWarning.setText("")
+
+            apt = Apartment(self.requestApt.text(), compute_avlb=True)
+            self.widget0.setText(f"Sifra: {apt.apt_id}")
+            self.widget1.setText(f"Tip: {apt.type}")
+            self.widget2.setText(f"Broj soba: {apt.rooms}")
+            self.widget3.setText(f"Broj gostiju: {apt.guests}")
+            self.widget4.setText(f"Lokacija: {apt.location}")
+            self.widget5.setText(f"Adresa: {apt.address}")
+
+            dostupnost = []
+            for pair in apt.avlb:
+                s, e = pair[0], pair[1]
+                dostupnost.append(f"od {s}, do {e}")
+
+            dostupnost = "\n".join(dostupnost)
+
+            self.widget6.setText(f"Dostupnost za sledecih 30 dana:\n{dostupnost}")
+
+            self.widget7.setText(f"Domacin: {apt.host}")
+            self.widget8.setText(f"Cena po noci (eur): {apt.price_per_night}")
+            self.widget9.setText(f"Status: {apt.status}")
+
+
+        except ValueError:
+            msg = color_msg("Pogresan unos", "Tomato")
+            print(msg)
+            self.reviewWarning.setText(msg)
+
+
+
     def _createTable(self):
+        screenLayout = QGridLayout()
         tableLayout = QHBoxLayout()
+        reviewLayout = QGridLayout()
 
         self._clearScreen()
         self._createTopRow()
@@ -548,9 +642,40 @@ class ProjekatWindow(QMainWindow):
         for i in range(df.shape[1] - 1):
             header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
 
-        tableLayout.addWidget(self.table, 2)
-        tableLayout.addWidget(QPushButton("AYO"), 1)
+        tableLayout.addWidget(self.table, 5) #, 2)
 
+        self.reviewWarning = QLabel("")
+        reviewLayout.addWidget(self.reviewWarning)
+        reviewLayout.addWidget(QLabel("Unesite sifru apartmana koji bi detaljnije da pregledate, i/ili da rezervisete."))
+        self.requestApt = QLineEdit()
+        reviewLayout.addWidget(self.requestApt)
+        showApt = QPushButton("Prikazi apartman.")
+        showApt.clicked.connect(self._createReview)
+        reviewLayout.addWidget(showApt)
+
+        self.widget0 = QLabel("")
+        self.widget1 = QLabel("")
+        self.widget2 = QLabel("")
+        self.widget3 = QLabel("")
+        self.widget4 = QLabel("")
+        self.widget5 = QLabel("")
+        self.widget6 = QLabel("")
+        self.widget7 = QLabel("")
+        self.widget8 = QLabel("")
+        self.widget9 = QLabel("")
+
+        reviewLayout.addWidget(self.widget0)
+        reviewLayout.addWidget(self.widget1)
+        reviewLayout.addWidget(self.widget2)
+        reviewLayout.addWidget(self.widget3)
+        reviewLayout.addWidget(self.widget4)
+        reviewLayout.addWidget(self.widget5)
+        reviewLayout.addWidget(self.widget6)
+        reviewLayout.addWidget(self.widget7)
+        reviewLayout.addWidget(self.widget8)
+        reviewLayout.addWidget(self.widget9)
+
+        tableLayout.addLayout(reviewLayout, 4)
         self.generalLayout.addLayout(tableLayout)
 
     def logOut(self):
