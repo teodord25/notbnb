@@ -33,6 +33,7 @@ from classes_and_stuff import User
 from classes_and_stuff import Apartment
 from classes_and_stuff import compare
 from classes_and_stuff import check_availability
+from classes_and_stuff import Reservation
 from collections import Counter
 
 
@@ -416,10 +417,7 @@ class ProjekatWindow(QMainWindow):
         # elif mode == "search":
         df_base = convert.to_df("data/apartment_data.csv")
         df = df_base.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
-                         "Adresa", "Dostupnost", "Cena po noci (eur)"]]
-
-        # TODO 10 most pop na osnovu broja izdatih apartmana u tom gradu
-        # u poslednjih godinu dana
+                         "Adresa", "Cena po noci (eur)"]]
 
         # TODO case insensitive search
         # current is sensitive
@@ -467,7 +465,7 @@ class ProjekatWindow(QMainWindow):
         textLayout = QGridLayout()
 
         self.searchLocation = QLineEdit()
-        self.searchAvailability = QLineEdit()
+        # self.searchAvailability = QLineEdit()
         self.searchRooms = QLineEdit()
         self.searchPersons = QLineEdit()
         self.searchPrice = QLineEdit()
@@ -489,8 +487,8 @@ class ProjekatWindow(QMainWindow):
         # (widget, y, x)
         topLayout.addWidget(QLabel("Mesto"), 0, 1)
         topLayout.addWidget(self.searchLocation, 0, 2, 1, 7)
-        topLayout.addWidget(QLabel("Dostupnost"), 1, 1)
-        topLayout.addWidget(self.searchAvailability, 1, 2)
+        # topLayout.addWidget(QLabel("Dostupnost"), 1, 1)
+        # topLayout.addWidget(self.searchAvailability, 1, 2)
         topLayout.addWidget(QLabel("Broj soba"), 1, 3)
         topLayout.addWidget(self.searchRooms, 1, 4)
         topLayout.addWidget(QLabel("Broj osoba"), 1, 5)
@@ -602,6 +600,13 @@ class ProjekatWindow(QMainWindow):
             self.widget4.setText(f"Lokacija: {apt.location}")
             self.widget5.setText(f"Adresa: {apt.address}")
 
+            self.currentApt = apt
+
+            self.reviewMessage.setText(
+                "Ako Vam se svidja ovaj apartman, kliknite na dugme 'dalje', da predjete na rezervaciju"
+            )
+            self.goNext.show()
+
             tf = TimeFrame(str(datetime.date.today()), 30)
             ts = tf.start
             te = tf.end
@@ -622,18 +627,27 @@ class ProjekatWindow(QMainWindow):
             self.widget8.setText(f"Cena po noci (eur): {apt.price_per_night}")
             self.widget9.setText(f"Status: {apt.status}")
 
-
         except ValueError:
             msg = color_msg("Pogresan unos", "Tomato")
             print(msg)
             self.reviewWarning.setText(msg)
 
+    def _reservationForm(self):
+        df = convert.to_df("data/reservations.csv")
+        n = df.iloc[-1]["Sifra rezervacije"]
+        form = QFormLayout()
 
+        # self.reservation = Reservation(n, s, d, apt_id, uname, guests)
+
+        form.addRow("")
+
+        self.infoLayout = QVBoxLayout()
+        self.infoLayout.addLayout(form)
 
     def _createTable(self):
-        screenLayout = QGridLayout()
         tableLayout = QHBoxLayout()
-        reviewLayout = QGridLayout()
+        reviewLayout = QVBoxLayout()
+        self.infoLayout = QVBoxLayout()
 
         self._clearScreen()
         self._createTopRow()
@@ -650,16 +664,30 @@ class ProjekatWindow(QMainWindow):
         for i in range(df.shape[1] - 1):
             header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
 
-        tableLayout.addWidget(self.table, 5) #, 2)
+        tableLayout.addWidget(self.table, 5)
 
         self.reviewWarning = QLabel("")
-        reviewLayout.addWidget(self.reviewWarning)
-        reviewLayout.addWidget(QLabel("Unesite sifru apartmana koji bi detaljnije da pregledate, i/ili da rezervisete."))
+        self.reviewMessage = QLabel("")
         self.requestApt = QLineEdit()
-        reviewLayout.addWidget(self.requestApt)
+        self.goNext = QPushButton("Dalje")
+        self.goNext.hide()
+
+        self.goNext.clicked.connect(self._reservationForm)
+
         showApt = QPushButton("Prikazi apartman")
         showApt.clicked.connect(self._createReview)
+
+        reviewLayout.addWidget(self.reviewWarning)
+        reviewLayout.addWidget(
+            QLabel("Unesite sifru apartmana koji bi detaljnije da pregledate i/ili da rezervisete.")
+        )
+
+        # requestApt is the input field
+        reviewLayout.addWidget(self.requestApt)
         reviewLayout.addWidget(showApt)
+
+        reviewLayout.addWidget(self.reviewMessage)
+        reviewLayout.addWidget(self.goNext)
 
         self.widget0 = QLabel("")
         self.widget1 = QLabel("")
@@ -672,17 +700,18 @@ class ProjekatWindow(QMainWindow):
         self.widget8 = QLabel("")
         self.widget9 = QLabel("")
 
-        reviewLayout.addWidget(self.widget0)
-        reviewLayout.addWidget(self.widget1)
-        reviewLayout.addWidget(self.widget2)
-        reviewLayout.addWidget(self.widget3)
-        reviewLayout.addWidget(self.widget4)
-        reviewLayout.addWidget(self.widget5)
-        reviewLayout.addWidget(self.widget6)
-        reviewLayout.addWidget(self.widget7)
-        reviewLayout.addWidget(self.widget8)
-        reviewLayout.addWidget(self.widget9)
+        self.infoLayout.addWidget(self.widget0)
+        self.infoLayout.addWidget(self.widget1)
+        self.infoLayout.addWidget(self.widget2)
+        self.infoLayout.addWidget(self.widget3)
+        self.infoLayout.addWidget(self.widget4)
+        self.infoLayout.addWidget(self.widget5)
+        self.infoLayout.addWidget(self.widget6)
+        self.infoLayout.addWidget(self.widget7)
+        self.infoLayout.addWidget(self.widget8)
+        self.infoLayout.addWidget(self.widget9)
 
+        reviewLayout.addLayout(self.infoLayout, 1)
         tableLayout.addLayout(reviewLayout, 4)
         self.generalLayout.addLayout(tableLayout)
 

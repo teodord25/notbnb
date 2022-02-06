@@ -197,6 +197,35 @@ class Reservation(TimeFrame):
     def finish(self):
         self.status = "Zavrsena"
 
+    def header(self, header=None):
+        header = [
+            "Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
+            "Kraj", "Ukupna cena", "Gost/Kontakt osoba", "Status", "Gost1",
+            "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"
+        ]
+
+        return header
+
+    def list(self):
+        # mfw
+        city = " ".join(self.apartment.address.split(" | ")[1].split()[:-1])
+
+        row = [
+            self.res_id, self.apt_id, self.start, self.duration, self.end,
+
+            int(self.apartment.price_per_night) * self.duration,
+
+            f"{self.user.fname} {self.user.lname} ({self.user.username})",
+
+            self.status,
+
+            self.guests[0], self.guests[1], self.guests[2],
+            self.guests[3], self.guests[4], self.guests[5],
+            self.guests[6], self.guests[7], city
+        ]
+
+        return row
+
     # TODO check if current date is past the end date for
     #   every active reservation on startup?
 
