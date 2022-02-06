@@ -1,5 +1,6 @@
 import PyQt5.QtWidgets
 import datetime
+from classes_and_stuff import TimeFrame
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QWidget
@@ -601,10 +602,17 @@ class ProjekatWindow(QMainWindow):
             self.widget4.setText(f"Lokacija: {apt.location}")
             self.widget5.setText(f"Adresa: {apt.address}")
 
+            tf = TimeFrame(str(datetime.date.today()), 30)
+            ts = tf.start
+            te = tf.end
+
             dostupnost = []
             for pair in apt.avlb:
                 s, e = pair[0], pair[1]
                 dostupnost.append(f"od {s}, do {e}")
+
+            if ts == s and te == e:
+                dostupnost.append("Slobodan je ceo interval (nema rezervacija u sledecih 30 dana).")
 
             dostupnost = "\n".join(dostupnost)
 
@@ -649,7 +657,7 @@ class ProjekatWindow(QMainWindow):
         reviewLayout.addWidget(QLabel("Unesite sifru apartmana koji bi detaljnije da pregledate, i/ili da rezervisete."))
         self.requestApt = QLineEdit()
         reviewLayout.addWidget(self.requestApt)
-        showApt = QPushButton("Prikazi apartman.")
+        showApt = QPushButton("Prikazi apartman")
         showApt.clicked.connect(self._createReview)
         reviewLayout.addWidget(showApt)
 

@@ -6,6 +6,13 @@ def compare(date1, sign, date2) -> bool:
     y1, m1, d1 = [int(i) for i in date1.split("-")]
     y2, m2, d2 = [int(i) for i in date2.split("-")]
 
+    if "=" in sign:
+        if y1 == y2 and m1 == m2 and d1 == d2:
+            return True
+        else:
+            sign = sign.replace("=", "")
+            # str.replace returns a copy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     if eval(f"{y1}{sign}{y2}"):
         return True
 
@@ -257,6 +264,7 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
 
     # filter for reservations only at this apartment
     df = df[df["Sifra apartmana"] == apt_id]
+    # am I doing this twice??
 
     # start and end of the potential date that was passed as an argument
     s_n = start
@@ -269,7 +277,8 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
         s_i = res["Pocetak"]
         e_i = res["Kraj"]
 
-        if not (compare(s_n, ">", e_i) or compare(e_n, "<", s_i)):
+        # is sn >= ei
+        if not (compare(s_n, ">=", e_i) or compare(e_n, "<=", s_i)):
             print(f"conflict with {s_i}, {e_i}")
             if normal_mode:
                 return False
@@ -293,27 +302,33 @@ def free_time(apt_id):
     e = tf.end
 
     while ctf is not True:
-        ctf = check_availability(s, e, df=df, apt_id=apt_id, normal_mode=False)
+        ctf = check_availability(start=s, end=e, df=df, apt_id=apt_id, normal_mode=False)
+
+        if ctf is True:
+            pairs.append([s, e])
+            return pairs
 
         cs = ctf.start
         ce = ctf.end
 
         # case 1
-        if compare(cs, "<", s) and compare(ce, ">", e):
-            return "no free time"
+        if compare(cs, "<=", s) and compare(ce, ">=", e):
+            return [[0, 0]]
 
         # case 2
-        if compare(cs, ">", s) and compare(ce, ">", e):
+        elif compare(cs, ">", s) and compare(ce, ">=", e):
             pairs.append([s, cs])
             return pairs
+            # return pairs
 
         # case 3
-        if compare(cs, "<", s) and compare(ce, "<", e):
-            pairs.append([ce, e])
-            return pairs
+        elif compare(cs, "<=", s) and compare(ce, "<", e):
+            s = ce
+            # pairs.append([ce, e])
+            # return pairs
 
         # case 4
-        if compare(cs, ">", s) and compare(ce, "<", e):
+        elif compare(cs, ">", s) and compare(ce, "<", e):
             pairs.append([s, cs])
             s = ce
     #
