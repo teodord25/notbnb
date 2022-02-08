@@ -1,5 +1,6 @@
 import PyQt5.QtWidgets
 import datetime
+from classes_and_stuff import InvalidDateError
 from classes_and_stuff import TimeFrame
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -32,6 +33,7 @@ import time_test
 from classes_and_stuff import User
 from classes_and_stuff import Apartment
 from classes_and_stuff import compare
+from classes_and_stuff import ReservationLayout
 from classes_and_stuff import check_availability
 from classes_and_stuff import Reservation
 from collections import Counter
@@ -116,7 +118,6 @@ from collections import Counter
 #         # end_day = (start_day + length) % days
 
 def filter_df(dataframe, query, x):
-
     df = dataframe
     qr = query
 
@@ -136,14 +137,14 @@ def filter_df(dataframe, query, x):
 
         i = qr.index("x")
 
-        if qr[i-1:i] == qr[i+1:i+2]:
+        if qr[i - 1:i] == qr[i + 1:i + 2]:
             qr1 = qr[i:]
             qr1 = qr1.replace("x", f'df["{x}"]')
             qr1 = f"df[{qr1}]"
 
             df = eval(qr1)
 
-            qr2 = qr[:i+1]
+            qr2 = qr[:i + 1]
             qr2 = qr2.replace("x", f'df["{x}"]')
             qr2 = f"df[{qr2}]"
 
@@ -175,9 +176,6 @@ def filter_df(dataframe, query, x):
 #
 #         user_details = convert.to_df("data/user_data.csv").loc[[""]]
 #
-#     def log_out(self):
-#         self.username = "Neregistrovan Korisnik"
-#         self.role = "Neregistrovan"
 
 #
 # class Apartment:
@@ -232,7 +230,10 @@ class ProjekatWindow(QMainWindow):
         self.setFixedSize(1280, 720)
 
         self.currentUser = User()
-        self.currentDF = convert.to_df("data/apartment_data.csv", use_cols=[0, 1, 2, 3, 5, 8])
+
+        self.baseDF = convert.to_df("data/apartment_data.csv")
+        self.currentDF = self.baseDF.copy()
+
         # self.currentDF = convert.to_df("data/reservations.csv")
 
         self._clearScreen()
@@ -278,8 +279,7 @@ class ProjekatWindow(QMainWindow):
                 self.registerPhone.text() and
                 self.registerEmail.text() and
                 self.genderCBox.currentText()
-                ):
-
+        ):
             print("field left empty")
             err = color_msg("Morate popuniti sva polja.", "Tomato")
 
@@ -320,7 +320,7 @@ class ProjekatWindow(QMainWindow):
         print(f"registered user: \n\t{self.registerUsername.text()}")
         success = color_msg(
             f"Uspesno ste se registrovali. {self.registerUsername.text()}", "Lime"
-            )
+        )
 
         self._formMessage(msg=success)
         return
@@ -347,8 +347,9 @@ class ProjekatWindow(QMainWindow):
                 self._formMessage(err)
                 return
 
-            self.currentUser.username = username
-            self.currentUser.role = role
+            self.currentUser = User(username=username)
+            # self.currentUser.username = username
+            # self.currentUser.role = role
 
             print("login successful")
 
@@ -371,6 +372,8 @@ class ProjekatWindow(QMainWindow):
 
     def _showPopularCities(self):
         df = convert.to_df("data/reservations.csv", use_cols=[2, 7, 16])
+        # df = self.baseDF.copy()
+        # df = df.loc[:, ["Pocetak", "Status", "Grad"]]
 
         date = str(datetime.date.today()).split("-")
         date[0] = str(int(date[0]) - 1)
@@ -385,9 +388,9 @@ class ProjekatWindow(QMainWindow):
         df = pd.DataFrame(lst, columns=["Pocetak", "Status", "Grad"])
 
         # df = df[compare(df["Pocetak"], ">", date)]
-            # a =
-            # a = convert.to_df("data/reservations.csv", use_cols=[8, 16])
-            # b = convert.to_df("data/reservations.csv", use_cols=[8, 16])
+        # a =
+        # a = convert.to_df("data/reservations.csv", use_cols=[8, 16])
+        # b = convert.to_df("data/reservations.csv", use_cols=[8, 16])
 
         a = df[df["Status"] == "Zavrsena"]
         b = df[df["Status"] == "Prihvacena"]
@@ -409,15 +412,16 @@ class ProjekatWindow(QMainWindow):
         self._createTable()
         # self.currentDF = convert.to_df("data/apartment_data.csv")
 
-
     def _submitSearch(self, mode="search", aprt_id=0):
         # if mode == "review":
         #     df = pd.read_csv("data/apartment_data.csv").iloc[[aprt_id]]
         #     amenity_df = pd.read_csv("data/amenities.csv").iloc[[aprt_id]]
         # elif mode == "search":
-        df_base = convert.to_df("data/apartment_data.csv")
-        df = df_base.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
-                         "Adresa", "Cena po noci (eur)"]]
+        # df_base = convert.to_df("data/apartment_data.csv")
+        df = self.baseDF.copy()
+
+        # df = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
+        #                  "Adresa", "Cena po noci (eur)"]]
 
         # TODO case insensitive search
         # current is sensitive
@@ -436,7 +440,7 @@ class ProjekatWindow(QMainWindow):
             df = filter_df(df, query=price, x="Cena po noci (eur)")
 
         if self.showActive.isChecked():
-            df = df_base[df_base["Status"] == "aktivan"]
+            df = df[df["Status"] == "aktivan"]
             df = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
                             "Adresa", "Cena po noci (eur)"]]
             # [:, [cols]]
@@ -448,7 +452,7 @@ class ProjekatWindow(QMainWindow):
         #
         #     df = df_base[df_base[""]]
 
-        self.currentDF = df
+        self.currentDF = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju", "Adresa", "Cena po noci (eur)"]]
         self._createTable()
 
         # I'm not sure how df[df[]] works
@@ -588,22 +592,37 @@ class ProjekatWindow(QMainWindow):
 
     def _createReview(self):
         try:
+            # self.widget0.show()
+            # self.widget1.show()
+            # self.widget2.show()
+            # self.widget3.show()
+            # self.widget4.show()
+            # self.widget5.show()
+            # self.widget6.show()
+            # self.widget7.show()
+            # self.widget8.show()
+            # self.widget9.show()
+
+            self.resLayout.showInfo()
+            self.resLayout.hideForm()
             int(self.requestApt.text())
 
             self.reviewWarning.setText("")
 
             apt = Apartment(self.requestApt.text(), compute_avlb=True)
-            self.widget0.setText(f"Sifra: {apt.apt_id}")
-            self.widget1.setText(f"Tip: {apt.type}")
-            self.widget2.setText(f"Broj soba: {apt.rooms}")
-            self.widget3.setText(f"Broj gostiju: {apt.guests}")
-            self.widget4.setText(f"Lokacija: {apt.location}")
-            self.widget5.setText(f"Adresa: {apt.address}")
+            self.resLayout.info0.setText(f"Sifra: {apt.apt_id}")
+            self.resLayout.info1.setText(f"Tip: {apt.type}")
+            self.resLayout.info2.setText(f"Broj soba: {apt.rooms}")
+            self.resLayout.info3.setText(f"Broj gostiju: {apt.spots}")
+            self.resLayout.info4.setText(f"Lokacija: {apt.location}")
+            self.resLayout.info5.setText(f"Adresa: {apt.address}")
 
             self.currentApt = apt
 
             self.reviewMessage.setText(
-                "Ako Vam se svidja ovaj apartman, kliknite na dugme 'dalje', da predjete na rezervaciju"
+                f"Ako Vam se dopada ovaj apartman, kliknite na dugme 'dalje' da predjete na rezervaciju.\n"
+                f"Ako zelite pregledati drugi ili ponovo isti apartman,\n"
+                f"pritisnite dugme 'prikazi apartman' sa odgovarajucom sifrom u polju za pretragu"
             )
             self.goNext.show()
 
@@ -617,37 +636,115 @@ class ProjekatWindow(QMainWindow):
                 dostupnost.append(f"od {s}, do {e}")
 
             if ts == s and te == e:
-                dostupnost.append("Slobodan je ceo interval (nema rezervacija u sledecih 30 dana).")
+                dostupnost.append("Slobodno je svih sledecih 30 dana.")
 
             dostupnost = "\n".join(dostupnost)
 
-            self.widget6.setText(f"Dostupnost za sledecih 30 dana:\n{dostupnost}")
+            self.resLayout.info6.setText(f"Dostupnost za sledecih 30 dana:\n{dostupnost}")
 
-            self.widget7.setText(f"Domacin: {apt.host}")
-            self.widget8.setText(f"Cena po noci (eur): {apt.price_per_night}")
-            self.widget9.setText(f"Status: {apt.status}")
+            self.resLayout.info7.setText(f"Domacin: {apt.host}")
+            self.resLayout.info8.setText(f"Cena po noci (eur): {apt.price_per_night}")
+            self.resLayout.info9.setText(f"Status: {apt.status}")
 
         except ValueError:
             msg = color_msg("Pogresan unos", "Tomato")
             print(msg)
             self.reviewWarning.setText(msg)
 
+    def updateReservations(self):
+        pass
+
     def _reservationForm(self):
-        df = convert.to_df("data/reservations.csv")
-        n = df.iloc[-1]["Sifra rezervacije"]
-        form = QFormLayout()
+        self.resLayout.showForm(int(self.currentApt.spots) - 1)
+        self.resLayout.label2.setText(f"Sifra apartmana: {self.currentApt.apt_id}")
 
-        # self.reservation = Reservation(n, s, d, apt_id, uname, guests)
+    def _bookApt(self):
+        # df = convert.to_df("data/reservations.csv")
+        # n = df.iloc[-1, 0]["Sifra rezervacije"]
 
-        form.addRow("")
+        # self.resLayout.label2.setText(f"Sifra apartmana: {self.requestApt.text()}")
+        s = self.resLayout.reservationStart.text()
 
-        self.infoLayout = QVBoxLayout()
-        self.infoLayout.addLayout(form)
+        dur = self.resLayout.reservationDuration.text()
+
+        try:
+            dur = int(dur)
+        except ValueError:
+            err = color_msg("Pogresan broj nocenja.", "Tomato")
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
+        apt_id = self.requestApt.text()
+        uname = self.resLayout.reservationUser.username
+
+        # TODO email validation
+
+        try:
+            df = self.currentDF.copy()
+            apt = df[df["Sifra"] == apt_id].squeeze()
+
+            tf = TimeFrame(s, dur)
+            tf.date_check()
+
+            date = str(datetime.date.today())
+            if compare(s, "<", date):
+                print("tried to reserve a date in the past")
+
+                err = color_msg("Ne mozete napraviti rezervaciju koja pocinje u proslosti!", "Tomato")
+
+                self.reviewWarning.setText(err)
+                self._reservationForm()
+                return
+
+            if self.currentUser.role == "Neregistrovan":
+                print("not logged in")
+                err = color_msg("Morate se prijaviti!", "Tomato")
+
+                self.reviewWarning.setText(err)
+                self._reservationForm()
+                return
+
+            if apt["Status"] == "neaktivan":
+                print("inactive apt")
+                err = color_msg("Ovaj apartman trenutno nije aktivan!", "Tomato")
+
+                self.reviewWarning.setText(err)
+                self._reservationForm()
+                return
+
+            foo = check_availability(s, tf.end, apt_id, normal_mode=False)
+            if foo is not True:
+                cs = foo[0]
+                ce = foo[1]
+                err = color_msg(f"Apartman je zauzet od {cs} do {ce}!", "Tomato")
+
+                self.reviewWarning.setText(err)
+                self._reservationForm()
+                return
+
+            reservation = Reservation(start=s, duration=dur, apartment_id=apt_id, username=uname)
+
+            reservation.reserve()
+            res_id = reservation.res_id
+            succ = color_msg(f"Uspesno ste rezervisali apartman, sifra ove rezervacije je: {res_id}")
+            self.reviewMessage.setText(succ)
+
+
+        except InvalidDateError:
+            print("invalid date")
+            err = color_msg("Nepravilan datum.", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
+        # TODO USPESNO STE REZERVISALI BRALE
 
     def _createTable(self):
         tableLayout = QHBoxLayout()
         reviewLayout = QVBoxLayout()
-        self.infoLayout = QVBoxLayout()
+        self.resLayout = ReservationLayout(self.currentUser, )
 
         self._clearScreen()
         self._createTopRow()
@@ -672,6 +769,9 @@ class ProjekatWindow(QMainWindow):
         self.goNext = QPushButton("Dalje")
         self.goNext.hide()
 
+        self.bookBtn = QPushButton("Rezervisi ovaj apartman")
+        self.bookBtn.clicked.connect(self._bookApt)
+
         self.goNext.clicked.connect(self._reservationForm)
 
         showApt = QPushButton("Prikazi apartman")
@@ -689,29 +789,8 @@ class ProjekatWindow(QMainWindow):
         reviewLayout.addWidget(self.reviewMessage)
         reviewLayout.addWidget(self.goNext)
 
-        self.widget0 = QLabel("")
-        self.widget1 = QLabel("")
-        self.widget2 = QLabel("")
-        self.widget3 = QLabel("")
-        self.widget4 = QLabel("")
-        self.widget5 = QLabel("")
-        self.widget6 = QLabel("")
-        self.widget7 = QLabel("")
-        self.widget8 = QLabel("")
-        self.widget9 = QLabel("")
-
-        self.infoLayout.addWidget(self.widget0)
-        self.infoLayout.addWidget(self.widget1)
-        self.infoLayout.addWidget(self.widget2)
-        self.infoLayout.addWidget(self.widget3)
-        self.infoLayout.addWidget(self.widget4)
-        self.infoLayout.addWidget(self.widget5)
-        self.infoLayout.addWidget(self.widget6)
-        self.infoLayout.addWidget(self.widget7)
-        self.infoLayout.addWidget(self.widget8)
-        self.infoLayout.addWidget(self.widget9)
-
-        reviewLayout.addLayout(self.infoLayout, 1)
+        reviewLayout.addLayout(self.resLayout, 1)
+        reviewLayout.addWidget(self.bookBtn)
         tableLayout.addLayout(reviewLayout, 4)
         self.generalLayout.addLayout(tableLayout)
 
@@ -781,8 +860,41 @@ def main():
 if __name__ == '__main__':
     main()
 
-
 # the option is called stretch
 # you can change the ratios by passing a number in .addWidget or .addLayout
 # e.g. .addWidget(widget_one, 1) .addWidget(widget_two, 9)
 #   this will make widget_two take up 9 times as much space as widget_one
+
+# self.widget0.hide()
+# self.widget1.hide()
+# self.widget2.hide()
+# self.widget3.hide()
+# self.widget4.hide()
+# self.widget5.hide()
+# self.widget6.hide()
+# self.widget7.hide()
+# self.widget8.hide()
+# self.widget9.hide()
+
+# self.resLayout.hideInfo()
+# form = QFormLayout()
+
+# form.addRow("Ayo", QLineEdit())
+
+# self.reservation = Reservation(n, s, d, apt_id, uname, guests)
+
+# self.infoLayout.setParent(None)
+# self.infoLayout = QVBoxLayout()
+# for i in reversed(range(self.infoLayout.count())):
+#     self.infoLayout.itemAt(i).widget().setParent(None)
+# self.infoLayout.addWidget(QPushButton())
+# self.infoLayout.addLayout(form)
+# self.form = QFormLayout()
+# self.form.addRow("Ayo: ", QPushButton("jodjifoisjdoifjsoidjfosd"))
+# self.form.addRow("Ayo: ", QPushButton("jodjifoisjdoifjsoidjfosd"))
+# self.form.addRow("Ayo: ", QPushButton("jodjifoisjdoifjsoidjfosd"))
+# self.form.addRow("Ayo: ", QPushButton("jodjifoisjdoifjsoidjfosd"))
+# self.form.addRow("Ayo: ", QPushButton("jodjifoisjdoifjsoidjfosd"))
+# self.infoLayout.addLayout(self.form)
+# self.form.hide()
+# self.form.setItem(0, PyQt5.QtWidgets.QFormLayout.ItemRole, "BINGONG")

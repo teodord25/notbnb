@@ -134,7 +134,6 @@ def generate_reservations():
 
     reservations = []
 
-
     for index in apt_indices:
         n += 1
         apt = Apartment(index)
@@ -148,18 +147,9 @@ def generate_reservations():
         dur = random.randint(1, 15)
 
         user = User(user_id=random.choice(usr_indices))
-        spots_left = int(apt.guests) - 1
+        # spots_left = int(apt.spots) - 1
 
-        guests = ["ne postoji" for _ in range(9)]
-        if spots_left:
-            for _ in range(spots_left):
-                id = random.choice(guests_range)
-                guest = User(user_id=id)
-                fname = guest.fname
-                lname = guest.lname
-
-                guests.insert(0, f"{fname} {lname}")
-                guests.pop()
+        guests = [User(random.choice(guests_range) for _ in range(8))]
 
         reservation = Reservation(reservation_id=n, start=st, duration=dur,
                                   apartment_id=index, username=user.username,
@@ -181,19 +171,8 @@ def generate_reservations():
         # mfw
         city = " ".join(reservation.apartment.address.split(" | ")[1].split()[:-1])
 
-        # row = [
-        #     reservation.res_id, reservation.apt_id, reservation.start,
-        #     reservation.duration, reservation.end,
-        #     int(reservation.apartment.price_per_night) * reservation.duration,
-        #
-        #     f"{reservation.user.fname} {reservation.user.lname} ({reservation.user.username})",
-        #
-        #     reservation.status,
-        #
-        #     reservation.guests[0], reservation.guests[1], reservation.guests[2],
-        #     reservation.guests[3], reservation.guests[4], reservation.guests[5],
-        #     reservation.guests[6], reservation.guests[7], city
-        # ]
+        row = reservation.list()
+        header = reservation.header()
 
         # not the most efficient way of doing this, but it's whatever now
         temp_df = pd.DataFrame(reservations, columns=header)
@@ -215,3 +194,28 @@ if __name__ == "__main__":
 
 # Why spend 1 hour creating testing data when you can
 # spend 40 hours automating testing data generation
+
+# row = [
+#     reservation.res_id, reservation.apt_id, reservation.start,
+#     reservation.duration, reservation.end,
+#     int(reservation.apartment.price_per_night) * reservation.duration,
+#
+#     f"{reservation.user.fname} {reservation.user.lname} ({reservation.user.username})",
+#
+#     reservation.status,
+#
+#     reservation.spots[0], reservation.spots[1], reservation.spots[2],
+#     reservation.spots[3], reservation.spots[4], reservation.spots[5],
+#     reservation.spots[6], reservation.spots[7], city
+# ]
+
+# spots = ["ne postoji" for _ in range(9)]
+# if spots_left:
+#     for _ in range(spots_left):
+#         id = random.choice(guests_range)
+#         guest = User(user_id=id)
+#         fname = guest.fname
+#         lname = guest.lname
+#
+#         spots.insert(0, f"{fname} {lname}")
+#         spots.pop()
