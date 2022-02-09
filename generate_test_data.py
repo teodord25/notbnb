@@ -4,7 +4,6 @@ import random
 import convert
 # from time_test import Reservation
 import datetime
-# import user_test
 from classes_and_stuff import User
 from classes_and_stuff import Reservation
 from classes_and_stuff import Apartment
@@ -149,7 +148,11 @@ def generate_reservations():
         user = User(user_id=random.choice(usr_indices))
         # spots_left = int(apt.spots) - 1
 
-        guests = [User(random.choice(guests_range) for _ in range(8))]
+        guests = []
+        for _ in range(8):
+            guest = User(random.choice(guests_range))
+            guest = " ".join([guest.fname, guest.lname])
+            guests.append(guest)
 
         reservation = Reservation(reservation_id=n, start=st, duration=dur,
                                   apartment_id=index, username=user.username,
@@ -171,8 +174,8 @@ def generate_reservations():
         # mfw
         city = " ".join(reservation.apartment.address.split(" | ")[1].split()[:-1])
 
-        row = reservation.list()
-        header = reservation.header()
+        row = reservation.row_data()
+        header = reservation.header
 
         # not the most efficient way of doing this, but it's whatever now
         temp_df = pd.DataFrame(reservations, columns=header)

@@ -16,6 +16,12 @@ class InvalidDateError(Error):
     pass
 
 
+class InvalidSearchError(Error):
+    """Raised when filter_df encounters an error"""
+    pass
+
+
+
 def compare(date1, sign, date2) -> bool:
     y1, m1, d1 = [int(i) for i in date1.split("-")]
     y2, m2, d2 = [int(i) for i in date2.split("-")]
@@ -245,10 +251,14 @@ class Reservation(TimeFrame):
         self.date_check()
 
         self.df = convert.to_df("data/reservations.csv")
-
         if reservation_id is None:
-            # last reservation id in reservations.csv + 1
-            self.res_id = int(self.df.iat[-1, 0]) + 1
+            if self.df.empty:
+                self.res_id = 0
+            else:
+                # last reservation id in reservations.csv + 1
+                self.res_id = int(self.df.iat[-1, 0]) + 1
+        else:
+            self.res_id = reservation_id
 
         self.apt_id = apartment_id
         self.user = User(username=username)
@@ -259,11 +269,11 @@ class Reservation(TimeFrame):
         self.city = " ".join(self.apartment.address.split(" | ")[1].split()[:-1])
 
         spots_left = int(self.apartment.spots) - 1
-        guests = ["ne postoji" for _ in range(spots_left)]
+        guests = ["ne postoji" for _ in range(8)]
 
         if spots_left:
             for guest in self.guests:
-                guests.insert(0, f"{guest[0]} {guest[1]}")
+                guests.insert(0, f"{guest.split()[0]} {guest.split()[1]}")
                 guests.pop()
 
         self.guests = guests
@@ -288,21 +298,15 @@ class Reservation(TimeFrame):
         self.status = "Zavrsena"
 
     def row_data(self):
-        row = [
-            self.res_id, self.apt_id, self.start, self.duration, self.end,
+        row = [int(self.res_id), int(self.apt_id), self.start, int(self.duration), self.end,
+               int(self.apartment.price_per_night) * self.duration,
+               f"{self.user.fname} {self.user.lname} ({self.user.username})", self.status, *self.guests, self.city]
 
-            int(self.apartment.price_per_night) * self.duration,
-
-            f"{self.user.fname} {self.user.lname} ({self.user.username})",
-
-            self.status
-        ]
-
-        row = row.append(self.guests)
         return row
 
     def reserve(self):
-        self.df = self.df.append(pd.DataFrame([self.row_data()]), ignore_index=True)
+        rowdf = pd.DataFrame([self.row_data()], columns=convert.headers("data/reservations.csv"))
+        self.df = self.df.append(rowdf, ignore_index=True)
         convert.to_csv(self.df, "data/reservations.csv")
 
     # TODO check if current date is past the end date for
@@ -410,7 +414,6 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
 
 def free_time(apt_id):
     res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4])
-    df = res_df[res_df["Sifra apartmana"] == apt_id]
     # only the reservations for this apartment
 
     date = str(datetime.date.today())
@@ -421,6 +424,11 @@ def free_time(apt_id):
 
     s = tf.start
     e = tf.end
+
+    if res_df.empty:
+        return [[s, e]]
+    else:
+        df = res_df[res_df["Sifra apartmana"] == apt_id]
 
     while ctf is not True:
         ctf = check_availability(start=s, end=e, df=df, apt_id=apt_id, normal_mode=False)

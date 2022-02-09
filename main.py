@@ -1,5 +1,6 @@
 import PyQt5.QtWidgets
 import datetime
+from classes_and_stuff import InvalidSearchError
 from classes_and_stuff import InvalidDateError
 from classes_and_stuff import TimeFrame
 from PyQt5.QtWidgets import QApplication
@@ -123,7 +124,7 @@ def filter_df(dataframe, query, x):
 
     try:
         qr = int(qr)
-        return df[df[x] == qr]
+        return df[df[x] == str(qr)]
 
     except ValueError:
         print("not int... doing comparison filter")
@@ -133,7 +134,26 @@ def filter_df(dataframe, query, x):
         for ch in qr:
             if ch not in "<>0123456789x":
                 print("invalid input, illegal char")
-                return df
+                raise InvalidSearchError
+
+        # put "" around every number
+        s = []
+
+        i = 0
+        while i < len(qr):
+            if qr[i].isnumeric():
+                s.append('"')
+                while qr[i].isnumeric():
+                    s.append(qr[i])
+                    i += 1
+                    if i == len(qr):
+                        break
+                s.append('"')
+            else:
+                s.append(qr[i])
+                i += 1
+
+        qr = "".join(s)
 
         i = qr.index("x")
 
@@ -142,7 +162,7 @@ def filter_df(dataframe, query, x):
             qr1 = qr1.replace("x", f'df["{x}"]')
             qr1 = f"df[{qr1}]"
 
-            df = eval(qr1)
+            # df = eval(qr1)
 
             qr2 = qr[:i + 1]
             qr2 = qr2.replace("x", f'df["{x}"]')
@@ -160,10 +180,17 @@ def filter_df(dataframe, query, x):
     except ValueError:
         print("value error")
         print("invalid input")
+        raise InvalidSearchError
 
     except TypeError:
         print("type error")
         print("invalid input")
+        raise InvalidSearchError
+
+    except SyntaxError:
+        print("syntax error")
+        print("invalid input")
+        raise InvalidSearchError
 
 
 # class User:
@@ -232,7 +259,8 @@ class ProjekatWindow(QMainWindow):
         self.currentUser = User()
 
         self.baseDF = convert.to_df("data/apartment_data.csv")
-        self.currentDF = self.baseDF.copy()
+        self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
+                                                    "Adresa", "Cena po noci (eur)"]]
 
         # self.currentDF = convert.to_df("data/reservations.csv")
 
@@ -427,25 +455,35 @@ class ProjekatWindow(QMainWindow):
         # current is sensitive
         df = df[df["Adresa"].str.contains(self.searchLocation.text())]
 
-        rooms = self.searchRooms.text()
-        if rooms:
-            df = filter_df(df, query=rooms, x="Broj soba")
+        try:
+            rooms = self.searchRooms.text()
+            if rooms:
+                df = filter_df(df, query=rooms, x="Broj soba")
 
-        persons = self.searchPersons.text()
-        if persons:
-            df = filter_df(df, query=persons, x="Broj gostiju")
+            persons = self.searchPersons.text()
+            if persons:
+                df = filter_df(df, query=persons, x="Broj gostiju")
 
-        price = self.searchPrice.text()
-        if price:
-            df = filter_df(df, query=price, x="Cena po noci (eur)")
+            price = self.searchPrice.text()
+            if price:
+                df = filter_df(df, query=price, x="Cena po noci (eur)")
 
-        if self.showActive.isChecked():
-            df = df[df["Status"] == "aktivan"]
+            if self.showActive.isChecked():
+                df = df[df["Status"] == "aktivan"]
+
             df = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
                             "Adresa", "Cena po noci (eur)"]]
-            # [:, [cols]]
-            # : -> all rows
-            # [cols] -> only "cols" columns
+                # [:, [cols]]
+                # : -> all rows
+                # [cols] -> only "cols" columns
+        except InvalidSearchError:
+            print("invalid search")
+            err = color_msg("Pogresan unos!", "Tomato")
+
+            self.currentDF = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju", "Adresa", "Cena po noci (eur)"]]
+            self._createTable()
+            self.searchMsg.setText(err)
+            return
 
         # if self.popularCities.isChecked():
         #     df = convert.to_df("data/reservations.csv", use_cols=[16])
@@ -475,6 +513,7 @@ class ProjekatWindow(QMainWindow):
         self.searchPrice = QLineEdit()
         self.popularCities = QPushButton("Prikazi 10 najpopularnijih gradova")
         self.showActive = QCheckBox()
+        self.searchMsg = QLabel("")
 
         # TODO fix shishana latinica
         self.searchButton = QPushButton("Pretrazi")
@@ -489,27 +528,37 @@ class ProjekatWindow(QMainWindow):
 
         # TODO do something about the lack of dostupnost searching
         # (widget, y, x)
-        topLayout.addWidget(QLabel("Mesto"), 0, 1)
-        topLayout.addWidget(self.searchLocation, 0, 2, 1, 7)
+        topLayout.addWidget(self.searchMsg, 0, 1)
+        topLayout.addWidget(QLabel("Mesto"), 0, 3)
+        topLayout.addWidget(self.searchLocation, 0, 4, 1, 5)
         # topLayout.addWidget(QLabel("Dostupnost"), 1, 1)
         # topLayout.addWidget(self.searchAvailability, 1, 2)
         topLayout.addWidget(QLabel("Broj soba"), 1, 3)
         topLayout.addWidget(self.searchRooms, 1, 4)
-        topLayout.addWidget(QLabel("Broj osoba"), 1, 5)
+        topLayout.addWidget(QLabel("Broj gostiju"), 1, 5)
         topLayout.addWidget(self.searchPersons, 1, 6)
         topLayout.addWidget(QLabel("Cena po noci"), 1, 7)
         topLayout.addWidget(self.searchPrice, 1, 8)
         topLayout.addWidget(self.searchButton, 0, 9, 2, 1)
-        topLayout.addWidget(self.popularCities, 2, 1, 1, 2)
-        # topLayout.addWidget(self.popularCities, 2, 2)
-        topLayout.addWidget(QLabel("Prikazi samo aktivne apartmane"), 3, 1)
-        topLayout.addWidget(self.showActive, 3, 2)
-        textLayout.addWidget(QLabel("Primeri koriscenja pretrage:"))
-        textLayout.addWidget(QLabel("Vrednost manja od: x < 3 je isto sto i 3 > x, isto vazi i za vece."))
-        textLayout.addWidget(QLabel("Vrednost izmedju: 2 < x < 5, ili samo unesite tacnu vrednost koju trazite."))
-        textLayout.addWidget(QLabel("Dostupnost se racuna kad prikazete detalje apartmana"))
+        topLayout.addWidget(self.popularCities, 0, 1, 1, 2)
+        topLayout.addWidget(QLabel(f"Potvrdite/osvezite pretragu pritiskom na dugme 'Pretrazi',\n"
+                                   f"Mozete vratiti tabelu u prvobitno stanje (svi apartmani), "
+                                   f"ako polja ostavite prazno kada pritisnete dugme."), 2, 0, 1, 8)
 
-        topLayout.addLayout(textLayout, 3, 3, 1, 6)
+        # topLayout.addWidget(self.popularCities, 2, 2)
+        topLayout.addWidget(QLabel("Prikazi samo aktivne apartmane"), 1, 1)
+        topLayout.addWidget(self.showActive, 1, 2)
+        topLayout.addWidget(QLabel(f"Primeri koriscenja pretrage: \n"
+                                   f"Vrednost manja od: x < 3 je isto sto i 3 > x, isto vazi i za vece.\n"
+                                   f"Vrednost izmedju: 2 < x < 5, ili samo unesite tacnu vrednost koju trazite."), 3, 0, 1, 8)
+        topLayout.addWidget(QLabel("Dostupnost se racuna/proverava kad izaberete apartman!"), 3, 4, 1, 5)
+
+        # textLayout.addWidget(QLabel("Primeri koriscenja pretrage:"))
+        # textLayout.addWidget(QLabel("Vrednost manja od: x < 3 je isto sto i 3 > x, isto vazi i za vece."))
+        # textLayout.addWidget(QLabel("Vrednost izmedju: 2 < x < 5, ili samo unesite tacnu vrednost koju trazite."))
+        # textLayout.addWidget(QLabel("Dostupnost se racuna kad prikazete detalje apartmana"))
+        #
+        # topLayout.addLayout(textLayout, 3, 3, 1, 6)
         self.generalLayout.addLayout(topLayout)
 
     def _createRegisterScreen(self):
@@ -609,7 +658,23 @@ class ProjekatWindow(QMainWindow):
 
             self.reviewWarning.setText("")
 
-            apt = Apartment(self.requestApt.text(), compute_avlb=True)
+            # TODO make recovery functions (i.e. create_empty_reservations.csv with header)
+
+            try:
+                apt = Apartment(self.requestApt.text(), compute_avlb=True)
+            # except IndexError:
+            #     print("reservations.csv empty")
+            #     err = color_msg("Fajl za rezervacije je prazan!", "Tomato")
+            #
+            #     self.reviewWarning.setText(err)
+            #     return
+            except FileNotFoundError:
+                print("reservations.csv missing")
+                err = color_msg("Fajl za rezervacije ne postoji!", "Tomato")
+
+                self.reviewWarning.setText(err)
+                return
+
             self.resLayout.info0.setText(f"Sifra: {apt.apt_id}")
             self.resLayout.info1.setText(f"Tip: {apt.type}")
             self.resLayout.info2.setText(f"Broj soba: {apt.rooms}")
@@ -666,6 +731,17 @@ class ProjekatWindow(QMainWindow):
         s = self.resLayout.reservationStart.text()
 
         dur = self.resLayout.reservationDuration.text()
+        guests = [
+            self.resLayout.reservationGuest1.text(),
+            self.resLayout.reservationGuest2.text(),
+            self.resLayout.reservationGuest3.text(),
+            self.resLayout.reservationGuest4.text(),
+            self.resLayout.reservationGuest5.text(),
+            self.resLayout.reservationGuest6.text(),
+            self.resLayout.reservationGuest7.text(),
+            self.resLayout.reservationGuest8.text()
+        ]
+        guests = [i for i in guests if i != ""]
 
         try:
             dur = int(dur)
@@ -681,7 +757,7 @@ class ProjekatWindow(QMainWindow):
         # TODO email validation
 
         try:
-            df = self.currentDF.copy()
+            df = self.baseDF.copy()
             apt = df[df["Sifra"] == apt_id].squeeze()
 
             tf = TimeFrame(s, dur)
@@ -723,13 +799,12 @@ class ProjekatWindow(QMainWindow):
                 self._reservationForm()
                 return
 
-            reservation = Reservation(start=s, duration=dur, apartment_id=apt_id, username=uname)
+            reservation = Reservation(start=s, duration=dur, apartment_id=apt_id, username=uname, guests=guests)
 
             reservation.reserve()
             res_id = reservation.res_id
-            succ = color_msg(f"Uspesno ste rezervisali apartman, sifra ove rezervacije je: {res_id}")
+            succ = color_msg(f"Uspesno ste rezervisali apartman, sifra ove rezervacije je: {res_id}", "Lime")
             self.reviewMessage.setText(succ)
-
 
         except InvalidDateError:
             print("invalid date")
