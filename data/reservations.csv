@@ -1,4 +1,4 @@
-Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena,Gost/Kontakt osoba,Status,Gost1,Gost2,Gost3,Gost4,Gost5,Gost6,Gost7,Gost8,Grad
+Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Gost/Kontakt osoba,Status,Gost1,Gost2,Gost3,Gost4,Gost5,Gost6,Gost7,Gost8,Grad
 1,24,2020-09-23,9,2020-10-02,297,Grgur Barišić (Whons1950),Zavrsena,Vedrana Matijević,Leona Duvnjak,Berivoj Marušić,Mihovil Kovačić,Nediljko Jerković,Dragana Kovač,Blago Obad,Davorin Petković,Everett
 2,4,2020-06-23,12,2020-07-05,396,Gordan Brkić (Brobbegreare),Odustanak,Desimir Novaković,Snežana Bošnjak,Diana Jurić,Damir Ćosić,Milenko Jozić,Desimir Novaković,fname lname,Daniel Pavlović,Burr Ridge
 3,22,2021-08-12,6,2021-08-18,186,Tomica Marinović (Rundepress),Odbijena,Velimir Klarić,Borislav Novak,Saša Jukić,Ana Kos,Leonardo Jakšić,Dubravka Lovrić,Diana Jurić,Velimir Klarić,Burr Ridge
@@ -391,3 +391,6 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena,Gost/Kon
 399,18,2020-01-14,8,2020-01-22,224,Mateo Herceg (Bobselp),Odustanak,Ljiljana Matković,Stanka Grgić,Spomenka Mihaljević,Zrina Stanić,Berivoj Marušić,Zrina Jukić,Spomenka Mihaljević,Tuga Čerkez,Antioch
 400,43,2020-06-23,1,2020-06-24,30,Milena Barić (Luctly1975),Zavrsena,Karlo Marjanović,Mirjana Mihaljević,Maria Ivanković,Vedrana Matijević,Ana Kos,Damir Ćosić,Darijo Janković,Manuela Novaković,Everett
 401,9,2022-04-12,5,2022-04-17,205,fname lname (uname),Kreirana,Bajo Pivljanin,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
+402,70,2022-12-03,3,2022-12-06,78,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Laurinburg
+403,9,2022-07-04,4,2022-07-08,156,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
+404,9,2022-12-04,5,2022-12-09,195,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville

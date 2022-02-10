@@ -251,6 +251,7 @@ class Reservation(TimeFrame):
         self.date_check()
 
         self.df = convert.to_df("data/reservations.csv")
+
         if reservation_id is None:
             if self.df.empty:
                 self.res_id = 0
@@ -266,6 +267,12 @@ class Reservation(TimeFrame):
         self.status = status
         self.guests = guests
 
+        df = self.df[self.df["Gost/Kontakt osoba"].str.contains(self.user.username)]
+        if df.empty:
+            self.popust = 1
+        else:
+            self.popust = 0.95
+
         self.city = " ".join(self.apartment.address.split(" | ")[1].split()[:-1])
 
         spots_left = int(self.apartment.spots) - 1
@@ -278,11 +285,13 @@ class Reservation(TimeFrame):
 
         self.guests = guests
 
-        self.header = [
-            "Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
-            "Kraj", "Ukupna cena", "Gost/Kontakt osoba", "Status", "Gost1",
-            "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"
-        ]
+        self.header = convert.headers("data/reservations.csv")
+
+        # self.header = [
+        #     "Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
+        #     "Kraj", "Ukupna cena (eur)", "Gost/Kontakt osoba", "Status", "Gost1",
+        #     "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"
+        # ]
 
     def cancel(self):
         self.status = "Odustanak"
@@ -299,7 +308,7 @@ class Reservation(TimeFrame):
 
     def row_data(self):
         row = [int(self.res_id), int(self.apt_id), self.start, int(self.duration), self.end,
-               int(self.apartment.price_per_night) * self.duration,
+               round(int(self.apartment.price_per_night) * self.duration * self.popust),
                f"{self.user.fname} {self.user.lname} ({self.user.username})", self.status, *self.guests, self.city]
 
         return row
@@ -474,6 +483,26 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.hideInfo()
         self.hideForm()
 
+        r = convert.to_df("data/reservations.csv", use_cols=[6])
+        self.r = r[r["Gost/Kontakt osoba"].str.contains(user.username)]
+        self.apt = None
+
+    def _updatePrice(self):
+        try:
+            dr = int(self.reservationDuration.text())
+        except ValueError:
+            print("duration not int")
+            return
+
+        price = int(self.apt.price_per_night) * dr
+        if not self.r.empty:
+            priceNew = round(price * 0.95)
+            string = f"Ukupna cena: {priceNew} eur " + f"<s>{price} eur</s>\nOstvarili ste popust!"
+        else:
+            string = f"Ukupna cena: {price} eur"
+
+        self.label14.setText(string)
+
     def _showGuests(self, guests_n):
         guests = [
             self.reservationGuest1,
@@ -516,6 +545,10 @@ class ReservationLayout(QGridLayout): #QFormLayout):
 
         self.reservationStart = QLineEdit()
         self.reservationDuration = QLineEdit()
+
+        # the internet said .clear() would trigger this >:(
+        self.reservationDuration.textChanged.connect(self._updatePrice)
+
         self.reservationGuest1 = QLineEdit()
         self.reservationGuest2 = QLineEdit()
         self.reservationGuest3 = QLineEdit()
@@ -547,6 +580,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.label11 = QLabel("Dodatni gost 7: ")
         self.label12 = QLabel("Dodatni gost 8: ")
         self.label13 = QLabel("Nema vise mesta za dodatne goste.")
+        self.label14 = QLabel("Ukupna cena: ")
 
     def _addToLayout(self):
         self.addWidget(self.info0, 0, 0)
@@ -573,6 +607,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.addWidget(self.label11, 11, 1)
         self.addWidget(self.label12, 12, 1)
         self.addWidget(self.label13, 13, 1, 1, 2)
+        self.addWidget(self.label14, 14, 1, 1, 2)
         self.addWidget(self.reservationStart, 0, 2)
         self.addWidget(self.reservationDuration, 1, 2)
         self.addWidget(self.reservationGuest1, 5, 2)
@@ -612,6 +647,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.label11.hide()
         self.label12.hide()
         self.label13.hide()
+        self.label14.hide()
 
         self.reservationStart.hide()
         self.reservationDuration.hide()
@@ -644,171 +680,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.label3.show()
         self.label4.show()
         self.label13.show()
+        self.label14.show()
 
         self.reservationStart.show()
         self.reservationDuration.show()
-
-        # self.label5.show()
-        # self.label6.show()
-        # self.label7.show()
-        # self.label8.show()
-        # self.label9.show()
-        # self.label10.show()
-        # self.label11.show()
-        # self.label12.show()
-        # self.reservationAptId.show()
-        # self.reservationGuest1.show()
-        # self.reservationGuest2.show()
-        # self.reservationGuest3.show()
-        # self.reservationGuest4.show()
-        # self.reservationGuest5.show()
-        # self.reservationGuest6.show()
-        # self.reservationGuest7.show()
-        # self.reservationGuest8.show()
-
-    # self.addWidget(self.info0, 0, 0)
-    # self.addWidget(self.info1, 1, 0)
-    # self.addWidget(self.info2, 2, 0)
-    # self.addWidget(self.info3, 3, 0)
-    # self.addWidget(self.info4, 4, 0)
-    # self.addWidget(self.info5, 5, 0)
-    # self.addWidget(self.info6, 6, 0)
-    # self.addWidget(self.info7, 7, 0)
-    # self.addWidget(self.info8, 8, 0)
-    # self.addWidget(self.info9, 9, 0)
-    # self.addWidget(self.label0, 10, 0)
-    # self.addWidget(self.label1, 11, 0)
-    # self.addWidget(self.label2, 12, 0)
-    # self.addWidget(self.label3, 13, 0)
-    # self.addWidget(self.label4, 14, 0)
-    # self.addWidget(self.label5, 15, 0)
-    # self.addWidget(self.label6, 16, 0)
-    # self.addWidget(self.label7, 17, 0)
-    # self.addWidget(self.label8, 18, 0)
-    # self.addWidget(self.label9, 19, 0)
-    # self.addWidget(self.label10, 20, 0)
-    # self.addWidget(self.label11, 21, 0)
-    # self.addWidget(self.label12, 22, 0)
-    # self.addWidget(self.reservationStart, 10, 1)
-    # self.addWidget(self.reservationDuration, 11, 1)
-    # self.addWidget(self.reservationAptId, 12, 1)
-    # self.addWidget(self.reservationGuest1, 15, 1)
-    # self.addWidget(self.reservationGuest2, 16, 1)
-    # self.addWidget(self.reservationGuest3, 17, 1)
-    # self.addWidget(self.reservationGuest4, 18, 1)
-    # self.addWidget(self.reservationGuest5, 19, 1)
-    # self.addWidget(self.reservationGuest6, 20, 1)
-    # self.addWidget(self.reservationGuest7, 21, 1)
-    # self.addWidget(self.reservationGuest8, 22, 1)
-    #
-    #
-    # if not isinstance(ctf, TimeFrame):
-    #     break
-    #
-    # free = False
-    # if free:
-    #     return pairs
-    #
-    # s = start
-    # e = end
-    #
-        # s = tf.start
-        # e = tf.end
-        # id = apt_id
-        #
-        # pairs = []
-        # free = False
-
-    # def check_tf(tf, df, apt_id): #start, end, df, id, p, free):
-
-    # # conflicting time frame
-    # # conf_tf = check_availability(s, e, df=res_df, apt_id=id, normal_mode=False)
-    # pair = [s, ctf.start]
-    # pairs.append(pair)
-    # s = ctf.end
-    # if compare()
-    #
-    # ctf =
-    #
-    # check_tf()
-    # return True
-    #
-    # if check_availability(s, e, df=res_df, apt_id=id) is True:
-    #     return [tf.start[-5:], tf.end[-5:]]
-    # else:
-    #     while True:
-    #
-    #     # while isinstance((check_availability(s, e, df=res_df, apt_id=id, normal_mode=False)), TimeFrame):
-    #     #     # conflicting time frame
-    #     #     conf_tf = check_availability(s, e, df=res_df, apt_id=id, normal_mode=False)
-    #     #     pair = [s, conf_tf.start]
-    #     #     pairs.append(pair)
-    #     #     s = conf_tf.end
-    #     pairs.append(pair)
-    #
-    # self.avlb = pairs
-    #
-    # self.avlb = details["Dostupnost"]
-
-
-# self.widget0 = QLabel("")
-# self.widget1 = QLabel("")
-# self.widget2 = QLabel("")
-# self.widget3 = QLabel("")
-# self.widget4 = QLabel("")
-# self.widget5 = QLabel("")
-# self.widget6 = QLabel("")
-# self.widget7 = QLabel("")
-# self.widget8 = QLabel("")
-# self.widget9 = QLabel("")
-#
-# self.infoLayout.addWidget(self.widget0)
-# self.infoLayout.addWidget(self.widget1)
-# self.infoLayout.addWidget(self.widget2)
-# self.infoLayout.addWidget(self.widget3)
-# self.infoLayout.addWidget(self.widget4)
-# self.infoLayout.addWidget(self.widget5)
-# self.infoLayout.addWidget(self.widget6)
-# self.infoLayout.addWidget(self.widget7)
-# self.infoLayout.addWidget(self.widget8)
-# self.infoLayout.addWidget(self.widget9)
-#
-# self.reservationStart = QLineEdit()
-# self.reservationDuration = QLineEdit()
-# self.reservationAptId = QLineEdit()
-# self.reservationUser = self.currentUser
-# self.reservationGuest1 = QLineEdit()
-# self.reservationGuest2 = QLineEdit()
-# self.reservationGuest3 = QLineEdit()
-# self.reservationGuest4 = QLineEdit()
-# self.reservationGuest5 = QLineEdit()
-# self.reservationGuest6 = QLineEdit()
-# self.reservationGuest7 = QLineEdit()
-# self.reservationGuest8 = QLineEdit()
-#
-# self.infoLayout.addWidget(self.reservationStart)
-# self.infoLayout.addWidget(self.reservationDuration)
-# self.infoLayout.addWidget(self.reservationAptId)
-# # self.infoLayout.addWidget(self.reservationUser)
-# self.infoLayout.addWidget(self.reservationGuest1)
-# self.infoLayout.addWidget(self.reservationGuest2)
-# self.infoLayout.addWidget(self.reservationGuest3)
-# self.infoLayout.addWidget(self.reservationGuest4)
-# self.infoLayout.addWidget(self.reservationGuest5)
-# self.infoLayout.addWidget(self.reservationGuest6)
-# self.infoLayout.addWidget(self.reservationGuest7)
-# self.infoLayout.addWidget(self.reservationGuest8)
-#
-# self.infoLayout.addWidget(QLabel("Pocetak rezervacije: "))
-# self.infoLayout.addWidget(QLabel("Broj nocenja: "))
-# self.infoLayout.addWidget(QLabel("Sifra apartmana: "))
-# self.infoLayout.addWidget(QLabel("Prijavljeni ste kao: "))
-# self.infoLayout.addWidget(QLabel("Ako zakazujete za sebe, polja ispod ostavite prazno."))
-# self.infoLayout.addWidget(QLabel("Dodatni gost 1"))
-# self.infoLayout.addWidget(QLabel("Dodatni gost 2"))
-# self.infoLayout.addWidget(QLabel("Dodatni gost 3"))
-# self.infoLayout.addWidget(QLabel("Dodatni gost 4"))
-# self.infoLayout.addWidget(QLabel("Dodatni gost 5"))
-# self.infoLayout.addWidget(QLabel("Dodatni gost 6"))
-# self.infoLayout.addWidget(QLabel("Dodatni gost 7"))
-# self.infoLayout.addWidget(QLabel("Dodatni gost 8"))

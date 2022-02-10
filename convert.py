@@ -7,7 +7,7 @@ def headers(filename):
     if filename == "data/reservations.csv":
         header = [
             "Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
-            "Kraj", "Ukupna cena", "Gost/Kontakt osoba", "Status", "Gost1",
+            "Kraj", "Ukupna cena (eur)", "Gost/Kontakt osoba", "Status", "Gost1",
             "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"
         ]
     if filename == "data/apartment_data.csv":

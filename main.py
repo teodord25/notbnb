@@ -284,19 +284,42 @@ class ProjekatWindow(QMainWindow):
 
         userMenu = menu.addMenu("&Korisnik")
         apartmentMenu = menu.addMenu("&Apartmani")
+        resMenu = menu.addMenu("&Rezervacije")
 
         userMenu.addAction('Prijavi se', self._createLoginScreen)
         userMenu.addAction('Registruj se', self._createRegisterScreen)
         userMenu.addAction('Odjavi se', self.logOut)
 
-        apartmentMenu.addAction(
-            'Pretraga apartmana', self._createTable
-        )
-        apartmentMenu.addAction('Pregled i rezervacija apartmana', self._createTable)
-        # apartmentMenu.addAction('Rezervacija', self.apartmentReservation)
-        #
-        # if self.currentUser.role == "Domacin":
-        #     apartmentMenu.addAction('Registracija', self.apartmentRegistration)
+        apartmentMenu.addAction('Pretraga i rezervacija apartmana', self._createBrowsingScreen)
+
+        if self.currentUser.role == "Domacin":
+            apartmentMenu.addAction('Registracija apartmana', self.apartmentRegistration)
+
+        resMenu.addAction('Vase rezervacije', self._createResReviewScreen)
+
+    def _createResReviewScreen(self):
+        resReviewLayout = QVBoxLayout()
+        subLayout = QGridLayout()
+
+        self._clearScreen()
+
+        df = convert.to_df("data/reservations.csv", use_cols=range(8))
+
+        self.model = tableModel(df)
+        self.table = QTableView()
+        self.table.setModel(self.model)
+
+        # set the top row to fit the data
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
+        for i in range(df.shape[1] - 1):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+
+        subLayout.addWidget(QPushButton("bing bong"))
+
+        resReviewLayout.addLayout(subLayout)
+        resReviewLayout.addWidget(self.table)
+        self.generalLayout.addLayout(resReviewLayout)
 
     def _submitRegistration(self):
         if not (self.registerUsername.text() and
@@ -437,7 +460,7 @@ class ProjekatWindow(QMainWindow):
 
         df = pd.DataFrame(pop_cities, columns=["Broj ostvarenih rezervacija", "Grad"])
         self.currentDF = df
-        self._createTable()
+        self._createBrowsingScreen()
         # self.currentDF = convert.to_df("data/apartment_data.csv")
 
     def _submitSearch(self, mode="search", aprt_id=0):
@@ -454,6 +477,40 @@ class ProjekatWindow(QMainWindow):
         # TODO case insensitive search
         # current is sensitive
         df = df[df["Adresa"].str.contains(self.searchLocation.text())]
+
+        # Example usage of multivariable search below:
+        #
+        # Explanation of how this could be done manually using nested lists,
+        # but it's analogous to doing it with dataframes.
+        #
+        # This could be done manually by just accessing values in every nested \
+        # list at the same index (the column index) and then \
+        # rejecting or appending the current "row" (nested list) to a new list,
+        # but that's just more unnecessary conversions of which I already have enough...
+        #
+        # search one
+        # df = filter_df(df, query="x > 2", x="C")
+        # filter_df -> return only rows of df \
+        # that have a value larger than 2 in the "C" column
+        #
+        #                 search one
+        # df = [[A, B, C], -> df = [[A, B, C],
+        #       [1, 1, 4],          [1, 1, 4],
+        #       [3, 0, 2],          [2, 3, 8],
+        #       [2, 3, 8],          [2, 2, 3]]
+        #       [2, 2, 3]]
+        #
+        # search two
+        # df = filter_df(df, query="x <= 2", x="B")
+        # filter_df -> return only rows of df \
+        # that have a value less than or equal to 2 in the "B" column
+        #
+        #                 search one          search two
+        # df = [[A, B, C], -> df = [[A, B, C], -> df = [[A, B, C],
+        #       [1, 1, 4],          [1, 1, 4],          [1, 1, 4],
+        #       [3, 0, 2],          [2, 3, 8],          [2, 2, 3]]
+        #       [2, 3, 8],          [2, 2, 3]]
+        #       [2, 2, 3]]
 
         try:
             rooms = self.searchRooms.text()
@@ -473,15 +530,17 @@ class ProjekatWindow(QMainWindow):
 
             df = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
                             "Adresa", "Cena po noci (eur)"]]
-                # [:, [cols]]
-                # : -> all rows
-                # [cols] -> only "cols" columns
+
+            # [:, [cols]]
+            # : -> all rows
+            # [cols] -> only "cols" columns
+
         except InvalidSearchError:
             print("invalid search")
             err = color_msg("Pogresan unos!", "Tomato")
 
             self.currentDF = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju", "Adresa", "Cena po noci (eur)"]]
-            self._createTable()
+            self._createBrowsingScreen()
             self.searchMsg.setText(err)
             return
 
@@ -491,7 +550,7 @@ class ProjekatWindow(QMainWindow):
         #     df = df_base[df_base[""]]
 
         self.currentDF = df.loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju", "Adresa", "Cena po noci (eur)"]]
-        self._createTable()
+        self._createBrowsingScreen()
 
         # I'm not sure how df[df[]] works
 
@@ -567,7 +626,7 @@ class ProjekatWindow(QMainWindow):
 
         self._clearScreen()
 
-        self.registerScreen = QWidget(self._centralWidget)
+        # self.registerScreen = QWidget(self._centralWidget)
 
         self.registerUsername = QLineEdit()
         self.registerPassword = QLineEdit()
@@ -614,7 +673,7 @@ class ProjekatWindow(QMainWindow):
 
         self._clearScreen()
 
-        self.loginScreen = QWidget(self._centralWidget)
+        # self.loginScreen = QWidget(self._centralWidget)
 
         self.loginUsername = QLineEdit()
         self.loginPassword = QLineEdit()
@@ -684,11 +743,15 @@ class ProjekatWindow(QMainWindow):
 
             self.currentApt = apt
 
+            # yeah idk even know anymore
+            self.resLayout.apt = apt
+
             self.reviewMessage.setText(
                 f"Ako Vam se dopada ovaj apartman, kliknite na dugme 'dalje' da predjete na rezervaciju.\n"
-                f"Ako zelite pregledati drugi ili ponovo isti apartman,\n"
-                f"pritisnite dugme 'prikazi apartman' sa odgovarajucom sifrom u polju za pretragu"
+                f"Ako zelite pregledati neki drugi apartman ili sakriti polja za rezervaciju,\n"
+                f"upisite neku drugu sifru (ili ostavite ovu) i pritisnite dugme 'prikazi apartman'."
             )
+
             self.goNext.show()
 
             tf = TimeFrame(str(datetime.date.today()), 30)
@@ -711,17 +774,21 @@ class ProjekatWindow(QMainWindow):
             self.resLayout.info8.setText(f"Cena po noci (eur): {apt.price_per_night}")
             self.resLayout.info9.setText(f"Status: {apt.status}")
 
+
         except ValueError:
+            print("value error")
             msg = color_msg("Pogresan unos", "Tomato")
-            print(msg)
             self.reviewWarning.setText(msg)
 
+    # TODO updateReservations
     def updateReservations(self):
         pass
 
     def _reservationForm(self):
         self.resLayout.showForm(int(self.currentApt.spots) - 1)
         self.resLayout.label2.setText(f"Sifra apartmana: {self.currentApt.apt_id}")
+        self.resLayout.reservationDuration.clear()
+        self.resLayout.label14.setText("Ukupna cena: ")
 
     def _bookApt(self):
         # df = convert.to_df("data/reservations.csv")
@@ -816,10 +883,10 @@ class ProjekatWindow(QMainWindow):
 
         # TODO USPESNO STE REZERVISALI BRALE
 
-    def _createTable(self):
+    def _createBrowsingScreen(self):
         tableLayout = QHBoxLayout()
         reviewLayout = QVBoxLayout()
-        self.resLayout = ReservationLayout(self.currentUser, )
+        self.resLayout = ReservationLayout(self.currentUser)
 
         self._clearScreen()
         self._createTopRow()
