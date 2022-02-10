@@ -421,9 +421,28 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
     return True
 
 
+def update_reservations():
+    df = convert.to_df("data/reservations.csv")
+    # 4 - kraj
+    # 7 - status
+    # df = dfb[dfb["Status"].str.contains("Prihvacena")]
+
+    for i in range(df.shape[0]):
+        date = df.iat[i, 4]
+        curr = str(datetime.date.today())
+        status = df.iat[i, 7]
+        if status == "Prihvacena":
+            if compare(curr, ">", date):
+                df.iat[i, 7] = "Zavrsena"
+
+    convert.to_csv(df, "data/reservations.csv")
+
+
 def free_time(apt_id):
     res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4])
+    res_df = res_df[res_df["Status"].str.contains("Prihvacena")]
     # only the reservations for this apartment
+    # filter for approved reservations
 
     date = str(datetime.date.today())
 

@@ -2,7 +2,7 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 1,24,2020-09-23,9,2020-10-02,297,Grgur Barišić (Whons1950),Zavrsena,Vedrana Matijević,Leona Duvnjak,Berivoj Marušić,Mihovil Kovačić,Nediljko Jerković,Dragana Kovač,Blago Obad,Davorin Petković,Everett
 2,4,2020-06-23,12,2020-07-05,396,Gordan Brkić (Brobbegreare),Odustanak,Desimir Novaković,Snežana Bošnjak,Diana Jurić,Damir Ćosić,Milenko Jozić,Desimir Novaković,fname lname,Daniel Pavlović,Burr Ridge
 3,22,2021-08-12,6,2021-08-18,186,Tomica Marinović (Rundepress),Odbijena,Velimir Klarić,Borislav Novak,Saša Jukić,Ana Kos,Leonardo Jakšić,Dubravka Lovrić,Diana Jurić,Velimir Klarić,Burr Ridge
-4,2,2022-12-08,10,2022-12-18,320,Olga Radić (Execonverve),Prihvacena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Cambridge
+4,2,2020-12-08,10,2020-12-18,320,Olga Radić (Execonverve),Zavrsena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Cambridge
 5,98,2020-11-12,13,2020-11-25,507,Ksenija Perić (Occonever45),Odbijena,Mirjana Mihaljević,Matea Šimunović,Jasminka Ćosić,Bogdan Jukić,Jasminka Jukić,Tereza Janković,Leon Bašić,Andrea Vidaković,Carroll
 6,60,2021-11-15,7,2021-11-22,168,Jakov Zagorec (Pletent49),Odustanak,Darko Stanić,Vedrana Matijević,Matea Šimunović,Blagica Posavec,Nikola Klarić,Elena Miletić,Leon Bašić,Darijo Mandić,Antioch
 7,74,2020-02-14,5,2020-02-19,140,Jakov Zagorec (Pletent49),Zavrsena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Fremont
@@ -393,4 +393,4 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 401,9,2022-04-12,5,2022-04-17,205,fname lname (uname),Kreirana,Bajo Pivljanin,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
 402,70,2022-12-03,3,2022-12-06,78,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Laurinburg
 403,9,2022-07-04,4,2022-07-08,156,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
-404,9,2022-12-04,5,2022-12-09,195,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
+404,9,2022-12-04,5,2022-12-09,195,fname lname (uname),Odustanak,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville

@@ -1,6 +1,7 @@
 import PyQt5.QtWidgets
 import datetime
 from classes_and_stuff import InvalidSearchError
+from classes_and_stuff import update_reservations
 from classes_and_stuff import InvalidDateError
 from classes_and_stuff import TimeFrame
 from PyQt5.QtWidgets import QApplication
@@ -262,6 +263,8 @@ class ProjekatWindow(QMainWindow):
         self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
                                                     "Adresa", "Cena po noci (eur)"]]
 
+        update_reservations()
+
         # self.currentDF = convert.to_df("data/reservations.csv")
 
         self._clearScreen()
@@ -284,7 +287,6 @@ class ProjekatWindow(QMainWindow):
 
         userMenu = menu.addMenu("&Korisnik")
         apartmentMenu = menu.addMenu("&Apartmani")
-        resMenu = menu.addMenu("&Rezervacije")
 
         userMenu.addAction('Prijavi se', self._createLoginScreen)
         userMenu.addAction('Registruj se', self._createRegisterScreen)
@@ -295,7 +297,37 @@ class ProjekatWindow(QMainWindow):
         if self.currentUser.role == "Domacin":
             apartmentMenu.addAction('Registracija apartmana', self.apartmentRegistration)
 
-        resMenu.addAction('Vase rezervacije', self._createResReviewScreen)
+        if self.currentUser.role != "Neregistrovan":
+            resMenu = menu.addMenu("&Rezervacije")
+            resMenu.addAction('Vase rezervacije', self._createResReviewScreen)
+
+    def _check(self):
+        msg = color_msg("Da li sigurno zelite otkazati ovu rezervaciju?", "Tomato")
+
+        try:
+            int(self.cancelId.text())
+        except ValueError:
+            print("invalid res id")
+            err = color_msg("Pogresan unos!", "Tomato")
+
+            self.checkLabel.setText(err)
+            return
+
+        self.checkLabel.setText(msg)
+        self.checkLabel.show()
+        self.cancelRes.show()
+
+    def _cancelReservation(self):
+        df = convert.to_df("data/reservations.csv")
+        for i in range(df.shape[0]):
+            # 0 7
+            sifra = df.iat[i, 0]
+            status = df.iat[i, 7]
+            if status == "Prihvacena" or status == "Kreirana":
+                if sifra == str(self.cancelId.text()):
+                    df.iat[i, 7] = "Odustanak"
+
+        convert.to_csv(df, "data/reservations.csv")
 
     def _createResReviewScreen(self):
         resReviewLayout = QVBoxLayout()
@@ -304,6 +336,9 @@ class ProjekatWindow(QMainWindow):
         self._clearScreen()
 
         df = convert.to_df("data/reservations.csv", use_cols=range(8))
+        df = df[df["Gost/Kontakt osoba"].str.contains(self.currentUser.username)]
+        if df.empty:
+            self.topLabel.setText("<h2>Nemate rezervacije.</h2>")
 
         self.model = tableModel(df)
         self.table = QTableView()
@@ -315,9 +350,29 @@ class ProjekatWindow(QMainWindow):
         for i in range(df.shape[1] - 1):
             header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
 
-        subLayout.addWidget(QPushButton("bing bong"))
+        self.topLabel = QLabel("<h2>Vase rezervacije</h2>")
+        self.cancelId = QLineEdit()
+        self.makeSure = QPushButton("Otkazi")
+        self.cancelRes = QPushButton("Da, zelim.")
+        self.checkLabel = QLabel("")
 
-        resReviewLayout.addLayout(subLayout)
+        self.makeSure.clicked.connect(self._check)
+        self.cancelRes.clicked.connect(self._cancelReservation)
+
+        resReviewLayout.addWidget(self.topLabel)
+        resReviewLayout.addWidget(QLabel("Za otkazivanje, unesite sifru rezervacije koju bi da otkazete ispod."))
+        resReviewLayout.addWidget(self.cancelId)
+        resReviewLayout.addWidget(self.checkLabel)
+        self.checkLabel.hide()
+
+        resReviewLayout.addWidget(self.makeSure)
+        resReviewLayout.addWidget(self.cancelRes)
+        self.cancelRes.hide()
+
+        resReviewLayout.addWidget(QLabel(""))
+        resReviewLayout.addWidget(QLabel(""))
+
+        # resReviewLayout.addLayout(subLayout, 1)
         resReviewLayout.addWidget(self.table)
         self.generalLayout.addLayout(resReviewLayout)
 
