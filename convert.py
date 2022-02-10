@@ -1,5 +1,4 @@
 import pandas
-# from classes_and_stuff import headers
 
 
 def headers(filename):
@@ -35,7 +34,6 @@ def to_csv(dataframe: pandas.DataFrame, filename: str) -> None:
     with open(filename, "w") as file:
         df = dataframe
 
-        # header = list(df.iloc[[0]])
         header = headers(filename)
         file.write(f"{','.join(header)}\n")
 
@@ -45,7 +43,7 @@ def to_csv(dataframe: pandas.DataFrame, filename: str) -> None:
             for j in range(df.shape[1]):
                 row.append(df.iat[i, j])
 
-            row = [str(i) for i in row]# if i != None else ]
+            row = [str(i) for i in row]
 
             file.write(f"{','.join(row)}\n")
 
@@ -91,10 +89,3 @@ def to_df(filename: str, use_cols=None) -> pandas.DataFrame:
         header = headers(filename)
         with open(filename, "w") as f:
             f.write(",".join(header))
-
-
-if __name__ == "__main__":
-    print(to_df("data/apartment_data.csv"))
-    # to_csv(pandas.DataFrame(
-    #     [["row", "row", "bing"],["test1", "test2", "test3"]], columns=["clm1", "c2", "c3"]), "test.csv")
-    #

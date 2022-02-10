@@ -1,6 +1,5 @@
 import convert
 import datetime
-from PyQt5.QtWidgets import QFormLayout
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
@@ -21,7 +20,6 @@ class InvalidSearchError(Error):
     pass
 
 
-
 def compare(date1, sign, date2) -> bool:
     y1, m1, d1 = [int(i) for i in date1.split("-")]
     y2, m2, d2 = [int(i) for i in date2.split("-")]
@@ -31,7 +29,7 @@ def compare(date1, sign, date2) -> bool:
             return True
         else:
             sign = sign.replace("=", "")
-            # str.replace returns a copy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            # str.replace returns a copy!!
 
     if eval(f"{y1}{sign}{y2}"):
         return True
@@ -124,7 +122,6 @@ class User:
         self.role = "Neregistrovan"
 
 
-# pls tell me I didn't mess something up by setting a default duration
 class TimeFrame:
     def __init__(self, start: str, duration=1, end=""):
         self.start = start
@@ -218,7 +215,6 @@ class TimeFrame:
             end_day = str(start_day + duration).zfill(2)
             self.end = f"{start_year}-{end_month}-{end_day}"
 
-            # print(f"computed end {self.end}")
             return
 
         remaining = lookup[start_month - 1] - start_day
@@ -240,7 +236,6 @@ class TimeFrame:
 
         self.end = f"{end_year}-{end_month}-{end_day}"
 
-        # print(f"computed end {self.end}")
         return
 
 
@@ -287,12 +282,6 @@ class Reservation(TimeFrame):
 
         self.header = convert.headers("data/reservations.csv")
 
-        # self.header = [
-        #     "Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
-        #     "Kraj", "Ukupna cena (eur)", "Gost/Kontakt osoba", "Status", "Gost1",
-        #     "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"
-        # ]
-
     def cancel(self):
         self.status = "Odustanak"
 
@@ -318,26 +307,9 @@ class Reservation(TimeFrame):
         self.df = self.df.append(rowdf, ignore_index=True)
         convert.to_csv(self.df, "data/reservations.csv")
 
-    # TODO check if current date is past the end date for
-    #   every active reservation on startup?
 
-
-# spots = ["ne postoji" for _ in range(9)]
-# if spots_left:
-#     for _ in range(spots_left):
-#         id = random.choice(guests_range)
-#         guest = User(user_id=id)
-#         fname = guest.fname
-#         lname = guest.lname
-#
-#         spots.insert(0, f"{fname} {lname}")
-#         spots.pop()
-
-# guests = ["ne postoji" for i in range(self.apartment.spots)]
-#
 # Long explanation of the check_availability() function
 #
-
 # Checks every reservation and determines if the passed time frame
 # is overlapping with any existing reservation.
 #
@@ -499,7 +471,6 @@ class ReservationLayout(QGridLayout): #QFormLayout):
 
         self._createWidgets()
         self._addToLayout()
-        self.hideInfo()
         self.hideForm()
 
         r = convert.to_df("data/reservations.csv", use_cols=[6])
@@ -637,19 +608,6 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.addWidget(self.reservationGuest6, 10, 2)
         self.addWidget(self.reservationGuest7, 11, 2)
         self.addWidget(self.reservationGuest8, 12, 2)
-
-    def hideInfo(self):
-        return
-        # self.info0.hide()
-        # self.info1.hide()
-        # self.info2.hide()
-        # self.info3.hide()
-        # self.info4.hide()
-        # self.info5.hide()
-        # self.info6.hide()
-        # self.info7.hide()
-        # self.info8.hide()
-        # self.info9.hide()
 
     def hideForm(self):
         self.label0.hide()

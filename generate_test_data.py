@@ -2,7 +2,6 @@ import pandas as pd
 import registration
 import random
 import convert
-# from time_test import Reservation
 import datetime
 from classes_and_stuff import User
 from classes_and_stuff import Reservation
@@ -14,7 +13,6 @@ from classes_and_stuff import check_availability
 
 def generate_users():
     df = convert.to_df("fake_people.csv", use_cols=range(7))
-    # df = pd.read_csv("fake_people.csv", delimiter=',', usecols=range(7))
 
     # translate columns
     df = df.rename(columns={
@@ -125,7 +123,7 @@ def generate_reservations():
     i = usr_rows // 3
     j = usr_rows
 
-    # pick random apartments from all apartments, 4 times as many times (?) (diminishing returns after this point
+    # pick random apartments from all apartments, 4 times as many times (?)
     apt_indices = random.choices(range(apt_rows), k=apt_rows*4)
     usr_indices = range(i)
     guests_range = range(i, j)
@@ -146,7 +144,6 @@ def generate_reservations():
         dur = random.randint(1, 15)
 
         user = User(user_id=random.choice(usr_indices))
-        # spots_left = int(apt.spots) - 1
 
         guests = []
         for _ in range(8):
@@ -171,9 +168,6 @@ def generate_reservations():
             if i == 1:
                 reservation.accept()
 
-        # mfw
-        city = " ".join(reservation.apartment.address.split(" | ")[1].split()[:-1])
-
         row = reservation.row_data()
         header = reservation.header
 
@@ -197,28 +191,3 @@ if __name__ == "__main__":
 
 # Why spend 1 hour creating testing data when you can
 # spend 40 hours automating testing data generation
-
-# row = [
-#     reservation.res_id, reservation.apt_id, reservation.start,
-#     reservation.duration, reservation.end,
-#     int(reservation.apartment.price_per_night) * reservation.duration,
-#
-#     f"{reservation.user.fname} {reservation.user.lname} ({reservation.user.username})",
-#
-#     reservation.status,
-#
-#     reservation.spots[0], reservation.spots[1], reservation.spots[2],
-#     reservation.spots[3], reservation.spots[4], reservation.spots[5],
-#     reservation.spots[6], reservation.spots[7], city
-# ]
-
-# spots = ["ne postoji" for _ in range(9)]
-# if spots_left:
-#     for _ in range(spots_left):
-#         id = random.choice(guests_range)
-#         guest = User(user_id=id)
-#         fname = guest.fname
-#         lname = guest.lname
-#
-#         spots.insert(0, f"{fname} {lname}")
-#         spots.pop()
