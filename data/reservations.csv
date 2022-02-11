@@ -46,7 +46,7 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 45,11,2020-10-14,7,2020-10-21,210,Danica Jović (Thoughty1944),Odbijena,Đurđa Petković,Leona Duvnjak,Vjeran Živković,Tihomil Ivančić,Jasminka Jukić,Leona Brkić,Ivana Perković,Antonio Živković,Charlotte
 46,19,2021-10-04,2,2021-10-06,44,Berislava Bošnjak (Alose1972),Odbijena,Blago Obad,Vedrana Matijević,Spomenka Mihaljević,Tamara Novosel,Divna Topić,Elena Petković,Mihovil Kovačić,Leona Brkić,Grant
 47,89,2021-04-13,11,2021-04-24,286,Đurđica Matković (Ploust69),Zavrsena,Vedrana Matijević,Slavko Perković,Davorin Petković,Stanka Grgić,Božo Brkić,Berivoj Marušić,Daniel Pavlović,Siniša Petrović,Rochester
-48,71,2022-04-23,2,2022-04-25,52,Mateo Herceg (Bobselp),Kreirana,Blago Obad,Ljubomir Marić,Zdenka Kralj,Spomenka Mihaljević,Kažimir Pavičić,Leon Bašić,Ranko Mikulić,Elvis Kolar,Charlotte
+48,71,2022-04-23,2,2022-04-25,52,Mateo Herceg (Bobselp),Odustanak,Blago Obad,Ljubomir Marić,Zdenka Kralj,Spomenka Mihaljević,Kažimir Pavičić,Leon Bašić,Ranko Mikulić,Elvis Kolar,Charlotte
 49,23,2022-02-16,2,2022-02-18,56,Klara Pranjić (Lowee1969),Prihvacena,Karlo Marjanović,Ana Kos,testname testlname,Teha Rukavina,Snežana Bošnjak,Aleksandra Duvnjak,Dubravka Lovrić,Nikola Klarić,Antioch
 50,0,2020-11-24,3,2020-11-27,90,Jasmin Bošnjak (Staided),Odustanak,Leona Brkić,Jasminka Ćosić,Vojmil Kralj,Marica Pranjić,Spomenka Mihaljević,Sanela Matković,Sanela Matković,Danijela Jurišić,Copperas Cove
 51,0,2022-11-08,13,2022-11-21,390,Milenko Marjanović (Mothesseze),Prihvacena,Zdenka Kralj,Kristijan Đurić,Štefanija Crnić,Mladen Pejić,Andrea Vidaković,Ana Popović,Srećko Bosanac,Tihomil Čerkez,Copperas Cove
@@ -390,7 +390,9 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 398,67,2021-12-19,4,2021-12-23,148,Blaženka Novosel (Peaske),Odustanak,Karlo Marjanović,Perica Grgić,Milenko Jozić,fname lname,Martina Popović,Luka Milić,Matija Hrvatin,Dubravka Lovrić,Southfield
 399,18,2020-01-14,8,2020-01-22,224,Mateo Herceg (Bobselp),Odustanak,Ljiljana Matković,Stanka Grgić,Spomenka Mihaljević,Zrina Stanić,Berivoj Marušić,Zrina Jukić,Spomenka Mihaljević,Tuga Čerkez,Antioch
 400,43,2020-06-23,1,2020-06-24,30,Milena Barić (Luctly1975),Zavrsena,Karlo Marjanović,Mirjana Mihaljević,Maria Ivanković,Vedrana Matijević,Ana Kos,Damir Ćosić,Darijo Janković,Manuela Novaković,Everett
-401,9,2022-04-12,5,2022-04-17,205,fname lname (uname),Kreirana,Bajo Pivljanin,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
-402,70,2022-12-03,3,2022-12-06,78,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Laurinburg
-403,9,2022-07-04,4,2022-07-08,156,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
+401,9,2022-04-12,5,2022-04-17,205,fname lname (uname),Odustanak,Bajo Pivljanin,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
+402,70,2022-12-03,3,2022-12-06,78,fname lname (uname),Odustanak,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Laurinburg
+403,9,2022-07-04,4,2022-07-08,156,fname lname (uname),Odustanak,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
 404,9,2022-12-04,5,2022-12-09,195,fname lname (uname),Odustanak,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
+405,9,2021-12-04,5,2021-12-09,195,fname lname (uname),Zavrsena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
+406,9,2022-12-04,5,2022-12-09,195,fname lname (uname),Odustanak,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville

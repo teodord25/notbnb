@@ -183,15 +183,51 @@ class ProjekatWindow(QMainWindow):
 
     def _cancelReservation(self):
         df = convert.to_df("data/reservations.csv")
+
+        cancelId = str(self.cancelId.text())
+        resdf = df[df["Sifra rezervacije"] == cancelId]
+
+        # ...
+        usr = self.currentUser
+        u, f, l = usr.username, usr.fname, usr.lname
+        foo = f"{f} {l} ({u})"
+        usrdf = df[df["Gost/Kontakt osoba"] == foo]
+
+        if resdf.empty:
+            err = color_msg("Ne postoji rezervacija sa tom sifrom na Vase ime!", "Tomato")
+
+            # self._createResReviewScreen()
+            self.checkLabel.setText(err)
+            self.cancelRes.hide()
+            return
+
+        elif usrdf[usrdf["Status"] == "Kreirana"].empty and usrdf[usrdf["Status"] == "Prihvacena"].empty:
+            err = color_msg("Nemate aktivne rezervacije!", "Tomato")
+
+            self.checkLabel.setText(err)
+            self.cancelRes.hide()
+            return
+
         for i in range(df.shape[0]):
-            # 0 7
             sifra = df.iat[i, 0]
             status = df.iat[i, 7]
-            if status == "Prihvacena" or status == "Kreirana":
-                if sifra == str(self.cancelId.text()):
+
+            if sifra == cancelId:
+                if status == "Odustanak" or status == "Odbijena" or status == "Zavrsena":
+                    err = color_msg("Ova rezervacija nije aktivna!", "Tomato")
+
+                    self.checkLabel.setText(err)
+                    self.cancelRes.hide()
+                    return
+                else:
                     df.iat[i, 7] = "Odustanak"
 
-        convert.to_csv(df, "data/reservations.csv")
+                    convert.to_csv(df, "data/reservations.csv")
+
+                    self._createResReviewScreen()
+                    self.checkLabel.show()
+                    succ = color_msg(f"Otkazali ste rezervaciju {sifra}", "Tomato")
+                    self.checkLabel.setText(succ)
 
     def _createResReviewScreen(self):
         resReviewLayout = QVBoxLayout()
