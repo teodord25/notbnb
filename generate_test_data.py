@@ -2,9 +2,7 @@ import pandas as pd
 import registration
 import random
 import convert
-# from time_test import Reservation
 import datetime
-# import user_test
 from classes_and_stuff import User
 from classes_and_stuff import Reservation
 from classes_and_stuff import Apartment
@@ -15,7 +13,6 @@ from classes_and_stuff import check_availability
 
 def generate_users():
     df = convert.to_df("fake_people.csv", use_cols=range(7))
-    # df = pd.read_csv("fake_people.csv", delimiter=',', usecols=range(7))
 
     # translate columns
     df = df.rename(columns={
@@ -126,14 +123,13 @@ def generate_reservations():
     i = usr_rows // 3
     j = usr_rows
 
-    # pick random apartments from all apartments, 4 times as many times (?) (diminishing returns after this point
+    # pick random apartments from all apartments, 4 times as many times (?)
     apt_indices = random.choices(range(apt_rows), k=apt_rows*4)
     usr_indices = range(i)
     guests_range = range(i, j)
     n = 0
 
     reservations = []
-
 
     for index in apt_indices:
         n += 1
@@ -148,18 +144,12 @@ def generate_reservations():
         dur = random.randint(1, 15)
 
         user = User(user_id=random.choice(usr_indices))
-        spots_left = int(apt.guests) - 1
 
-        guests = ["ne postoji" for _ in range(9)]
-        if spots_left:
-            for _ in range(spots_left):
-                id = random.choice(guests_range)
-                guest = User(user_id=id)
-                fname = guest.fname
-                lname = guest.lname
-
-                guests.insert(0, f"{fname} {lname}")
-                guests.pop()
+        guests = []
+        for _ in range(8):
+            guest = User(random.choice(guests_range))
+            guest = " ".join([guest.fname, guest.lname])
+            guests.append(guest)
 
         reservation = Reservation(reservation_id=n, start=st, duration=dur,
                                   apartment_id=index, username=user.username,
@@ -178,22 +168,8 @@ def generate_reservations():
             if i == 1:
                 reservation.accept()
 
-        # mfw
-        city = " ".join(reservation.apartment.address.split(" | ")[1].split()[:-1])
-
-        # row = [
-        #     reservation.res_id, reservation.apt_id, reservation.start,
-        #     reservation.duration, reservation.end,
-        #     int(reservation.apartment.price_per_night) * reservation.duration,
-        #
-        #     f"{reservation.user.fname} {reservation.user.lname} ({reservation.user.username})",
-        #
-        #     reservation.status,
-        #
-        #     reservation.guests[0], reservation.guests[1], reservation.guests[2],
-        #     reservation.guests[3], reservation.guests[4], reservation.guests[5],
-        #     reservation.guests[6], reservation.guests[7], city
-        # ]
+        row = reservation.row_data()
+        header = reservation.header
 
         # not the most efficient way of doing this, but it's whatever now
         temp_df = pd.DataFrame(reservations, columns=header)
