@@ -231,7 +231,6 @@ class ProjekatWindow(QMainWindow):
 
     def _createResReviewScreen(self):
         resReviewLayout = QVBoxLayout()
-        subLayout = QGridLayout()
 
         self._clearScreen()
 
@@ -629,6 +628,7 @@ class ProjekatWindow(QMainWindow):
             self.resLayout.info4.setText(f"Lokacija: {apt.location}")
             self.resLayout.info5.setText(f"Adresa: {apt.address}")
 
+
             self.currentApt = apt
 
             # yeah idk even know anymore
@@ -661,7 +661,12 @@ class ProjekatWindow(QMainWindow):
             self.resLayout.info7.setText(f"Domacin: {apt.host}")
             self.resLayout.info8.setText(f"Cena po noci (eur): {apt.price_per_night}")
             self.resLayout.info9.setText(f"Status: {apt.status}")
+            dct = apt.amenities
+            del dct["Sifra apartmana"]
 
+            sadrzaj = ", ".join([i for i in dct.values() if i != "None"])
+
+            self.resLayout.info10.setText(f"Sadrzaj: \n{sadrzaj}")
 
         except ValueError:
             print("value error")

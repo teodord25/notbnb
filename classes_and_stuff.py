@@ -410,8 +410,8 @@ def update_reservations():
     convert.to_csv(df, "data/reservations.csv")
 
 
-def free_time(apt_id):
-    res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4])
+def free_time(apt_id, reverse=False):
+    res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4, 7])
     res_df = res_df[res_df["Status"].str.contains("Prihvacena")]
     # only the reservations for this apartment
     # filter for approved reservations
@@ -532,6 +532,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.info7 = QLabel("")
         self.info8 = QLabel("")
         self.info9 = QLabel("")
+        self.info10 = QLabel("")
 
         self.reservationStart = QLineEdit()
         self.reservationDuration = QLineEdit()
@@ -583,6 +584,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.addWidget(self.info7, 10, 0)
         self.addWidget(self.info8, 11, 0)
         self.addWidget(self.info9, 12, 0)
+        self.addWidget(self.info10, 13, 0)
         self.addWidget(self.label0, 0, 1)
         self.addWidget(self.label1, 1, 1)
         self.addWidget(self.label2, 2, 1, 1, 2)
@@ -648,6 +650,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.info7.show()
         self.info8.show()
         self.info9.show()
+        self.info10.show()
 
     def showForm(self, n):
         self._showGuests(n)
