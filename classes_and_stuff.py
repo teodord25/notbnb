@@ -1,4 +1,5 @@
 import convert
+import random
 import datetime
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
@@ -60,28 +61,87 @@ def amenity_search(apartment_id):
 
 
 class Apartment:
-    def __init__(self, apartment_id, compute_avlb=False):
-        self.apt_id = apartment_id
+    def __init__(self, apartment_id, compute_avlb=False, save=False):
+        if save is False:
+            self.apt_id = apartment_id
 
-        df = convert.to_df("data/apartment_data.csv")
-        details = df[df["Sifra"] == str(apartment_id)].squeeze()
-        self.type = details["Tip"]
-        self.rooms = details["Broj soba"]
-        self.spots = details["Broj gostiju"]
-        self.location = details["Lokacija"]
-        self.address = details["Adresa"]
+            df = convert.to_df("data/apartment_data.csv")
+            self.df = df.copy()
+            details = df[df["Sifra"] == str(apartment_id)].squeeze()
+            self.type = details["Tip"]
+            self.rooms = details["Broj soba"]
+            self.spots = details["Broj gostiju"]
+            self.location = details["Lokacija"]
+            self.address = details["Adresa"]
+            self.header = convert.headers("data/apartment_data.csv")
 
-        if compute_avlb:
-            self.avlb = free_time(self.apt_id)
+            if compute_avlb:
+                self.avlb = free_time(self.apt_id)
 
-        self.host = details["Domacin"]
-        self.price_per_night = details["Cena po noci (eur)"]
-        self.status = details["Status"]
+            self.host = details["Domacin"]
+            self.price_per_night = details["Cena po noci (eur)"]
+            self.status = details["Status"]
 
-        if details["Ameniti"] == "da":
-            self.amenities = amenity_search(self.apt_id)
+            if details["Ameniti"] == "da":
+                self.amenities = amenity_search(self.apt_id)
+            else:
+                self.amenities = None
         else:
-            self.amenities = None
+            self.apt_id = apartment_id
+
+            self.df = convert.to_df("data/apartment_data.csv")
+            self.dfa = convert.to_df("data/amenities.csv")
+
+            self.header = convert.headers("data/apartment_data.csv")
+
+            self.type = ""
+            self.rooms = ""
+            self.spots = ""
+            self.location = f"({round(random.random() * 100, 6)} | {-round(random.random() * 100, 6)})"
+            self.address = ""
+            self.host = ""
+            self.price_per_night = ""
+            self.amenities = ""
+
+    def row_data(self):
+        amnt = "ne"
+        if self.amenities:
+            amnt = "da"
+
+        row = [
+            self.apt_id, self.type, self.rooms, self.spots, self.location,
+            self.address, ":(", self.host, self.price_per_night, "neaktivan",
+            amnt,
+        ]
+        return row
+
+    def append(self):
+        row = pd.DataFrame([self.row_data()], columns=self.header)
+
+        df = self.df.append(row, ignore_index=True)
+        amnt = pd.DataFrame([[self.apt_id, *self.amenities]], columns=["Sifra apartmana", "Dodatak 1",
+                                                                       "Dodatak 2", "Dodatak 3",
+                                                                       "Dodatak 4", "Dodatak 5"])
+        dfa = self.dfa.append(amnt, ignore_index=True)
+
+        convert.to_csv(df, "data/apartment_data.csv")
+        convert.to_csv(dfa, "data/amenities.csv")
+
+    def save_changes(self):
+        for i in range(self.df.shape[0]):
+            if self.df.iat[i, 0] == self.apt_id:
+                row = self.row_data()
+                for j in range(len(row)):
+                    self.df.iat[i, j] = row[j]
+
+        for i in range(self.dfa.shape[0]):
+            if self.dfa.iat[i, 0] == self.apt_id:
+                row = self.amenities
+                for j in range(len(row)):
+                    self.dfa.iat[i, j] = row[j]
+
+        convert.to_csv(self.df, "data/apartment_data.csv")
+        convert.to_csv(self.dfa, "data/amenities.csv")
 
 
 class User:
@@ -460,6 +520,7 @@ def free_time(apt_id, reverse=False):
         elif compare(cs, ">", s) and compare(ce, "<", e):
             pairs.append([s, cs])
             s = ce
+
 
 
 # What a terrible day to have eyes
