@@ -125,7 +125,7 @@ class ProjekatWindow(QMainWindow):
         self.setFixedSize(1280, 720)
 
         # TODO TESTING
-        self.currentUser = User(username="Otibitepar")
+        # self.currentUser = User(username="Otibitepar")
 
         self.baseDF = convert.to_df("data/apartment_data.csv")
         self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
