@@ -1,6 +1,5 @@
 Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci (eur),Status,Ameniti
 0,Ceo,2,4,(31.255765 | -97.911385),Sussex Court 1417 | Copperas Cove 76552,24/7,Elena Jovanović,30,aktivan,da
-1,Ceo,3,6,(40.832218 | -101.739662),Romrog Way 4346 | Grant 69140,24/7,Iva Lončar,35,aktivan,da
 2,Soba,1,1,(42.319553 | -71.012592),Stadium Drive 4208 | Cambridge 02141,24/7,Grgur Barišić,32,aktivan,da
 3,Ceo,2,4,(35.946079 | -86.72983),Buffalo Creek Road 2616 | Antioch 37013,24/7,Maja Grubišić,30,neaktivan,da
 4,Ceo,3,6,(41.71741 | -87.998992),Thomas Street 2392 | Burr Ridge 61257,24/7,Zdravka Rukavina,33,neaktivan,da
@@ -99,6 +98,3 @@ Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci
 97,Ceo,3,3,(40.743169 | -74.572631),Hedge Street 3222 | Garden City 07924,24/7,Klara Pranjić,33,neaktivan,da
 98,Ceo,3,3,(38.243032 | -85.488622),Gregory Lane 2322 | Carroll 40299,24/7,Slavica Tomić,39,neaktivan,da
 99,Ceo,3,9,(33.522047 | -84.108811),Elk Creek Road 1539 | Rochester 30281,24/7,Ozren Jovanović,39,neaktivan,da
-100,Ceo,2,2,(90.39459 | -21.609635),iuh,nan,Iva Lončar,30,neaktivan,da
-101,Soba,1,1,(79.8923 | -78.492472),nmp,:(,Iva Lončar,20,neaktivan,da
-102,Soba,1,2,(86.658062 | -86.448697),nmp2,:(,Iva Lončar,20,neaktivan,da

@@ -1,14 +1,10 @@
-from classes_and_stuff import update_reservations
-from classes_and_stuff import check_availability
-from classes_and_stuff import InvalidSearchError
-from classes_and_stuff import ReservationLayout
-from classes_and_stuff import InvalidDateError
-from classes_and_stuff import Reservation
-from classes_and_stuff import TimeFrame
-from classes_and_stuff import Apartment
-from classes_and_stuff import compare
-from classes_and_stuff import User
+from collections import Counter
+from functools import partial
+import datetime
+import random
+import sys
 
+from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QMainWindow
@@ -24,19 +20,23 @@ from PyQt5.QtWidgets import QCheckBox
 from PyQt5.QtWidgets import QMenuBar
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QLabel
-from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtCore import Qt
-
-from collections import Counter
-from functools import partial
-
-import registration
 import pandas as pd
-import datetime
+
+from classes_and_stuff import update_reservations
+from classes_and_stuff import check_availability
+from classes_and_stuff import InvalidSearchError
+from classes_and_stuff import ReservationLayout
+from classes_and_stuff import InvalidDateError
+from classes_and_stuff import Reservation
+from classes_and_stuff import TimeFrame
+from classes_and_stuff import Apartment
+from classes_and_stuff import compare
+from classes_and_stuff import User
+import registration
 import convert
-import random
+import invert
 import login
-import sys
 
 
 def filter_df(dataframe, query, x):
@@ -124,7 +124,8 @@ class ProjekatWindow(QMainWindow):
         # but it's still resizable (???)
         self.setFixedSize(1280, 720)
 
-        self.currentUser = User()
+        # TODO TESTING
+        self.currentUser = User(username="Hund1986")
 
         self.baseDF = convert.to_df("data/apartment_data.csv")
         self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
@@ -173,12 +174,10 @@ class ProjekatWindow(QMainWindow):
             int(self.editRooms.text())
             int(self.editGuests.text())
             int(self.editPrice.text())
-            int(self.editId.text())
 
         except ValueError:
             err = color_msg("Broj soba, broj gostiju, sifra apartmana, i cena moraju biti brojevi!", "Tomato")
 
-            # self._createAptEdit()
             self.editLabel.setText(err)
             return True
 
@@ -187,19 +186,16 @@ class ProjekatWindow(QMainWindow):
             self.editGuests.text() and
             self.editAddr.text() and
             self.editPrice.text() and
-            self.editAmnt.text() and
-            self.editId.text()
+            self.editAmnt.text()
         ):
             err = color_msg("Popunite sva polja!", "Tomato")
 
-            # self._createAptEdit()
             self.editLabel.setText(err)
             return True
 
         if len(self.editAmnt.text().split()) > 5:
             err = color_msg("Sadrzaj apartmana razdvajate zarezima, najvise 5 dodataka.", "Tomato")
 
-            # self._createAptEdit()
             self.editLabel.setText(err)
             return True
 
@@ -208,6 +204,11 @@ class ProjekatWindow(QMainWindow):
         if not df.empty:
             for i in range(df.shape[0]):
                 if df[df["Sifra"] == self.editId.text()].empty:
+                    err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
+                    self.editLabel.setText(err)
+                    return True
+
+                if df[df["Sifra"] == self.rmId.text()].empty:
                     err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
                     self.editLabel.setText(err)
                     return True
@@ -226,6 +227,9 @@ class ProjekatWindow(QMainWindow):
         apt.rooms = self.editRooms.text()
         apt.spots = self.editGuests.text()
         apt.address = self.editAddr.text()
+
+        apt.avlb = self.editAvlb.text()
+
         apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
         apt.price_per_night = self.editPrice.text()
         lst = [i.strip() for i in self.editAmnt.text().split()]
@@ -239,17 +243,68 @@ class ProjekatWindow(QMainWindow):
         self.editLabel.setText(succ)
 
     def _rmApt(self):
-        self._checkEdit()
+        if not self.rmId.text().isnumeric():
+            err = color_msg("Sifra mora biti broj!", "Tomato")
+
+            self.editLabel.setText(err)
+            return
+
+        dfa = convert.to_df("data/apartment_data.csv")
+        dfr = convert.to_df("data/reservations.csv")
+        dfm = convert.to_df("data/amenities.csv")
+
+        for i in range(dfa.shape[0]):
+            if dfa.iat[i, 0] == self.rmId.text():
+                dfa = dfa.drop(i)
+                break
+
+        for i in range(dfm.shape[0]):
+            if dfm.iat[i, 0] == self.rmId.text():
+                dfm = dfm.drop(i)
+                break
+
+        i = 0
+        while i < dfr.shape[0]:
+            if dfr.iat[i, 1] == self.rmId.text():
+                dfr = dfr.drop(i)
+
+            i += 1
+
+        convert.to_csv(dfa, "data/apartment_data.csv")
+        convert.to_csv(dfr, "data/reservations.csv")
+        convert.to_csv(dfm, "data/amenities.csv")
+
+        self._createAptEdit()
+
+        msg = color_msg(f"Obrisali ste apartman {self.rmId}", "Tomato")
+        self.editLabel.setText(msg)
+
+    def _addTF(self):
+        add(self.dates
+        # err = color_msg("Sifra mora biti broj!", "Tomato")
+        #
+        # self.editLabel.setText(err)
+        # return
+        pass
+
 
     def _editApt(self):
         if self._checkEdit():
+            return
+
+        if not self.editId.text().isnumeric():
+            err = color_msg("Sifra mora biti broj!", "Tomato")
+
+            self.editLabel.setText(err)
             return
 
         apt = Apartment(self.aptId, save=True)
         apt.type = "Soba" if self.editRooms.text() == "1" else "Ceo"
         apt.rooms = self.editRooms.text()
         apt.spots = self.editGuests.text()
+
         apt.address = self.editAddr.text()
+
         apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
         apt.price_per_night = self.editPrice.text()
         lst = [i.strip() for i in self.editAmnt.text().split()]
@@ -267,6 +322,31 @@ class ProjekatWindow(QMainWindow):
 
     def _editChange(self):
         pass
+
+    def _idChanged(self, n):
+        df = convert.to_df("data/apartment_data.csv", use_cols=[0, 5, 7])
+
+        self.editAddr.hide()
+        self.showAddr.show()
+
+        if n:
+            self.aptId = self.editId.text()
+        else:
+            self.aptId = self.rmId.text()
+
+        self.idLabel.setText(f"Sifra apartmana: {self.aptId}")
+        df = df[df["Sifra"] == self.aptId]
+        df = df[df["Domacin"] == " ".join([self.currentUser.fname, self.currentUser.lname])]
+        if df.empty:
+            self.editLabel.setText(color_msg("To nije Vas apartman!", "Tomato"))
+            addr = ""
+            self.editAddr.show()
+            return
+        else:
+            self.editLabel.setText("")
+            addr = df.squeeze()["Adresa"]
+
+        self.showAddr.setText(f"Adresa: {addr}")
 
     def _createAptEdit(self):
         aptEditLayout = QVBoxLayout()
@@ -305,7 +385,15 @@ class ProjekatWindow(QMainWindow):
         self.editRooms = QLineEdit()
         self.editGuests = QLineEdit()
         self.editAddr = QLineEdit()
+        self.showAddr = QLabel("Adresa: ")
+        self.showAddr.hide()
         self.editAddr.setPlaceholderText("Ulica i broj, Naseljeno mesto, Postanski broj mesta (npr. Sutjeska 3, Novi Sad 21000)")
+
+        self.editAvlb = QLineEdit()
+        self.addTF = QPushButton("dodaj")
+        self.addTF.clicked.connect(self._addTF)
+        self.dates = []
+
         self.editPrice = QLineEdit()
         self.editAmnt = QLineEdit()
         self.editAmnt.setPlaceholderText("Unesite dodatnu opremu razdvojenu zarezima, redosled odredjuje 'sifru opreme', do 5 dodataka")
@@ -319,9 +407,11 @@ class ProjekatWindow(QMainWindow):
 
         self.idLabel = QLabel(f"Sifra apartmana: {self.aptId}")
 
-        self.editId.textChanged.connect()
         self.rmId = QLineEdit()
         self.rmId.setPlaceholderText("Ovde upisite sifru apartmana koji bi da obrisete")
+
+        self.editId.textChanged.connect(partial(self._idChanged, 1))
+        self.rmId.textChanged.connect(partial(self._idChanged, 0))
 
         dodaj.clicked.connect(self._addApt)
         promeni.clicked.connect(self._editApt)
@@ -337,12 +427,16 @@ class ProjekatWindow(QMainWindow):
         l = self.currentUser.lname
         nm = " ".join([f, l])
 
-
         formLayout.addRow(QLabel(f"Domacin: {nm} (Vi)"))
         formLayout.addRow(self.idLabel)
+        formLayout.addRow(self.showAddr)
         formLayout.addRow("Broj soba: ", self.editRooms)
         formLayout.addRow("Broj gostiju: ", self.editGuests)
         formLayout.addRow("Adresa: ", self.editAddr)
+
+        formLayout.addRow(QLabel("Dostupnost: Unesite termine (pocetak i kraj) u formatu: (pocetak, kraj), (pocetak, kraj), i pritisnite dugme dodaj ... npr.(2022-02-03, 2022-03-11), (2022-04-01, 2022-05-04)"))
+        formLayout.addRow(self.addTF, self.editAvlb)
+
         formLayout.addRow("Cena po noci: ", self.editPrice)
         formLayout.addRow("Sadrzaj: ", self.editAmnt)
 
@@ -1074,3 +1168,5 @@ if __name__ == '__main__':
 # you can change the ratios by passing a number in .addWidget or .addLayout
 # e.g. .addWidget(widget_one, 1) .addWidget(widget_two, 9)
 #   this will make widget_two take up 9 times as much space as widget_one
+
+# assuming non reserved apartments are always available may have been the wrong move in this case

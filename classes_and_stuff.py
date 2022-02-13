@@ -188,18 +188,21 @@ class TimeFrame:
         self.duration = duration
         self.end = end
 
-        self.date_check()
-
         self.year, self.month, self.day = [int(i) for i in start.split("-")]
 
         if self.end == "":
             self.compute_end()
+
+        self.date_check()
 
     def date_check(self, start=""):
         if start == "":
             _start = self.start.split("-")
         else:
             _start = start
+
+        if compare(self.start, ">=", self.end):
+            raise InvalidDateError
 
         if len(_start) != 3:
             print("invalid start date")
@@ -288,6 +291,10 @@ class TimeFrame:
             end_year += 1
 
         while duration > lookup[curr_month - 1]:
+            if curr_month >= 12:
+                curr_month = 0
+                end_year += 1
+
             duration -= lookup[curr_month - 1]
             curr_month += 1
 
@@ -425,11 +432,11 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
     if df is None:
         try:
             df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 4])
+            df = df[df["Sifra apartmana"] == apt_id]
         except FileNotFoundError:
             return True
 
     # filter for reservations only at this apartment
-    df = df[df["Sifra apartmana"] == apt_id]
     # am I doing this twice??
 
     # start and end of the potential date that was passed as an argument
@@ -439,7 +446,7 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
     for index in range(df.shape[0]):
         res = df.iloc[index]
 
-        # start and end of each reservation in "reservations.csv"
+        # start and end of each reservation in df
         s_i = res["Pocetak"]
         e_i = res["Kraj"]
 
@@ -470,15 +477,30 @@ def update_reservations():
     convert.to_csv(df, "data/reservations.csv")
 
 
-def free_time(apt_id, reverse=False):
-    res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4, 7])
-    res_df = res_df[res_df["Status"].str.contains("Prihvacena")]
-    # only the reservations for this apartment
-    # filter for approved reservations
+def free_time(apt_id, tf_lst=None):
+    # if desired is None:
+    #     desired = []
+
+    if tf_lst:
+        res_df = pd.DataFrame([[tf.start, tf.end] for tf in tf_lst], columns=["Pocetak", "Kraj"])
+        # date = str(datetime.date.today())
+        # for tf in res_df:
+        #     if compare(date, ">", tf[0]):
+        #         raise InvalidDateError
+
+    else:
+        res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4, 7])
+        # only the reservations for this apartment
+        res_df = res_df[res_df["Status"].str.contains("Prihvacena")]
+        # filter for approved reservations
 
     date = str(datetime.date.today())
 
-    tf = TimeFrame(date, 30)
+    if tf_lst:
+        tf = TimeFrame(date, duration=900)
+    else:
+        tf = TimeFrame(date, duration=30)
+
     ctf = False
     pairs = []
 
@@ -488,7 +510,10 @@ def free_time(apt_id, reverse=False):
     if res_df.empty:
         return [[s, e]]
     else:
-        df = res_df[res_df["Sifra apartmana"] == apt_id]
+        if tf_lst:
+            df = res_df
+        else:
+            df = res_df[res_df["Sifra apartmana"] == apt_id]
 
     while ctf is not True:
         ctf = check_availability(start=s, end=e, df=df, apt_id=apt_id, normal_mode=False)
@@ -520,7 +545,6 @@ def free_time(apt_id, reverse=False):
         elif compare(cs, ">", s) and compare(ce, "<", e):
             pairs.append([s, cs])
             s = ce
-
 
 
 # What a terrible day to have eyes
