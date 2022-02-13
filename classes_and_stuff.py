@@ -22,8 +22,11 @@ class InvalidSearchError(Error):
 
 
 def compare(date1, sign, date2) -> bool:
-    y1, m1, d1 = [int(i) for i in date1.split("-")]
-    y2, m2, d2 = [int(i) for i in date2.split("-")]
+    try:
+        y1, m1, d1 = [int(i) for i in date1.split("-")]
+        y2, m2, d2 = [int(i) for i in date2.split("-")]
+    except ValueError:
+        raise InvalidDateError
 
     if "=" in sign:
         if y1 == y2 and m1 == m2 and d1 == d2:

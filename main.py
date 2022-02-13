@@ -169,7 +169,7 @@ class ProjekatWindow(QMainWindow):
                 # dodavanje izmena brisanje
                 # resMenu.addAction('Rezervacije Vasih apartmana', self._createResShow)
 
-    def _checkEdit(self):
+    def _checkEdit(self, a=False):
         try:
             int(self.editRooms.text())
             int(self.editGuests.text())
@@ -199,28 +199,36 @@ class ProjekatWindow(QMainWindow):
             self.editLabel.setText(err)
             return True
 
-        df = convert.to_df("data/apartment_data.csv", use_cols=[0, 5, 7])
-        df = df[df["Domacin"] == " ".join([self.currentUser.fname, self.currentUser.lname])]
-        if not df.empty:
-            for i in range(df.shape[0]):
-                if df[df["Sifra"] == self.editId.text()].empty:
-                    err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
-                    self.editLabel.setText(err)
-                    return True
+        if not a:
+            df = convert.to_df("data/apartment_data.csv", use_cols=[0, 5, 7])
+            df = df[df["Domacin"] == " ".join([self.currentUser.fname, self.currentUser.lname])]
+            if not df.empty:
+                for i in range(df.shape[0]):
+                    if df[df["Sifra"] == self.editId.text()].empty:
+                        err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
+                        self.editLabel.setText(err)
+                        return True
 
-                if df[df["Sifra"] == self.rmId.text()].empty:
-                    err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
-                    self.editLabel.setText(err)
-                    return True
+                    if df[df["Sifra"] == self.rmId.text()].empty:
+                        err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
+                        self.editLabel.setText(err)
+                        return True
 
-                if df.iat[i, 1] == self.editAddr.text():
-                    err = color_msg("Taj apartman je vec registrovan!", "Tomato")
-                    self.editLabel.setText(err)
-                    return True
+                    if df.iat[i, 1] == self.editAddr.text():
+                        err = color_msg("Taj apartman je vec registrovan!", "Tomato")
+                        self.editLabel.setText(err)
+                        return True
 
     def _addApt(self):
-        if self._checkEdit():
+        if self._checkEdit(a=True):
             return
+
+        # if not self.addId.text().isnumeric():
+        #     err = color_msg("Sifra mora biti broj!", "Tomato")
+        #
+        #     self.editLabel.setText(err)
+        #     return
+        #
 
         apt = Apartment(self.aptId, save=True)
         apt.type = "Soba" if self.editRooms.text() == "1" else "Ceo"
@@ -228,12 +236,34 @@ class ProjekatWindow(QMainWindow):
         apt.spots = self.editGuests.text()
         apt.address = self.editAddr.text()
 
-        apt.avlb = self.editAvlb.text()
+        # apt.avlb = self.editAvlb.text()
+        invert.finish(self.dates, self.aptId)
 
         apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
         apt.price_per_night = self.editPrice.text()
-        lst = [i.strip() for i in self.editAmnt.text().split()]
-        apt.amenities = lst + ["None" for _ in range(5)][len(lst):]
+
+        amnts = self.editAmnt.text().split(",")
+        amnts = [i.strip() for i in amnts]
+
+        # check if every element of amnts is a number
+        if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+            with open("data/sadrzaj.txt", "r") as f:
+                dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
+
+            for i in range(len(amnts)):
+                amnts[i] = dct[amnts[i]]
+
+        # check if mixed
+        elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+            err = color_msg("Pogresan unos!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        # lst = [i.strip() for i in self.editAmnt.text().split(",")]
+
+        apt.amenities = amnts + ["None" for _ in range(5)][len(amnts):]
 
         apt.append()
 
@@ -279,14 +309,19 @@ class ProjekatWindow(QMainWindow):
         msg = color_msg(f"Obrisali ste apartman {self.rmId}", "Tomato")
         self.editLabel.setText(msg)
 
-    def _addTF(self):
-        add(self.dates
-        # err = color_msg("Sifra mora biti broj!", "Tomato")
-        #
-        # self.editLabel.setText(err)
-        # return
-        pass
+    # TODO dodatna oprema ide na sifru...
+    #   admin moze da doda novu vrstu "Dodatne opreme" unosenjem sifre i imena nove opreme......................
 
+    def _addTF(self):
+        s = self.editAvlb.text()
+        try:
+            invert.add(s, self.dates)
+        except InvalidDateError:
+            err = color_msg("Pogresan datum!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
 
     def _editApt(self):
         if self._checkEdit():
@@ -307,8 +342,27 @@ class ProjekatWindow(QMainWindow):
 
         apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
         apt.price_per_night = self.editPrice.text()
-        lst = [i.strip() for i in self.editAmnt.text().split()]
-        apt.amenities = lst + ["None" for _ in range(5)][len(lst):]
+
+        amnts = self.editAmnt.text().split(",")
+        amnts = [i.strip() for i in amnts]
+
+        # check if every element of amnts is a number
+        if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+            with open("data/sadrzaj.txt", "r") as f:
+                dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
+
+            for i in range(len(amnts)):
+                amnts[i] = dct[amnts[i]]
+
+        # check if mixed
+        elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+            err = color_msg("Pogresan unos!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        apt.amenities = amnts + ["None" for _ in range(5)][len(amnts):]
 
         apt.save_changes()
 
@@ -396,7 +450,7 @@ class ProjekatWindow(QMainWindow):
 
         self.editPrice = QLineEdit()
         self.editAmnt = QLineEdit()
-        self.editAmnt.setPlaceholderText("Unesite dodatnu opremu razdvojenu zarezima, redosled odredjuje 'sifru opreme', do 5 dodataka")
+        self.editAmnt.setPlaceholderText("Dodatnu opremu mozete uneti po nazivu, razdvojenu zarezima, ili preko 'sifre' opreme (npr. 1,3,5), morate jedno ili drugo ne mozete kombinovati!")
 
         dodaj = QPushButton("Dodaj apartman")
         promeni = QPushButton("Promeni podatke")
@@ -433,6 +487,7 @@ class ProjekatWindow(QMainWindow):
         formLayout.addRow("Broj soba: ", self.editRooms)
         formLayout.addRow("Broj gostiju: ", self.editGuests)
         formLayout.addRow("Adresa: ", self.editAddr)
+        self.editAddr.show()
 
         formLayout.addRow(QLabel("Dostupnost: Unesite termine (pocetak i kraj) u formatu: (pocetak, kraj), (pocetak, kraj), i pritisnite dugme dodaj ... npr.(2022-02-03, 2022-03-11), (2022-04-01, 2022-05-04)"))
         formLayout.addRow(self.addTF, self.editAvlb)
