@@ -61,7 +61,7 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 62,95,2020-12-16,13,2020-12-29,390,Svetoslav Kovačević (Brod1966),Odbijena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Copperas Cove
 63,60,2020-09-01,9,2020-09-10,216,Jasmin Bošnjak (Staided),Odustanak,Aleksandra Duvnjak,Ana Kos,Snežana Bošnjak,Dragutin Kralj,Saša Jukić,Ratko Tomić,Sara Miletić,Zdenka Kralj,Antioch
 64,27,2020-02-18,14,2020-03-03,420,Grgur Barišić (Whons1950),Odustanak,Ivana Perković,Ognjen Marjanović,Nadica Tkalčić,Elena Petković,Prvoslav Debeljak,Nika Tadić,Ivana Perković,Nina Horvatinčić,Charlotte
-65,81,2022-09-27,13,2022-10-10,416,Štefanija Miletić (Wiler1948),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Grant
+65,81,2022-09-27,13,2022-10-10,416,Štefanija Miletić (Wiler1948),Prihvacena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Grant
 66,58,2021-11-24,4,2021-11-28,128,Nenad Cindrić (Thermised02),Zavrsena,Tihomil Jerković,Tomislav Jelić,Božo Varga,Dragutin Kralj,Neven Novaković,Elizabeta Poljak,Velimir Klarić,Ana Popović,Fremont
 67,26,2020-04-01,7,2020-04-08,210,Sanja Vuković (Ariend),Odbijena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Fremont
 68,93,2021-07-23,2,2021-07-25,52,Zdenko Vidović (Camesquill),Odbijena,Mihovil Kovačić,Leona Brkić,Zrina Jurišić,Tihomil Vučković,Divna Topić,Leona Duvnjak,Nika Tadić,Desimir Novaković,Pace
@@ -126,7 +126,7 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 128,33,2020-03-23,15,2020-04-07,615,Davor Blažević (Thichimphed),Zavrsena,Dragutin Kralj,Roko Stipanov,Jasminka Ćosić,Tereza Janković,Mijo Miletić,Tamara Kovačević,Vjeran Živković,Prvoslav Debeljak,Bluffton
 129,84,2020-10-09,6,2020-10-15,144,Antonija Radić (Abires1959),Odustanak,Nediljko Jerković,Mihovil Kovačić,Bernarda Matković,Vjeran Živković,Jasminka Jukić,Vjeran Živković,Zrina Jukić,Nediljko Jerković,Vancouver
 130,79,2021-08-27,6,2021-09-02,204,Silvija Jović (Whersuch),Zavrsena,Vojmil Kralj,Tihomil Čerkez,Teha Rukavina,testname testlname,Teha Rukavina,Danijela Vidaković,Stjepan Vukelić,Darijo Janković,Bluffton
-131,75,2022-11-19,9,2022-11-28,270,Ranka Nikolić (Ponwas45),Kreirana,Jasminka Ćosić,Dorotea Nikolić,Sara Miletić,Mislav Marković,Dubravka Lovrić,Dunja Marić,Dorotea Nikolić,Nediljko Jerković,Copperas Cove
+131,75,2022-11-19,9,2022-11-28,270,Ranka Nikolić (Ponwas45),Prihvacena,Jasminka Ćosić,Dorotea Nikolić,Sara Miletić,Mislav Marković,Dubravka Lovrić,Dunja Marić,Dorotea Nikolić,Nediljko Jerković,Copperas Cove
 132,79,2020-02-20,5,2020-02-25,170,Štefanija Miletić (Wiler1948),Odustanak,Tomislav Jelić,Veselko Pavić,Jasminka Ćosić,Tomislav Jelić,testname testlname,Mirjana Mihaljević,Pribislav Bosanac,Ratko Tomić,Bluffton
 133,35,2021-02-26,2,2021-02-28,48,Mateo Herceg (Bobselp),Odustanak,Tihomil Čerkez,Leona Brkić,Karlo Marjanović,Leona Duvnjak,Neven Novaković,Daniel Pavlović,Matea Šimunović,Višeslav Perić,Grant
 134,92,2022-11-05,12,2022-11-17,312,Draženka Popović (Siled1976),Prihvacena,Berivoj Marušić,Neven Novaković,Daniel Pavlović,Veselko Pavić,Matija Mikulić,Vojmil Kralj,Ana Popović,Slavko Perković,Vancouver
@@ -258,11 +258,11 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 266,90,2020-09-14,3,2020-09-17,93,Ivan Vuković (Quared67),Zavrsena,Danijela Jurišić,Davorin Petković,Đurđa Petković,Divna Topić,Mihovil Kovačić,Štefanija Crnić,Grgur Perković,Živka Ivanković,Fremont
 267,67,2021-10-21,11,2021-11-01,407,Dejan Jukić (Anscialtat),Zavrsena,Alen Pavlović,Nika Tadić,Aleksandra Duvnjak,Nika Tadić,Mijo Miletić,Zrina Jurišić,Tamara Novosel,Veselko Pavić,Southfield
 268,50,2021-08-03,2,2021-08-05,56,Slavica Tomić (Lythe1989),Odbijena,Budimir Jerković,Mijo Miletić,Ana Popović,Matea Šimunović,Andrea Vidaković,Dubravka Lovrić,Đurđa Petković,Leonardo Jakšić,Everett
-269,61,2022-11-15,14,2022-11-29,308,Miro Vidaković (Haided),Kreirana,Roko Stipanov,Nina Horvatinčić,Ivana Perković,Dubravka Lovrić,Daniel Pavlović,Dubravka Lovrić,Višeslav Perić,Leona Duvnjak,Grant
+269,61,2022-11-15,14,2022-11-29,308,Miro Vidaković (Haided),Odbijena,Roko Stipanov,Nina Horvatinčić,Ivana Perković,Dubravka Lovrić,Daniel Pavlović,Dubravka Lovrić,Višeslav Perić,Leona Duvnjak,Grant
 270,70,2022-10-17,6,2022-10-23,156,Ivan Vuković (Quared67),Kreirana,Nina Horvatinčić,Ana Kos,Jasminka Jukić,Elena Petković,Tihomil Jerković,Šimun Delić,Andrea Vidaković,Ksenija Ivanković,Laurinburg
 271,99,2021-08-11,12,2021-08-23,468,Tereza Knežević (Cater1966),Odustanak,Božo Varga,Andrea Pavić,Robert Pejić,Danijela Jurišić,Divna Topić,Ljiljana Matković,Alen Pavlović,Tihomil Jerković,Rochester
 272,32,2022-06-12,5,2022-06-17,150,Nenad Cindrić (Thermised02),Prihvacena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Cambridge
-273,38,2022-10-02,14,2022-10-16,392,Pavo Matić (Stered),Kreirana,Bernarda Matković,Leonardo Jakšić,Siniša Petrović,Mateja Obad,Đurđa Petković,Sara Miletić,Vojmil Kralj,Darijo Mandić,Copperas Cove
+273,38,2022-10-02,14,2022-10-16,392,Pavo Matić (Stered),Odbijena,Bernarda Matković,Leonardo Jakšić,Siniša Petrović,Mateja Obad,Đurđa Petković,Sara Miletić,Vojmil Kralj,Darijo Mandić,Copperas Cove
 274,37,2021-08-07,7,2021-08-14,238,Ksenija Perić (Occonever45),Odbijena,Senka Jozić,Šimun Delić,Robert Pejić,Dragutin Kralj,Borislav Novak,Ljiljana Matković,Bernarda Matković,Matija Hrvatin,Carroll
 275,78,2022-02-11,12,2022-02-23,432,Slavica Tomić (Lythe1989),Prihvacena,Tihomil Ivančić,Karlo Marjanović,Andrea Vidaković,Tamara Novosel,Pribislav Bosanac,Živka Ivanković,Cvjetko Zagorec,Leona Brkić,Warminster
 276,95,2021-06-02,6,2021-06-08,180,Snježana Petković (Faceink),Odustanak,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Copperas Cove
