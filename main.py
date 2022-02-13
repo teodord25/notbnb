@@ -169,7 +169,7 @@ class ProjekatWindow(QMainWindow):
                 # dodavanje izmena brisanje
                 # resMenu.addAction('Rezervacije Vasih apartmana', self._createResShow)
 
-    def _checkEdit(self, a=False):
+    def _checkEdit(self, a=0):
         try:
             int(self.editRooms.text())
             int(self.editGuests.text())
@@ -184,10 +184,13 @@ class ProjekatWindow(QMainWindow):
         if not (
             self.editRooms.text() and
             self.editGuests.text() and
-            self.editAddr.text() and
             self.editPrice.text() and
             self.editAmnt.text()
         ):
+
+            if a == 0:
+                self.editAddr.text()
+
             err = color_msg("Popunite sva polja!", "Tomato")
 
             self.editLabel.setText(err)
@@ -199,28 +202,32 @@ class ProjekatWindow(QMainWindow):
             self.editLabel.setText(err)
             return True
 
-        if not a:
+        if a == 1 or a == 2:
             df = convert.to_df("data/apartment_data.csv", use_cols=[0, 5, 7])
             df = df[df["Domacin"] == " ".join([self.currentUser.fname, self.currentUser.lname])]
             if not df.empty:
                 for i in range(df.shape[0]):
-                    if df[df["Sifra"] == self.editId.text()].empty:
+                    if a == 1 and df[df["Sifra"] == self.editId.text()].empty:
                         err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
                         self.editLabel.setText(err)
                         return True
 
-                    if df[df["Sifra"] == self.rmId.text()].empty:
+                    if a == 2 and df[df["Sifra"] == self.rmId.text()].empty:
                         err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
                         self.editLabel.setText(err)
                         return True
 
-                    if df.iat[i, 1] == self.editAddr.text():
+                    if a == 0 and df.iat[i, 1] == self.editAddr.text():
                         err = color_msg("Taj apartman je vec registrovan!", "Tomato")
                         self.editLabel.setText(err)
                         return True
+            else:
+                err = color_msg("Nemate apartmane!", "Tomato")
+                self.editLabel.setText(err)
+                return True
 
     def _addApt(self):
-        if self._checkEdit(a=True):
+        if self._checkEdit(a=0):
             return
 
         # if not self.addId.text().isnumeric():
@@ -316,6 +323,7 @@ class ProjekatWindow(QMainWindow):
         s = self.editAvlb.text()
         try:
             invert.add(s, self.dates)
+            self.editAvlb.clear()
         except InvalidDateError:
             err = color_msg("Pogresan datum!", "Tomato")
 
@@ -324,7 +332,7 @@ class ProjekatWindow(QMainWindow):
             return
 
     def _editApt(self):
-        if self._checkEdit():
+        if self._checkEdit(a=1):
             return
 
         if not self.editId.text().isnumeric():
@@ -338,7 +346,7 @@ class ProjekatWindow(QMainWindow):
         apt.rooms = self.editRooms.text()
         apt.spots = self.editGuests.text()
 
-        apt.address = self.editAddr.text()
+        apt.address = self.showAddr.text()[8:]
 
         apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
         apt.price_per_night = self.editPrice.text()
@@ -362,7 +370,7 @@ class ProjekatWindow(QMainWindow):
             self.editLabel.setText(err)
             return
 
-        apt.amenities = amnts + ["None" for _ in range(5)][len(amnts):]
+        apt.amenities = [self.aptId] + amnts + ["None" for _ in range(5)][len(amnts):]
 
         apt.save_changes()
 
