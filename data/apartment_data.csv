@@ -1,6 +1,5 @@
 Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci (eur),Status,Ameniti
 0,Ceo,2,4,(31.255765 | -97.911385),Sussex Court 1417 | Copperas Cove 76552,24/7,Elena Jovanović,30,aktivan,da
-1,Ceo,3,6,(40.832218 | -101.739662),Romrog Way 4346 | Grant 69140,24/7,Iva Lončar,35,aktivan,da
 2,Soba,1,1,(42.319553 | -71.012592),Stadium Drive 4208 | Cambridge 02141,24/7,Grgur Barišić,32,aktivan,da
 3,Ceo,2,4,(35.946079 | -86.72983),Buffalo Creek Road 2616 | Antioch 37013,24/7,Maja Grubišić,30,neaktivan,da
 4,Ceo,3,6,(41.71741 | -87.998992),Thomas Street 2392 | Burr Ridge 61257,24/7,Zdravka Rukavina,33,neaktivan,da
@@ -80,7 +79,7 @@ Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci
 78,Ceo,2,2,(40.047073 | -75.195483),Franklee Lane 4907 | Warminster 19034,24/7,Mojmir Bačić,36,neaktivan,da
 79,Ceo,2,6,(30.499697 | -91.105169),Washburn Street 1182 | Bluffton 70802,24/7,Anto Bačić,34,aktivan,da
 80,Soba,1,2,(32.879656 | -97.012212),Oliver Street 2988 | Pace 76051,24/7,Zdenko Vidović,30,neaktivan,da
-81,Soba,1,1,(42.417044 | -71.108512),Lynn Street 2206 | Grant 02141,24/7,Iva Lončar,32,aktivan,da
+81,Ceo,4,4,(22.535921 | -15.688394),Lynn Street 2206 | Grant 02141,:(,Iva Lončar,4,neaktivan,da
 82,Ceo,2,2,(36.701075 | -97.858637),Cody Ridge Road 3303 | Southfield 73766,24/7,Vjekoslav Petrović,28,aktivan,da
 83,Ceo,2,2,(29.635453 | -95.475874),Wines Lane 2573 | Antioch 77030,24/7,Maja Grubišić,34,aktivan,da
 84,Soba,1,3,(36.614923 | -121.719673),Emily Renzelli Boulevard 2460 | Vancouver 93901,24/7,Ksenija Perić,24,aktivan,da
@@ -95,7 +94,6 @@ Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci
 93,Soba,1,2,(42.36088 | -83.185694),Prudence Street 2740 | Pace 48221,24/7,Zdenko Vidović,26,aktivan,da
 94,Soba,1,2,(40.605431 | -86.265096),Capitol Avenue 4912 | Marysville 46901,24/7,Vinko Horvat,22,aktivan,ne
 95,Soba,1,1,(40.598219 | -79.871455),Stuart Street 1196 | Copperas Cove 15044,24/7,Elena Jovanović,30,aktivan,da
-96,Soba,1,1,(41.5742 | -91.920189),Pyramid Valley Road 1315 | Grant 52356,24/7,Iva Lončar,26,aktivan,da
 97,Ceo,3,3,(40.743169 | -74.572631),Hedge Street 3222 | Garden City 07924,24/7,Klara Pranjić,33,neaktivan,da
 98,Ceo,3,3,(38.243032 | -85.488622),Gregory Lane 2322 | Carroll 40299,24/7,Slavica Tomić,39,neaktivan,da
 99,Ceo,3,9,(33.522047 | -84.108811),Elk Creek Road 1539 | Rochester 30281,24/7,Ozren Jovanović,39,neaktivan,da

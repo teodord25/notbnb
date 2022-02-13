@@ -1,4 +1,5 @@
 import convert
+import random
 import datetime
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
@@ -21,8 +22,11 @@ class InvalidSearchError(Error):
 
 
 def compare(date1, sign, date2) -> bool:
-    y1, m1, d1 = [int(i) for i in date1.split("-")]
-    y2, m2, d2 = [int(i) for i in date2.split("-")]
+    try:
+        y1, m1, d1 = [int(i) for i in date1.split("-")]
+        y2, m2, d2 = [int(i) for i in date2.split("-")]
+    except ValueError:
+        raise InvalidDateError
 
     if "=" in sign:
         if y1 == y2 and m1 == m2 and d1 == d2:
@@ -60,28 +64,87 @@ def amenity_search(apartment_id):
 
 
 class Apartment:
-    def __init__(self, apartment_id, compute_avlb=False):
-        self.apt_id = apartment_id
+    def __init__(self, apartment_id, compute_avlb=False, save=False):
+        if save is False:
+            self.apt_id = apartment_id
 
-        df = convert.to_df("data/apartment_data.csv")
-        details = df[df["Sifra"] == str(apartment_id)].squeeze()
-        self.type = details["Tip"]
-        self.rooms = details["Broj soba"]
-        self.spots = details["Broj gostiju"]
-        self.location = details["Lokacija"]
-        self.address = details["Adresa"]
+            df = convert.to_df("data/apartment_data.csv")
+            self.df = df.copy()
+            details = df[df["Sifra"] == str(apartment_id)].squeeze()
+            self.type = details["Tip"]
+            self.rooms = details["Broj soba"]
+            self.spots = details["Broj gostiju"]
+            self.location = details["Lokacija"]
+            self.address = details["Adresa"]
+            self.header = convert.headers("data/apartment_data.csv")
 
-        if compute_avlb:
-            self.avlb = free_time(self.apt_id)
+            if compute_avlb:
+                self.avlb = free_time(self.apt_id)
 
-        self.host = details["Domacin"]
-        self.price_per_night = details["Cena po noci (eur)"]
-        self.status = details["Status"]
+            self.host = details["Domacin"]
+            self.price_per_night = details["Cena po noci (eur)"]
+            self.status = details["Status"]
 
-        if details["Ameniti"] == "da":
-            self.amenities = amenity_search(self.apt_id)
+            if details["Ameniti"] == "da":
+                self.amenities = amenity_search(self.apt_id)
+            else:
+                self.amenities = None
         else:
-            self.amenities = None
+            self.apt_id = apartment_id
+
+            self.df = convert.to_df("data/apartment_data.csv")
+            self.dfa = convert.to_df("data/amenities.csv")
+
+            self.header = convert.headers("data/apartment_data.csv")
+
+            self.type = ""
+            self.rooms = ""
+            self.spots = ""
+            self.location = f"({round(random.random() * 100, 6)} | {-round(random.random() * 100, 6)})"
+            self.address = ""
+            self.host = ""
+            self.price_per_night = ""
+            self.amenities = ""
+
+    def row_data(self):
+        amnt = "ne"
+        if self.amenities:
+            amnt = "da"
+
+        row = [
+            self.apt_id, self.type, self.rooms, self.spots, self.location,
+            self.address, ":(", self.host, self.price_per_night, "neaktivan",
+            amnt,
+        ]
+        return row
+
+    def append(self):
+        row = pd.DataFrame([self.row_data()], columns=self.header)
+
+        df = self.df.append(row, ignore_index=True)
+        amnt = pd.DataFrame([[self.apt_id, *self.amenities]], columns=["Sifra apartmana", "Dodatak 1",
+                                                                       "Dodatak 2", "Dodatak 3",
+                                                                       "Dodatak 4", "Dodatak 5"])
+        dfa = self.dfa.append(amnt, ignore_index=True)
+
+        convert.to_csv(df, "data/apartment_data.csv")
+        convert.to_csv(dfa, "data/amenities.csv")
+
+    def save_changes(self):
+        for i in range(self.df.shape[0]):
+            if self.df.iat[i, 0] == self.apt_id:
+                row = self.row_data()
+                for j in range(len(row)):
+                    self.df.iat[i, j] = row[j]
+
+        for i in range(self.dfa.shape[0]):
+            if self.dfa.iat[i, 0] == self.apt_id:
+                row = self.amenities
+                for j in range(len(row)):
+                    self.dfa.iat[i, j] = row[j]
+
+        convert.to_csv(self.df, "data/apartment_data.csv")
+        convert.to_csv(self.dfa, "data/amenities.csv")
 
 
 class User:
@@ -128,18 +191,21 @@ class TimeFrame:
         self.duration = duration
         self.end = end
 
-        self.date_check()
-
         self.year, self.month, self.day = [int(i) for i in start.split("-")]
 
         if self.end == "":
             self.compute_end()
+
+        self.date_check()
 
     def date_check(self, start=""):
         if start == "":
             _start = self.start.split("-")
         else:
             _start = start
+
+        if compare(self.start, ">=", self.end):
+            raise InvalidDateError
 
         if len(_start) != 3:
             print("invalid start date")
@@ -228,6 +294,10 @@ class TimeFrame:
             end_year += 1
 
         while duration > lookup[curr_month - 1]:
+            if curr_month >= 12:
+                curr_month = 0
+                end_year += 1
+
             duration -= lookup[curr_month - 1]
             curr_month += 1
 
@@ -365,11 +435,11 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
     if df is None:
         try:
             df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 4])
+            df = df[df["Sifra apartmana"] == apt_id]
         except FileNotFoundError:
             return True
 
     # filter for reservations only at this apartment
-    df = df[df["Sifra apartmana"] == apt_id]
     # am I doing this twice??
 
     # start and end of the potential date that was passed as an argument
@@ -379,7 +449,7 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
     for index in range(df.shape[0]):
         res = df.iloc[index]
 
-        # start and end of each reservation in "reservations.csv"
+        # start and end of each reservation in df
         s_i = res["Pocetak"]
         e_i = res["Kraj"]
 
@@ -410,15 +480,30 @@ def update_reservations():
     convert.to_csv(df, "data/reservations.csv")
 
 
-def free_time(apt_id):
-    res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4])
-    res_df = res_df[res_df["Status"].str.contains("Prihvacena")]
-    # only the reservations for this apartment
-    # filter for approved reservations
+def free_time(apt_id, tf_lst=None):
+    # if desired is None:
+    #     desired = []
+
+    if tf_lst:
+        res_df = pd.DataFrame([[tf.start, tf.end] for tf in tf_lst], columns=["Pocetak", "Kraj"])
+        # date = str(datetime.date.today())
+        # for tf in res_df:
+        #     if compare(date, ">", tf[0]):
+        #         raise InvalidDateError
+
+    else:
+        res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4, 7])
+        # only the reservations for this apartment
+        res_df = res_df[res_df["Status"].str.contains("Prihvacena")]
+        # filter for approved reservations
 
     date = str(datetime.date.today())
 
-    tf = TimeFrame(date, 30)
+    if tf_lst:
+        tf = TimeFrame(date, duration=900)
+    else:
+        tf = TimeFrame(date, duration=30)
+
     ctf = False
     pairs = []
 
@@ -428,7 +513,10 @@ def free_time(apt_id):
     if res_df.empty:
         return [[s, e]]
     else:
-        df = res_df[res_df["Sifra apartmana"] == apt_id]
+        if tf_lst:
+            df = res_df
+        else:
+            df = res_df[res_df["Sifra apartmana"] == apt_id]
 
     while ctf is not True:
         ctf = check_availability(start=s, end=e, df=df, apt_id=apt_id, normal_mode=False)
@@ -532,6 +620,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.info7 = QLabel("")
         self.info8 = QLabel("")
         self.info9 = QLabel("")
+        self.info10 = QLabel("")
 
         self.reservationStart = QLineEdit()
         self.reservationDuration = QLineEdit()
@@ -583,6 +672,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.addWidget(self.info7, 10, 0)
         self.addWidget(self.info8, 11, 0)
         self.addWidget(self.info9, 12, 0)
+        self.addWidget(self.info10, 13, 0)
         self.addWidget(self.label0, 0, 1)
         self.addWidget(self.label1, 1, 1)
         self.addWidget(self.label2, 2, 1, 1, 2)
@@ -648,6 +738,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.info7.show()
         self.info8.show()
         self.info9.show()
+        self.info10.show()
 
     def showForm(self, n):
         self._showGuests(n)

@@ -184,10 +184,23 @@ def generate_reservations():
     convert.to_csv(df, "data/reservations.csv")
 
 
+def update_users():
+    hosts = list(convert.to_df("data/apartment_data.csv", use_cols=[7]).squeeze())
+    df = convert.to_df("data/user_data.csv")
+
+    for i in range(df.shape[0]):
+        host = " ".join([df.iat[i, 1], df.iat[i, 2]])
+        if host in hosts:
+            df.iat[i, 6] = "Domacin"
+
+    convert.to_csv(df, "data/user_data.csv")
+
+
 if __name__ == "__main__":
     # generate_apartments()
     # generate_users()
-    generate_reservations()
+    # generate_reservations()
+    update_users()
 
 # Why spend 1 hour creating testing data when you can
 # spend 40 hours automating testing data generation

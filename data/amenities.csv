@@ -1,6 +1,5 @@
 Sifra apartmana,Dodatak 1,Dodatak 2,Dodatak 3,Dodatak 4,Dodatak 5
 0,kuhinja,ves masina,None,None,None
-1,pegla,ves masina,None,None,None
 2,parking,klima uredjaj,pegla,ves masina,kuhinja
 3,klima uredjaj,ves masina,None,None,None
 4,pegla,None,None,None,None
@@ -80,7 +79,7 @@ Sifra apartmana,Dodatak 1,Dodatak 2,Dodatak 3,Dodatak 4,Dodatak 5
 78,parking,ves masina,klima uredjaj,kuhinja,pegla
 79,ves masina,kuhinja,parking,klima uredjaj,None
 80,pegla,kuhinja,ves masina,klima uredjaj,None
-81,ves masina,parking,pegla,klima uredjaj,kuhinja
+81,ves masina,None,None,None,None
 82,klima uredjaj,None,None,None,None
 83,kuhinja,ves masina,parking,pegla,None
 84,pegla,None,None,None,None
@@ -95,7 +94,7 @@ Sifra apartmana,Dodatak 1,Dodatak 2,Dodatak 3,Dodatak 4,Dodatak 5
 93,parking,klima uredjaj,None,None,None
 94,None,None,None,None,None
 95,ves masina,klima uredjaj,parking,kuhinja,None
-96,klima uredjaj,parking,None,None,None
+96,parking,None,None,None,None
 97,klima uredjaj,None,None,None,None
 98,ves masina,kuhinja,parking,pegla,None
 99,klima uredjaj,parking,pegla,ves masina,None

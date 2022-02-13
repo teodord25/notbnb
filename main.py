@@ -1,14 +1,10 @@
-from classes_and_stuff import update_reservations
-from classes_and_stuff import check_availability
-from classes_and_stuff import InvalidSearchError
-from classes_and_stuff import ReservationLayout
-from classes_and_stuff import InvalidDateError
-from classes_and_stuff import Reservation
-from classes_and_stuff import TimeFrame
-from classes_and_stuff import Apartment
-from classes_and_stuff import compare
-from classes_and_stuff import User
+from collections import Counter
+from functools import partial
+import datetime
+import random
+import sys
 
+from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QMainWindow
@@ -24,18 +20,23 @@ from PyQt5.QtWidgets import QCheckBox
 from PyQt5.QtWidgets import QMenuBar
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QLabel
-from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtCore import Qt
-
-from collections import Counter
-from functools import partial
-
-import registration
 import pandas as pd
-import datetime
+
+from classes_and_stuff import update_reservations
+from classes_and_stuff import check_availability
+from classes_and_stuff import InvalidSearchError
+from classes_and_stuff import ReservationLayout
+from classes_and_stuff import InvalidDateError
+from classes_and_stuff import Reservation
+from classes_and_stuff import TimeFrame
+from classes_and_stuff import Apartment
+from classes_and_stuff import compare
+from classes_and_stuff import User
+import registration
 import convert
+import invert
 import login
-import sys
 
 
 def filter_df(dataframe, query, x):
@@ -123,7 +124,8 @@ class ProjekatWindow(QMainWindow):
         # but it's still resizable (???)
         self.setFixedSize(1280, 720)
 
-        self.currentUser = User()
+        # TODO TESTING
+        self.currentUser = User(username="Otibitepar")
 
         self.baseDF = convert.to_df("data/apartment_data.csv")
         self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
@@ -158,12 +160,450 @@ class ProjekatWindow(QMainWindow):
 
         apartmentMenu.addAction('Pretraga i rezervacija apartmana', self._createBrowsingScreen)
 
-        if self.currentUser.role == "Domacin":
-            apartmentMenu.addAction('Registracija apartmana', self.apartmentRegistration)
-
         if self.currentUser.role != "Neregistrovan":
             resMenu = menu.addMenu("&Rezervacije")
             resMenu.addAction('Vase rezervacije', self._createResReviewScreen)
+            resMenu.addAction('Rezervacije Vasih apartmana', self._createHostRes)
+
+            if self.currentUser.role == "Domacin":
+                apartmentMenu.addAction('Vasi apartmani', self._createAptEdit)
+                # dodavanje izmena brisanje
+                # resMenu.addAction('Rezervacije Vasih apartmana', self._createResShow)
+
+    def _createHostRes(self):
+        layout = QGridLayout()
+        self._clearScreen()
+
+        host = " ".join([self.currentUser.fname, self.currentUser.lname])
+
+        dfa = convert.to_df("data/apartment_data.csv")
+        ids = dfa[dfa["Domacin"] == host]
+        ids = ids.loc[:, "Sifra"]
+        ids = ids.squeeze()
+        ids = list(ids)
+
+        dfr = convert.to_df("data/reservations.csv")
+
+        header = convert.headers("data/reservations.csv")
+        res_df = pd.DataFrame([], columns=header)
+
+        for i in range(dfr.shape[0]):
+            apt_id = dfr.iat[i, 1]
+            if apt_id in ids:
+                row = pd.DataFrame([list(dfr.iloc[i])], columns=header)
+                res_df = res_df.append(row, ignore_index=True)
+
+        df = res_df[res_df["Status"] == "Kreirana"]
+
+        self.model = tableModel(df)
+        self.table = QTableView()
+        self.table.setModel(self.model)
+
+        header = self.table.horizontalHeader()
+        for i in range(df.shape[1]):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
+
+        self.editRes = QLineEdit()
+        accept = QPushButton("Potvrdi")
+        deny = QPushButton("Odbij")
+        self.resLabel = QLabel("")
+
+        if df.empty:
+            sad = color_msg("Ne postoje rezervacije za Vase apartmane :(", "Purple")
+            self.resLabel.setText(sad)
+
+        accept.clicked.connect(self._acceptRes)
+        deny.clicked.connect(self._denyRes)
+
+        layout.addWidget(self.resLabel, 0, 0, 1, 2)
+        layout.addWidget(QLabel("Unesite sifru rezervacije, pa je odbijte ili potvrdite"), 1, 0, 1, 2)
+        layout.addWidget(self.editRes, 2, 0, 1, 2)
+        layout.addWidget(accept, 3, 0)
+        layout.addWidget(deny, 3, 1)
+        layout.addWidget(self.table, 4, 0, 1, 2)
+
+        self.generalLayout.addLayout(layout)
+
+    def _acceptRes(self):
+        resId = self.editRes.text()
+        if not resId.isnumeric():
+            err = color_msg("Pogresan unos!", "Tomato")
+
+            self._createHostRes()
+            self.resLabel.setText(err)
+            return
+
+        df = convert.to_df("data/reservations.csv")
+        if df[df["Sifra rezervacije"] == str(resId)].empty:
+            err = color_msg("Pogresna sifra/rezervacija ne postoji!", "Tomato")
+
+            self._createHostRes()
+            self.resLabel.setText(err)
+            return
+
+        for i in range(df.shape[0]):
+            if df.at[i, "Sifra rezervacije"] == str(resId):
+                df.at[i, "Status"] = "Prihvacena"
+                break
+
+        convert.to_csv(df, "data/reservations.csv")
+        self._createHostRes()
+
+        succ = color_msg(f"Uspesno ste prihvatili rezervaciju {resId}!", "Lime")
+        self.resLabel.setText(succ)
+
+    def _denyRes(self):
+        resId = self.editRes.text()
+        if not resId.isnumeric():
+            err = color_msg("Pogresan unos!", "Tomato")
+
+            self._createHostRes()
+            self.resLabel.setText(err)
+            return
+
+        df = convert.to_df("data/reservations.csv")
+        if df[df["Sifra rezervacije"] == str(resId)].empty:
+            err = color_msg("Pogresna sifra/rezervacija ne postoji!", "Tomato")
+
+            self._createHostRes()
+            self.resLabel.setText(err)
+            return
+
+        for i in range(df.shape[0]):
+            if df.at[i, "Sifra rezervacije"] == str(resId):
+                df.at[i, "Status"] = "Odbijena"
+                break
+
+        convert.to_csv(df, "data/reservations.csv")
+        self._createHostRes()
+
+        succ = color_msg(f"Uspesno ste odbili rezervaciju {resId}!", "Lime")
+        self.resLabel.setText(succ)
+
+    def _checkEdit(self, a=0):
+        try:
+            int(self.editRooms.text())
+            int(self.editGuests.text())
+            int(self.editPrice.text())
+
+        except ValueError:
+            err = color_msg("Broj soba, broj gostiju, sifra apartmana, i cena moraju biti brojevi!", "Tomato")
+
+            self.editLabel.setText(err)
+            return True
+
+        if not (
+            self.editRooms.text() and
+            self.editGuests.text() and
+            self.editPrice.text() and
+            self.editAmnt.text()
+        ):
+
+            if a == 0:
+                self.editAddr.text()
+
+            err = color_msg("Popunite sva polja!", "Tomato")
+
+            self.editLabel.setText(err)
+            return True
+
+        if len(self.editAmnt.text().split()) > 5:
+            err = color_msg("Sadrzaj apartmana razdvajate zarezima, najvise 5 dodataka.", "Tomato")
+
+            self.editLabel.setText(err)
+            return True
+
+        if a == 1 or a == 2:
+            df = convert.to_df("data/apartment_data.csv", use_cols=[0, 5, 7])
+            df = df[df["Domacin"] == " ".join([self.currentUser.fname, self.currentUser.lname])]
+            if not df.empty:
+                for i in range(df.shape[0]):
+                    if a == 1 and df[df["Sifra"] == self.editId.text()].empty:
+                        err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
+                        self.editLabel.setText(err)
+                        return True
+
+                    if a == 2 and df[df["Sifra"] == self.rmId.text()].empty:
+                        err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
+                        self.editLabel.setText(err)
+                        return True
+
+                    if a == 0 and df.iat[i, 1] == self.editAddr.text():
+                        err = color_msg("Taj apartman je vec registrovan!", "Tomato")
+                        self.editLabel.setText(err)
+                        return True
+            else:
+                err = color_msg("Nemate apartmane!", "Tomato")
+                self.editLabel.setText(err)
+                return True
+
+    def _addApt(self):
+        if self._checkEdit(a=0):
+            return
+
+        apt = Apartment(self.aptId, save=True)
+        apt.type = "Soba" if self.editRooms.text() == "1" else "Ceo"
+        apt.rooms = self.editRooms.text()
+        apt.spots = self.editGuests.text()
+        apt.address = self.editAddr.text()
+
+        # apt.avlb = self.editAvlb.text()
+        invert.finish(self.dates, self.aptId)
+
+        apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
+        apt.price_per_night = self.editPrice.text()
+
+        amnts = self.editAmnt.text().split(",")
+        amnts = [i.strip() for i in amnts]
+
+        # check if every element of amnts is a number
+        if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+            with open("data/sadrzaj.txt", "r") as f:
+                dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
+
+            for i in range(len(amnts)):
+                amnts[i] = dct[amnts[i]]
+
+        # check if mixed
+        elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+            err = color_msg("Pogresan unos!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        # lst = [i.strip() for i in self.editAmnt.text().split(",")]
+
+        apt.amenities = amnts + ["None" for _ in range(5)][len(amnts):]
+
+        apt.append()
+
+        succ = color_msg("Uspesno ste registrovali apartman!", "Lime")
+
+        self._createAptEdit()
+        self.editLabel.setText(succ)
+
+    def _rmApt(self):
+        if not self.rmId.text().isnumeric():
+            err = color_msg("Sifra mora biti broj!", "Tomato")
+
+            self.editLabel.setText(err)
+            return
+
+        dfa = convert.to_df("data/apartment_data.csv")
+        dfr = convert.to_df("data/reservations.csv")
+        dfm = convert.to_df("data/amenities.csv")
+
+        for i in range(dfa.shape[0]):
+            if dfa.iat[i, 0] == self.rmId.text():
+                dfa = dfa.drop(i)
+                break
+
+        for i in range(dfm.shape[0]):
+            if dfm.iat[i, 0] == self.rmId.text():
+                dfm = dfm.drop(i)
+                break
+
+        i = 0
+        while i < dfr.shape[0]:
+            if dfr.iat[i, 1] == self.rmId.text():
+                dfr = dfr.drop(i)
+
+            i += 1
+
+        convert.to_csv(dfa, "data/apartment_data.csv")
+        convert.to_csv(dfr, "data/reservations.csv")
+        convert.to_csv(dfm, "data/amenities.csv")
+
+        self._createAptEdit()
+
+        msg = color_msg(f"Obrisali ste apartman {self.rmId}", "Tomato")
+        self.editLabel.setText(msg)
+
+    def _addTF(self):
+        s = self.editAvlb.text()
+        try:
+            invert.add(s, self.dates)
+            self.editAvlb.clear()
+        except InvalidDateError:
+            err = color_msg("Pogresan datum!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+    def _editApt(self):
+        if self._checkEdit(a=1):
+            return
+
+        if not self.editId.text().isnumeric():
+            err = color_msg("Sifra mora biti broj!", "Tomato")
+
+            self.editLabel.setText(err)
+            return
+
+        apt = Apartment(self.aptId, save=True)
+        apt.type = "Soba" if self.editRooms.text() == "1" else "Ceo"
+        apt.rooms = self.editRooms.text()
+        apt.spots = self.editGuests.text()
+
+        apt.address = self.showAddr.text()[8:]
+
+        apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
+        apt.price_per_night = self.editPrice.text()
+
+        amnts = self.editAmnt.text().split(",")
+        amnts = [i.strip() for i in amnts]
+
+        # check if every element of amnts is a number
+        if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+            with open("data/sadrzaj.txt", "r") as f:
+                dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
+
+            for i in range(len(amnts)):
+                amnts[i] = dct[amnts[i]]
+
+        # check if mixed
+        elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+            err = color_msg("Pogresan unos!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        apt.amenities = [self.aptId] + amnts + ["None" for _ in range(5)][len(amnts):]
+
+        apt.save_changes()
+
+        succ = color_msg(f"Uspesno ste promenili podatke apartmana {self.aptId}!", "Lime")
+
+        self._createAptEdit()
+        self.editLabel.setText(succ)
+
+    def _idChanged(self, n):
+        df = convert.to_df("data/apartment_data.csv", use_cols=[0, 5, 7])
+
+        self.editAddr.hide()
+        self.showAddr.show()
+
+        if n:
+            self.aptId = self.editId.text()
+
+        else:
+            self.aptId = self.rmId.text()
+
+        self.idLabel.setText(f"Sifra apartmana: {self.aptId}")
+        df = df[df["Sifra"] == self.aptId]
+        df = df[df["Domacin"] == " ".join([self.currentUser.fname, self.currentUser.lname])]
+        if df.empty:
+            self.editLabel.setText(color_msg("To nije Vas apartman!", "Tomato"))
+            addr = ""
+            self.editAddr.show()
+            return
+        else:
+            self.editLabel.setText("")
+            addr = df.squeeze()["Adresa"]
+
+        self.showAddr.setText(f"Adresa: {addr}")
+
+    def _createAptEdit(self):
+        aptEditLayout = QVBoxLayout()
+        formLayout = QFormLayout()
+
+        self._clearScreen()
+
+        df = convert.to_df("data/apartment_data.csv")
+        name = " ".join([self.currentUser.fname, self.currentUser.lname])
+        apt_df = df[df["Domacin"] == name]
+        apt_df = apt_df.iloc[:, [0,1,2,3,5,8,9,10]]
+
+        apt_df = apt_df.rename(columns={"Ameniti": "Sadrzaj"})
+        amt_df = convert.to_df("data/amenities.csv")
+
+        for i in range(apt_df.shape[0]):
+            if apt_df.iat[i, 7] == "da":
+                amt = dict(amt_df[amt_df["Sifra apartmana"] == apt_df.iat[i, 0]].squeeze())
+                del amt["Sifra apartmana"]
+                amt = list(amt.values())
+                amt = [i for i in amt if i != "None"]
+                amt = ", ".join(amt)
+                apt_df.iat[i, 7] = amt
+
+        self.model = tableModel(apt_df)
+        self.table = QTableView()
+        self.table.setModel(self.model)
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(apt_df.shape[1] - 1, QHeaderView.Stretch)
+
+        self.editLabel = QLabel("")
+
+        self.aptId = int(df.iat[-1, 0]) + 1
+        self.editRooms = QLineEdit()
+        self.editGuests = QLineEdit()
+        self.editAddr = QLineEdit()
+        self.showAddr = QLabel("Adresa: ")
+        self.showAddr.hide()
+        self.editAddr.setPlaceholderText("Ulica i broj, Naseljeno mesto, Postanski broj mesta (npr. Sutjeska 3, Novi Sad 21000)")
+
+        self.editAvlb = QLineEdit()
+        self.addTF = QPushButton("dodaj")
+        self.addTF.clicked.connect(self._addTF)
+        self.dates = []
+
+        self.editPrice = QLineEdit()
+        self.editAmnt = QLineEdit()
+        self.editAmnt.setPlaceholderText("Dodatnu opremu mozete uneti po nazivu, razdvojenu zarezima, ili preko 'sifre' opreme (npr. 1,3,5), morate jedno ili drugo ne mozete kombinovati!")
+
+        dodaj = QPushButton("Dodaj apartman")
+        promeni = QPushButton("Promeni podatke")
+        obrisi = QPushButton("Obrisi apartman")
+
+        self.editId = QLineEdit()
+        self.editId.setPlaceholderText("Ovde upisite sifru apartmana koji bi da menjate")
+
+        self.idLabel = QLabel(f"Sifra apartmana: {self.aptId}")
+
+        self.rmId = QLineEdit()
+        self.rmId.setPlaceholderText("Ovde upisite sifru apartmana koji bi da obrisete")
+
+        self.editId.textChanged.connect(partial(self._idChanged, 1))
+        self.rmId.textChanged.connect(partial(self._idChanged, 0))
+
+        dodaj.clicked.connect(self._addApt)
+        promeni.clicked.connect(self._editApt)
+        obrisi.clicked.connect(self._rmApt)
+
+        formLayout.addRow(obrisi, self.rmId)
+        formLayout.addRow(dodaj)
+        formLayout.addRow(promeni, self.editId)
+
+        formLayout.addRow(self.editLabel)
+
+        f = self.currentUser.fname
+        l = self.currentUser.lname
+        nm = " ".join([f, l])
+
+        formLayout.addRow(QLabel(f"Domacin: {nm} (Vi)"))
+        formLayout.addRow(self.idLabel)
+        formLayout.addRow(self.showAddr)
+        formLayout.addRow("Broj soba: ", self.editRooms)
+        formLayout.addRow("Broj gostiju: ", self.editGuests)
+        formLayout.addRow("Adresa: ", self.editAddr)
+        self.editAddr.show()
+
+        formLayout.addRow(QLabel("Dostupnost: Unesite termine (pocetak i kraj) u formatu: 'pocetak, kraj' i pritisnete dugme dodaj, tako ponavljate dok ne unesete sve termine koje zelite"))
+        formLayout.addRow(self.addTF, self.editAvlb)
+
+        formLayout.addRow("Cena po noci: ", self.editPrice)
+        formLayout.addRow("Sadrzaj: ", self.editAmnt)
+
+        aptEditLayout.addWidget(self.table)
+        aptEditLayout.addLayout(formLayout)
+
+        self.generalLayout.addLayout(aptEditLayout)
 
     def _check(self):
         msg = color_msg("Da li sigurno zelite otkazati ovu rezervaciju?", "Tomato")
@@ -231,7 +671,6 @@ class ProjekatWindow(QMainWindow):
 
     def _createResReviewScreen(self):
         resReviewLayout = QVBoxLayout()
-        subLayout = QGridLayout()
 
         self._clearScreen()
 
@@ -661,7 +1100,12 @@ class ProjekatWindow(QMainWindow):
             self.resLayout.info7.setText(f"Domacin: {apt.host}")
             self.resLayout.info8.setText(f"Cena po noci (eur): {apt.price_per_night}")
             self.resLayout.info9.setText(f"Status: {apt.status}")
+            dct = apt.amenities
+            del dct["Sifra apartmana"]
 
+            sadrzaj = ", ".join([i for i in dct.values() if i != "None"])
+
+            self.resLayout.info10.setText(f"Sadrzaj: \n{sadrzaj}")
 
         except ValueError:
             print("value error")
@@ -884,3 +1328,5 @@ if __name__ == '__main__':
 # you can change the ratios by passing a number in .addWidget or .addLayout
 # e.g. .addWidget(widget_one, 1) .addWidget(widget_two, 9)
 #   this will make widget_two take up 9 times as much space as widget_one
+
+# assuming non reserved apartments are always available may have been the wrong move in this case
