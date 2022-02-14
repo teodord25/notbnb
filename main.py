@@ -120,7 +120,7 @@ class ProjekatWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("projekat_airbnb")
+        self.setWindowTitle("Airbnb (not)")
 
         # fixed size forces bspwm to make the window floating
         # but it's still resizable (???)
@@ -137,6 +137,10 @@ class ProjekatWindow(QMainWindow):
 
         self._clearScreen()
         self._createMenu()
+
+        welcome = QVBoxLayout()
+        welcome.addWidget(QLabel("<h1>Airbnb (not)</h1>\n<h2>Za navigaciju koristite meni na vrhu prozora.</h2>"))
+        self.generalLayout.addLayout(welcome)
 
     def _clearScreen(self):
         # app layout
