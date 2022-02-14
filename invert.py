@@ -17,17 +17,17 @@ def add(s, lst):
         return
 
     lst.append(tf)
+    return lst
 
 
-def finish(lst, apt_id):
+def finish(apt_id, lst):
     pairs = cs.free_time(0, tf_lst=lst)
 
     df = convert.to_df("data/reservations.csv")
-    dfp = pd.DataFrame(pairs, columns=["Pocetak", "Kraj"])
 
     res_id = df.iat[-1, 0]
 
-    base = [res_id, apt_id, "p", "brn", "k", "c", "g", "special", "g1",
+    base = [res_id, apt_id, "p", "brn", "k", "c", "g", "Prihvacena", "g1",
             "g2", "g3", "g4", "g5", "g6", "g7", "g8", "gr"]
 
     # 0 1 2 4

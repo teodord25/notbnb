@@ -106,6 +106,7 @@ class Apartment:
             self.price_per_night = ""
             self.amenities = ""
 
+
     def row_data(self):
         amnt = "ne"
         if self.amenities:
@@ -563,9 +564,14 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self._addToLayout()
         self.hideForm()
 
-        r = convert.to_df("data/reservations.csv", use_cols=[6])
-        self.r = r[r["Gost/Kontakt osoba"].str.contains(user.username)]
+        self.r = None
+        self.loadRes()
+
         self.apt = None
+
+    def loadRes(self):
+        self.r = convert.to_df("data/reservations.csv", use_cols=[6])
+        self.r = self.r[self.r["Gost/Kontakt osoba"].str.contains(self.reservationUser.username)]
 
     def _updatePrice(self):
         try:
