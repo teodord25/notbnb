@@ -45,7 +45,8 @@ def finish(lst, apt_id):
         rows.append(row)
 
     dfp = pd.DataFrame(rows, columns=convert.headers("data/reservations.csv"))
-    df = df.append(dfp, ignore_index=True)
+    df = pd.concat([df, dfp], ignore_index=True)
+    # df = df.append(dfp, ignore_index=True)
     # print(df)
 
     convert.to_csv(df, "data/reservations.csv")

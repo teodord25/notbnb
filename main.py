@@ -3,6 +3,7 @@ from functools import partial
 import datetime
 import random
 import sys
+import re
 
 from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtWidgets import QApplication
@@ -83,7 +84,8 @@ def filter_df(dataframe, query, x):
             qr1 = qr1.replace("x", f'df["{x}"]')
             qr1 = f"df[{qr1}]"
 
-            # df = eval(qr1)
+            # this seems like it's not important but it is
+            df = eval(qr1)
 
             qr2 = qr[:i + 1]
             qr2 = qr2.replace("x", f'df["{x}"]')
@@ -191,7 +193,8 @@ class ProjekatWindow(QMainWindow):
             apt_id = dfr.iat[i, 1]
             if apt_id in ids:
                 row = pd.DataFrame([list(dfr.iloc[i])], columns=header)
-                res_df = res_df.append(row, ignore_index=True)
+                # res_df = res_df.append(row, ignore_index=True)
+                res_df = pd.concat([res_df, row], ignore_index=True)
 
         df = res_df[res_df["Status"] == "Kreirana"]
 
@@ -744,6 +747,31 @@ class ProjekatWindow(QMainWindow):
             self._formMessage(msg=err)
             return
 
+        regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+        if not re.fullmatch(regex, self.registerEmail.text()):
+            print("invalid email")
+            err = color_msg("Nepravilan email", "Tomato")
+
+            self._formMessage(msg=err)
+            return
+
+        for ch in self.registerPhone.text():
+            if not ch.isnumeric():
+                if ch not in ["-", " ", "+", "/"]:
+                    print("invalid phone")
+                    err = color_msg("Nepravilan broj", "Tomato")
+
+                    self._formMessage(msg=err)
+                    return
+
+        unames = list(convert.to_df("data/user_data.csv", use_cols=[0]).squeeze())
+        if self.registerUsername.text() in unames:
+            print("user exists")
+            err = color_msg("Korisnicko ime je zauzeto!", "Tomato")
+
+            self._formMessage(msg=err)
+            return
+
         print("everything checks out, registering...")
 
         registration.register_user(
@@ -936,9 +964,7 @@ class ProjekatWindow(QMainWindow):
 
         # TODO fix shishana latinica
         self.searchButton = QPushButton("Pretrazi")
-        self.searchButton.clicked.connect(
-            partial(self._submitSearch, mode="search", aprt_id=20)
-        )
+        self.searchButton.clicked.connect(self._submitSearch)
 
         self.popularCities.clicked.connect(self._showPopularCities)
 
@@ -1121,7 +1147,44 @@ class ProjekatWindow(QMainWindow):
     def _bookApt(self):
         s = self.resLayout.reservationStart.text()
 
+        try:
+            tf = TimeFrame(s)
+        except ValueError:
+            print("invalid date")
+            err = color_msg("Nepravilan datum.", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
+        except InvalidDateError:
+            print("invalid date")
+            err = color_msg("Nepravilan datum.", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
         dur = self.resLayout.reservationDuration.text()
+
+        try:
+            dur = int(dur)
+            if dur > 1000:
+                print("too long")
+                err = color_msg("Previse nocenja", "Tomato")
+
+                self.reviewWarning.setText(err)
+                self._reservationForm()
+                return
+
+        except ValueError:
+            print("invalid duration")
+            err = color_msg("Nepravilan broj nocenja", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
         guests = [
             self.resLayout.reservationGuest1.text(),
             self.resLayout.reservationGuest2.text(),

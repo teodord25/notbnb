@@ -374,7 +374,9 @@ class Reservation(TimeFrame):
 
     def reserve(self):
         rowdf = pd.DataFrame([self.row_data()], columns=convert.headers("data/reservations.csv"))
-        self.df = self.df.append(rowdf, ignore_index=True)
+        # self.df = self.df.append(rowdf, ignore_index=True)
+        self.df = pd.concat([self.df, rowdf], ignore_index=True)
+        # TODO replace .append with .concat
         convert.to_csv(self.df, "data/reservations.csv")
 
 
@@ -623,6 +625,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.info10 = QLabel("")
 
         self.reservationStart = QLineEdit()
+        self.reservationStart.setPlaceholderText("format: YYYY-MM-DD")
         self.reservationDuration = QLineEdit()
 
         # the internet said .clear() would trigger this >:(
@@ -672,7 +675,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.addWidget(self.info7, 10, 0)
         self.addWidget(self.info8, 11, 0)
         self.addWidget(self.info9, 12, 0)
-        self.addWidget(self.info10, 13, 0)
+        self.addWidget(self.info10, 13, 0, 2, 1)
         self.addWidget(self.label0, 0, 1)
         self.addWidget(self.label1, 1, 1)
         self.addWidget(self.label2, 2, 1, 1, 2)
