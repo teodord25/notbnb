@@ -124,6 +124,7 @@ class ProjekatWindow(QMainWindow):
 
         # fixed size forces bspwm to make the window floating
         # but it's still resizable (???)
+        # TODO should I keep it fixed?
         self.setFixedSize(1280, 720)
 
         # TODO TESTING
@@ -173,8 +174,102 @@ class ProjekatWindow(QMainWindow):
             if self.currentUser.role == "Domacin":
                 apartmentMenu.addAction('Vasi apartmani', self._createAptEdit)
                 resMenu.addAction('Rezervacije Vasih apartmana', self._createHostRes)
-                # dodavanje izmena brisanje
-                # resMenu.addAction('Rezervacije Vasih apartmana', self._createResShow)
+
+            if self.currentUser.role == "Admin":
+                adminMenu = menu.addMenu("&Admin")
+                adminMenu.addAction("Pretraga rezervacija", self._resSearch)
+                adminMenu.addAction("Registracija novih domacina", self._hostReg)
+                adminMenu.addAction("Kreiranje i brisanje dodatne opreme", self._editAmnt)
+                adminMenu.addAction("Blokiranje korisnika", self._blockUsr)
+                adminMenu.addAction("Izvestavanje", self._reviewData)
+
+    def _submitResSearch(self, btn, txt, df):
+        # TODO exclude special reservations!
+        #   2/4 buttons work properly
+        #   maybe just add the relevant data as columns...
+        if btn == "accp":
+            df = df[df["Status"] == "Prihvacena"]
+
+        elif btn == "deny":
+            df = df[df["Status"] == "Odbijena"]
+
+        elif btn == "addr":
+            df = df[df["Adresa"].str.contains(txt)]
+
+        elif btn == "uname":
+            adf = convert.to_df("data/apartment_data.csv")
+            udf = convert.to_df("data/user_data.csv")
+            rdf = convert.to_df("data/reservations.csv")
+
+            if udf.empty:
+                # TODO ERROR
+                print("")
+
+            host = udf[udf["Korisnicko ime"] == txt].squeeze()
+            host = " ".join([host["Ime"], host["Prezime"]])
+
+            adf = adf[adf["Domacin"] == host]
+            ids = list(adf.loc["Sifra"].squeeze())
+            lst = []
+            for i in range(rdf.shape[0]):
+                aptid = rdf.at[i, "Sifra apartmana"]
+                if aptid in ids:
+                    lst.append(list(rdf.iloc[i].squeeze()))
+            header = convert.headers("data/reservations")
+            df = pd.DataFrame(lst, columns=header)
+
+        self._resSearch(df=df)
+
+    def _resSearch(self, df=convert.to_df("data/reservations.csv")):
+        layout = QGridLayout()
+
+        self._clearScreen()
+
+        self.model = tableModel(df)
+        self.table = QTableView()
+        self.table.setModel(self.model)
+
+        # set the top row to fit the data
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
+        for i in range(df.shape[1] - 1):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+
+
+        # self.resInput.setPlaceholderText()
+        resInput = QLineEdit()
+        accp = QPushButton("Prikazi prihvacene")
+        deny = QPushButton("Prikazi odbijene")
+        addr = QPushButton("Pretrazi po adresi")
+        uname = QPushButton("Pretrazi po korisnickom imenu")
+
+        accp.clicked.connect(partial(self._submitResSearch, "accp", accp.text(), df))
+        deny.clicked.connect(partial(self._submitResSearch, "deny", deny.text(), df))
+        addr.clicked.connect(partial(self._submitResSearch, "addr", addr.text(), df))
+        uname.clicked.connect(partial(self._submitResSearch, "uname", uname.text(), df))
+
+        layout.addWidget(QLabel("<h2>Pretrazujte rezervacije po statusu, adresi ili korisnickom imenu domacina</h2>"), 0, 0, 1, 4)
+        layout.addWidget(resInput, 1, 0, 1, 4)
+        layout.addWidget(accp, 2, 0)
+        layout.addWidget(deny, 2, 1)
+        layout.addWidget(addr, 2, 2)
+        layout.addWidget(uname, 2, 3)
+
+        layout.addWidget(self.table, 3, 0, 1, 4)
+        self.generalLayout.addLayout(layout)
+        pass
+
+    def _hostReg(self):
+        pass
+
+    def _editAmnt(self):
+        pass
+
+    def _blockUsr(self):
+        pass
+
+    def _reviewData(self):
+        pass
 
     def _createHostRes(self):
         layout = QGridLayout()
@@ -949,9 +1044,9 @@ class ProjekatWindow(QMainWindow):
     def _submitSearch(self):
         df = self.baseDF.copy()
 
-        # TODO case insensitive search
-        # current is sensitive
         df = df[df["Adresa"].str.contains(self.searchLocation.text())]
+        # case-sensitive
+        # I honestly can't be bothered to make the search case-insensitive right now
 
         # Example usage of multivariable search below:
         #
@@ -1284,8 +1379,6 @@ class ProjekatWindow(QMainWindow):
 
         apt_id = self.requestApt.text()
         uname = self.resLayout.reservationUser.username
-
-        # TODO email validation
 
         try:
             df = self.baseDF.copy()

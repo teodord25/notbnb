@@ -377,7 +377,6 @@ class Reservation(TimeFrame):
         rowdf = pd.DataFrame([self.row_data()], columns=convert.headers("data/reservations.csv"))
         # self.df = self.df.append(rowdf, ignore_index=True)
         self.df = pd.concat([self.df, rowdf], ignore_index=True)
-        # TODO replace .append with .concat
         convert.to_csv(self.df, "data/reservations.csv")
 
 
