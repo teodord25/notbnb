@@ -180,7 +180,7 @@ class ProjekatWindow(QMainWindow):
         self.setFixedSize(1280, 720)
 
         # TODO TESTING
-        self.currentUser = User(username="Ariend")
+        self.currentUser = User(username="Otibitepar")
 
         self.baseDF = convert.to_df("data/apartment_data.csv")
         self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
@@ -242,7 +242,7 @@ class ProjekatWindow(QMainWindow):
         self.regmode = 0
         self._createRegisterScreen()
 
-    def _submitResSearch(self, btn, df):
+    def _submitResSearch(self, btn=None, df=None):
         txt = self.resInput.text()
         if btn == "accp":
             df = df[df["Status"] == "Prihvacena"]
@@ -282,15 +282,15 @@ class ProjekatWindow(QMainWindow):
         addr = QPushButton("Pretrazi po adresi")
         uname = QPushButton("Pretrazi po korisnickom imenu")
 
-        accp.clicked.connect(partial(self._submitResSearch, "accp", None, dfb))
-        deny.clicked.connect(partial(self._submitResSearch, "deny", None, dfb))
+        accp.clicked.connect(partial(self._submitResSearch, btn="accp", df=dfb))
+        deny.clicked.connect(partial(self._submitResSearch, btn="deny", df=dfb))
 
         addr.clicked.connect(
-            partial(self._submitResSearch, "addr", dfb)
+            partial(self._submitResSearch, btn="addr", df=dfb)
         )
 
         uname.clicked.connect(
-            partial(self._submitResSearch, "uname", dfb)
+            partial(self._submitResSearch, btn="uname", df=dfb)
         )
 
         layout.addWidget(QLabel("<h2>Pretrazujte rezervacije po statusu, adresi ili korisnickom imenu domacina</h2>"), 0, 0, 1, 4)
@@ -313,13 +313,109 @@ class ProjekatWindow(QMainWindow):
         # lmao
         self.regmode = 1
         self._createRegisterScreen()
+        self.regLabel.setText("<h1>Registrujte domacina</h1>")
 
         layout1.addLayout(layout2)
 
         self.generalLayout.addLayout(layout1)
 
+    def _submitEdit(self, mode=None):
+        txt = self.amntInput.text()
+
+        with open("data/sadrzaj.txt", "r") as f:
+            lines = f.readlines()
+            lines = [line[:-1].split(":") for line in lines]
+            amnts = {i: j for i, j in lines}
+
+        if mode == "add":
+            txt = txt.split(":")
+            if len(txt) != 2:
+                err = color_msg("Pogresan unos", "Tomato")
+                self.amntLabel.setText(err)
+                return
+
+            key = txt[0].strip()
+            val = txt[1].strip()
+
+            if not key.isnumeric():
+                err = color_msg("Pogresan unos", "Tomato")
+                self.amntLabel.setText(err)
+                return
+
+            for ch in val:
+                if not(ch.isalpha() or ch == " "):
+                    err = color_msg("Pogresan unos", "Tomato")
+                    self.amntLabel.setText(err)
+                    return
+
+            if key in amnts.keys():
+                err = color_msg("Ta sifra je vec iskoriscena", "Tomato")
+                self.amntLabel.setText(err)
+                return
+            if val in amnts.values():
+                err = color_msg("Takva oprema vec postoji", "Tomato")
+                self.amntLabel.setText(err)
+                return
+
+            with open("data/sadrzaj.txt", "a") as f:
+                f.write(f"{key}:{val}\n")
+
+                succ = color_msg("Uspesno ste dodali opremu", "Lime")
+                self.amntLabel.setText(succ)
+                return
+
+        if mode == "rm":
+            if not txt.isnumeric():
+                err = color_msg("Pogresan unos", "Tomato")
+                self.amntLabel.setText(err)
+                return
+            if txt not in amnts.keys():
+                err = color_msg("Sifra ne postoji", "Tomato")
+                self.amntLabel.setText(err)
+                return
+
+            df = convert.to_df("data/amenities.csv")
+            for i in range(1, 6):
+                for j in range(df.shape[0]):
+                    item = df.iat[j, i]
+                    if item == amnts[txt]:
+                        err = color_msg("Ova oprema je vec registrovana u nekom apartmanu", "Tomato")
+                        self.amntLabel.setText(err)
+                        return
+
+            with open("data/sadrzaj.txt", "w") as f:
+                if txt not in amnts:
+                    err = color_msg("Pogresan unos", "Tomato")
+                    self.amntLabel.setText(err)
+                    return
+
+                del amnts[txt]
+                rows = list(amnts.items())
+                for row in rows:
+                    f.write(f"{row[0]}:{row[1]}\n")
+
+                succ = color_msg("Uspesno ste obrisali opremu", "Lime")
+                self.amntLabel.setText(succ)
+                return
+
     def _editAmnt(self):
-        pass
+        self._clearScreen()
+        layout = QGridLayout()
+
+        self.amntInput = QLineEdit()
+        self.amntLabel = QLabel("")
+        add = QPushButton("Dodaj")
+        rm = QPushButton("Obrisi")
+        add.clicked.connect(partial(self._submitEdit, "add"))
+        rm.clicked.connect(partial(self._submitEdit, "rm"))
+
+        layout.addWidget(QLabel("<h2>Dodavanje i brisanje opreme</h2>"), 0, 0, 1, 2)
+        layout.addWidget(self.amntLabel, 1, 0, 1, 2)
+        layout.addWidget(self.amntInput, 2, 0, 1, 2)
+        layout.addWidget(add, 3, 0)
+        layout.addWidget(rm, 3, 1)
+
+        self.generalLayout.addLayout(layout)
 
     def _blockUsr(self):
         pass
@@ -1081,8 +1177,10 @@ class ProjekatWindow(QMainWindow):
         print("saving user details...")
         if self.regmode:
             role = "Domacin"
+            msg = "Uspesno ste registrovali domacina."
         else:
             role = "Gost"
+            msg = "Uspesno ste se registrovali."
 
         registration.save_user_details({
             "Korisnicko ime": self.registerUsername.text(),
@@ -1096,7 +1194,7 @@ class ProjekatWindow(QMainWindow):
 
         print(f"registered user: \n\t{self.registerUsername.text()}")
         success = color_msg(
-            f"Uspesno ste se registrovali. {self.registerUsername.text()}", "Lime"
+            f"{msg} {self.registerUsername.text()}", "Lime"
         )
 
         self._formMessage(msg=success)
@@ -1337,7 +1435,9 @@ class ProjekatWindow(QMainWindow):
         self.genderCBox.addItems(["", "Musko", "Zensko", "Ostalo"])
         formLayout.addRow("Pol:", self.genderCBox)
 
-        registerLayout.addWidget(QLabel('<h1>Registruj se</h1>'))
+        self.regLabel = QLabel('<h1>Registruj se</h1>')
+
+        registerLayout.addWidget(self.regLabel)
         registerLayout.addLayout(formLayout)
         registerLayout.addWidget(self.submitRegistrationButton)
 
