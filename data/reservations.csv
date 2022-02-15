@@ -91,7 +91,6 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 96,89,2020-09-14,3,2020-09-17,78,Jakov Zagorec (Pletent49),Zavrsena,Sara Miletić,Dragutin Kralj,Darijo Mandić,Blagica Posavec,Tihomil Jerković,Romana Barić,Nikola Klarić,Maria Ivanković,Rochester
 97,91,2022-06-11,9,2022-06-20,315,Hana Perković (Theregan),Kreirana,Jasminka Ćosić,Mislav Marković,Ana Živković,Tihomil Ivančić,Velimir Klarić,Spomenka Mihaljević,Borislav Novak,Zrina Jurišić,Bluffton
 98,89,2021-07-21,8,2021-07-29,208,Tereza Knežević (Cater1966),Odbijena,Grgur Perković,Prvoš Tadić,Ognjen Marjanović,Ognjen Šimić,Darijo Horvatinčić,Nediljko Jerković,Bernarda Matković,Ognjen Marjanović,Rochester
-99,10,2022-02-05,11,2022-02-16,308,Marina Pavičić (Rems1949),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Fremont
 100,48,2020-12-20,10,2020-12-30,330,Tuga Petković (Incromment),Odbijena,Tomislav Jelić,Neven Novaković,Tamara Kovačević,testname testlname,Božo Brkić,Srećko Bosanac,Luka Milić,Zdenka Kralj,Fremont
 101,24,2020-08-24,4,2020-08-28,132,Olga Radić (Execonverve),Odustanak,Dubravka Tadić,Tamara Novosel,Tereza Janković,Leon Bašić,Štefanija Crnić,Vedrana Matijević,Elena Petković,Milenko Jozić,Everett
 102,92,2020-09-14,5,2020-09-19,130,Vinko Horvat (Resprommed),Zavrsena,Dražan Katić,Stanka Grgić,Alen Pavlović,Blago Janković,Anja Marković,Divna Topić,Dragana Kovač,Leonardo Jakšić,Vancouver
@@ -157,8 +156,6 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 163,22,2022-01-23,7,2022-01-30,217,Jasmin Bošnjak (Staided),Odbijena,Tihomil Čerkez,Damir Ćosić,Dragutin Kralj,Karlo Marjanović,Cvjetko Zagorec,Danijela Vidaković,Mislav Marković,Bernarda Matković,Burr Ridge
 164,67,2022-04-02,3,2022-04-05,111,Ksenija Perić (Occonever45),Kreirana,Srećko Bosanac,Bogdana Matić,Ratko Tomić,Dubravka Tadić,Grgur Perković,fname lname,Velimir Klarić,Veselko Pavić,Southfield
 165,41,2021-02-25,2,2021-02-27,48,Ivo Hrvat (Joaroarry),Zavrsena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Grant
-166,79,2020-04-12,10,2020-04-22,340,Maja Grubišić (Farretionly),Zavrsena,Darijo Mandić,Prvoslav Debeljak,Velimir Klarić,Ankica Mijatović,Grgur Perković,Marica Pranjić,Damir Ćosić,Nika Tadić,Bluffton
-167,10,2020-01-07,13,2020-01-20,364,Slavica Tomić (Lythe1989),Odbijena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Fremont
 168,86,2021-09-26,12,2021-10-08,432,Milenko Marjanović (Mothesseze),Odustanak,Darijo Horvatinčić,Tamara Kovačević,Ljiljana Matković,Grgur Perković,Teha Rukavina,Borislav Novak,Bernarda Matković,Tihomil Jerković,Warminster
 169,19,2020-01-08,12,2020-01-20,264,Milena Barić (Luctly1975),Odbijena,Dubravka Tadić,testname testlname,Andrea Pavić,Božo Brkić,Antonio Živković,Gojko Ivanec,Leonardo Jakšić,Borislav Novak,Grant
 170,15,2022-12-01,12,2022-12-13,336,Berislava Bošnjak (Alose1972),Prihvacena,Diana Jurić,Karlo Marjanović,Tamara Novosel,Antonio Živković,Dunja Marić,Tihomil Čerkez,Saša Jukić,Tihomil Vučković,Bluffton
@@ -357,6 +354,9 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 376,9,2022-06-05,7,2022-06-12,273,Bajo Pivljanin (bajo19),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
 377,18,2023-01-01,10,2023-01-11,266,Bajo Pivljanin (bajo19),Odustanak,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Antioch
 378,17,2023-02-01,1,2023-02-02,28,Bajo Pivljanin (bajo19),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Garden City
-379,100,2022-02-14,brn,2022-02-20,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
-380,100,2022-02-25,brn,2022-03-01,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
-381,100,2022-03-05,brn,2024-08-03,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+379,100,2022-02-15,brn,2022-03-01,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+380,100,2022-03-05,brn,2024-08-04,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+381,101,2022-02-15,brn,2022-03-04,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+382,101,2023-03-03,brn,2024-08-04,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+383,102,2022-02-15,brn,2022-03-01,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+384,102,2022-03-10,brn,2024-08-04,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr

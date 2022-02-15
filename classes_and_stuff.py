@@ -339,7 +339,13 @@ class Reservation(TimeFrame):
         else:
             self.popust = 0.95
 
-        self.city = " ".join(self.apartment.address.split(" | ")[1].split()[:-1])
+        try:
+            if "|" in self.apartment.address:
+                self.city = " ".join(self.apartment.address.split(" | ")[1].split()[:-1])
+            else:
+                self.city = " ".join(self.apartment.address.split(",")[1].split()[:-1])
+        except IndexError:
+            self.city = "Neodredjen"
 
         spots_left = int(self.apartment.spots) - 1
         guests = ["ne postoji" for _ in range(8)]
