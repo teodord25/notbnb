@@ -40,6 +40,58 @@ import invert
 import login
 
 
+def formatDF():
+    rdf = convert.to_df("data/reservations.csv")
+    adf = convert.to_df("data/apartment_data.csv")
+    udf = convert.to_df("data/user_data.csv")
+
+    # swap status and kontakt osoba cols
+    header = [
+        "Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
+        "Kraj", "Ukupna cena (eur)", "Status", "Gost/Kontakt osoba", "Gost1",
+        "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"
+    ]
+    rdf = rdf.reindex(header, axis=1)
+
+    rdf = rdf[rdf["Ukupna cena (eur)"] != "c"]
+
+    tuples = []
+
+    for i in range(rdf.shape[0]):
+        # res = rdf.at[i, "Sifra rezervacije"]
+        apt = rdf.at[i, "Sifra apartmana"]
+        row = adf[adf["Sifra"] == apt].squeeze()
+        name1 = row["Domacin"]
+        adr = row["Adresa"]
+        uname = ""
+
+        for j in range(udf.shape[0]):
+            fname = udf.at[j, "Ime"]
+            lname = udf.at[j, "Prezime"]
+            name2 = " ".join([fname, lname])
+            try:
+                if name1 == name2:
+                    uname = udf.at[j, "Korisnicko ime"]
+                    break
+            except ValueError:
+                print("Ayo")
+
+        tup = (adr, uname)
+        tuples.append(tup)
+
+    unmcol = []
+    adrcol = []
+    for tup in tuples:
+        unmcol.append(tup[1])
+        adrcol.append(tup[0])
+
+    df = rdf.copy()
+    df.insert(6, "Domacin", unmcol)
+    df.insert(7, "Adresa", adrcol)
+
+    return df
+
+
 def filter_df(dataframe, query, x):
     df = dataframe
     qr = query
@@ -194,33 +246,14 @@ class ProjekatWindow(QMainWindow):
             df = df[df["Status"] == "Odbijena"]
 
         elif btn == "addr":
-            df = df[df["Adresa"].str.contains(txt)]
+            pass
 
         elif btn == "uname":
-            adf = convert.to_df("data/apartment_data.csv")
-            udf = convert.to_df("data/user_data.csv")
-            rdf = convert.to_df("data/reservations.csv")
-
-            if udf.empty:
-                # TODO ERROR
-                print("")
-
-            host = udf[udf["Korisnicko ime"] == txt].squeeze()
-            host = " ".join([host["Ime"], host["Prezime"]])
-
-            adf = adf[adf["Domacin"] == host]
-            ids = list(adf.loc["Sifra"].squeeze())
-            lst = []
-            for i in range(rdf.shape[0]):
-                aptid = rdf.at[i, "Sifra apartmana"]
-                if aptid in ids:
-                    lst.append(list(rdf.iloc[i].squeeze()))
-            header = convert.headers("data/reservations")
-            df = pd.DataFrame(lst, columns=header)
+            pass
 
         self._resSearch(df=df)
 
-    def _resSearch(self, df=convert.to_df("data/reservations.csv")):
+    def _resSearch(self, df=formatDF()):
         layout = QGridLayout()
 
         self._clearScreen()
