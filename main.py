@@ -235,10 +235,12 @@ class ProjekatWindow(QMainWindow):
                 adminMenu.addAction("Blokiranje korisnika", self._blockUsr)
                 adminMenu.addAction("Izvestavanje", self._reviewData)
 
-    def _submitResSearch(self, btn, txt, df):
+    def _submitResSearch(self, btn, df):
         # TODO exclude special reservations!
         #   2/4 buttons work properly
         #   maybe just add the relevant data as columns...
+
+        txt = self.resInput.text()
         if btn == "accp":
             df = df[df["Status"] == "Prihvacena"]
 
@@ -246,10 +248,10 @@ class ProjekatWindow(QMainWindow):
             df = df[df["Status"] == "Odbijena"]
 
         elif btn == "addr":
-            pass
+            df = df[df["Adresa"].str.contains(txt)]
 
         elif btn == "uname":
-            pass
+            df = df[df["Domacin"].str.contains(txt)]
 
         self._resSearch(df=df)
 
@@ -257,6 +259,7 @@ class ProjekatWindow(QMainWindow):
         layout = QGridLayout()
 
         self._clearScreen()
+        dfb = formatDF()
 
         self.model = tableModel(df)
         self.table = QTableView()
@@ -270,19 +273,25 @@ class ProjekatWindow(QMainWindow):
 
 
         # self.resInput.setPlaceholderText()
-        resInput = QLineEdit()
+        self.resInput = QLineEdit()
         accp = QPushButton("Prikazi prihvacene")
         deny = QPushButton("Prikazi odbijene")
         addr = QPushButton("Pretrazi po adresi")
         uname = QPushButton("Pretrazi po korisnickom imenu")
 
-        accp.clicked.connect(partial(self._submitResSearch, "accp", accp.text(), df))
-        deny.clicked.connect(partial(self._submitResSearch, "deny", deny.text(), df))
-        addr.clicked.connect(partial(self._submitResSearch, "addr", addr.text(), df))
-        uname.clicked.connect(partial(self._submitResSearch, "uname", uname.text(), df))
+        accp.clicked.connect(partial(self._submitResSearch, "accp", None, dfb))
+        deny.clicked.connect(partial(self._submitResSearch, "deny", None, dfb))
+
+        addr.clicked.connect(
+            partial(self._submitResSearch, "addr", dfb)
+        )
+
+        uname.clicked.connect(
+            partial(self._submitResSearch, "uname", dfb)
+        )
 
         layout.addWidget(QLabel("<h2>Pretrazujte rezervacije po statusu, adresi ili korisnickom imenu domacina</h2>"), 0, 0, 1, 4)
-        layout.addWidget(resInput, 1, 0, 1, 4)
+        layout.addWidget(self.resInput, 1, 0, 1, 4)
         layout.addWidget(accp, 2, 0)
         layout.addWidget(deny, 2, 1)
         layout.addWidget(addr, 2, 2)
