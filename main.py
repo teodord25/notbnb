@@ -1,8 +1,8 @@
 from collections import Counter
 from functools import partial
 import datetime
-import random
 import sys
+import re
 
 from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtWidgets import QApplication
@@ -37,6 +37,58 @@ import registration
 import convert
 import invert
 import login
+
+
+def formatDF():
+    rdf = convert.to_df("data/reservations.csv")
+    adf = convert.to_df("data/apartment_data.csv")
+    udf = convert.to_df("data/user_data.csv")
+
+    # swap status and kontakt osoba cols
+    header = [
+        "Sifra rezervacije", "Sifra apartmana", "Pocetak", "Broj nocenja",
+        "Kraj", "Ukupna cena (eur)", "Status", "Gost/Kontakt osoba", "Gost1",
+        "Gost2", "Gost3", "Gost4", "Gost5", "Gost6", "Gost7", "Gost8", "Grad"
+    ]
+    rdf = rdf.reindex(header, axis=1)
+
+    rdf = rdf[rdf["Ukupna cena (eur)"] != "c"]
+    rdf = rdf.reset_index(drop=True)
+
+    tuples = []
+
+    for i in range(rdf.shape[0]):
+        apt = rdf.at[i, "Sifra apartmana"]
+        row = adf[adf["Sifra"] == apt].squeeze()
+        name1 = row["Domacin"]
+        adr = row["Adresa"]
+        uname = ""
+
+        for j in range(udf.shape[0]):
+            fname = udf.at[j, "Ime"]
+            lname = udf.at[j, "Prezime"]
+            name2 = " ".join([fname, lname])
+            try:
+                if name1 == name2:
+                    uname = udf.at[j, "Korisnicko ime"]
+                    break
+            except ValueError:
+                print("Ayo")
+
+        tup = (adr, uname)
+        tuples.append(tup)
+
+    unmcol = []
+    adrcol = []
+    for tup in tuples:
+        unmcol.append(tup[1])
+        adrcol.append(tup[0])
+
+    df = rdf.copy()
+    df.insert(6, "Domacin", unmcol)
+    df.insert(7, "Adresa", adrcol)
+
+    return df
 
 
 def filter_df(dataframe, query, x):
@@ -83,7 +135,8 @@ def filter_df(dataframe, query, x):
             qr1 = qr1.replace("x", f'df["{x}"]')
             qr1 = f"df[{qr1}]"
 
-            # df = eval(qr1)
+            # this seems like it's not important but it is
+            df = eval(qr1)
 
             qr2 = qr[:i + 1]
             qr2 = qr2.replace("x", f'df["{x}"]')
@@ -118,20 +171,28 @@ class ProjekatWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("projekat_airbnb")
+        self.setWindowTitle("Airbnb (not)")
 
         # fixed size forces bspwm to make the window floating
         # but it's still resizable (???)
+        # TODO should I keep it fixed?
         self.setFixedSize(1280, 720)
-        
+
+        self.currentUser = User()
+
         self.baseDF = convert.to_df("data/apartment_data.csv")
         self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
                                                     "Adresa", "Cena po noci (eur)"]]
+        self.regmode = 0
 
         update_reservations()
 
         self._clearScreen()
         self._createMenu()
+
+        welcome = QVBoxLayout()
+        welcome.addWidget(QLabel("<h1>Airbnb (not)</h1>\n<h2>Za navigaciju koristite meni na vrhu prozora.</h2>"))
+        self.generalLayout.addLayout(welcome)
 
     def _clearScreen(self):
         # app layout
@@ -152,7 +213,7 @@ class ProjekatWindow(QMainWindow):
         apartmentMenu = menu.addMenu("&Apartmani")
 
         userMenu.addAction('Prijavi se', self._createLoginScreen)
-        userMenu.addAction('Registruj se', self._createRegisterScreen)
+        userMenu.addAction('Registruj se', self._regNormal)
         userMenu.addAction('Odjavi se', self.logOut)
 
         apartmentMenu.addAction('Pretraga i rezervacija apartmana', self._createBrowsingScreen)
@@ -160,12 +221,469 @@ class ProjekatWindow(QMainWindow):
         if self.currentUser.role != "Neregistrovan":
             resMenu = menu.addMenu("&Rezervacije")
             resMenu.addAction('Vase rezervacije', self._createResReviewScreen)
-            resMenu.addAction('Rezervacije Vasih apartmana', self._createHostRes)
 
             if self.currentUser.role == "Domacin":
                 apartmentMenu.addAction('Vasi apartmani', self._createAptEdit)
-                # dodavanje izmena brisanje
-                # resMenu.addAction('Rezervacije Vasih apartmana', self._createResShow)
+                resMenu.addAction('Rezervacije Vasih apartmana', self._createHostRes)
+
+            if self.currentUser.role == "Admin":
+                adminMenu = menu.addMenu("&Admin")
+                adminMenu.addAction("Pretraga rezervacija", self._resSearch)
+                adminMenu.addAction("Registracija novih domacina", self._hostReg)
+                adminMenu.addAction("Kreiranje i brisanje dodatne opreme", self._editAmnt)
+                adminMenu.addAction("Blokiranje korisnika", self._createBlockScreen)
+                adminMenu.addAction("Izvestavanje", self._createDataReviewScreen)
+
+    def _regNormal(self):
+        self.regmode = 0
+        self._createRegisterScreen()
+
+    def _submitResSearch(self, btn=None, df=None):
+        txt = self.resInput.text()
+        if btn == "accp":
+            df = df[df["Status"] == "Prihvacena"]
+
+        elif btn == "deny":
+            df = df[df["Status"] == "Odbijena"]
+
+        elif btn == "addr":
+            df = df[df["Adresa"].str.contains(txt)]
+
+        elif btn == "uname":
+            df = df[df["Domacin"].str.contains(txt)]
+
+        self._resSearch(df=df)
+
+    def _resSearch(self, df=formatDF()):
+        layout = QGridLayout()
+
+        self._clearScreen()
+        dfb = formatDF()
+
+        self.model = tableModel(df)
+        self.table = QTableView()
+        self.table.setModel(self.model)
+
+        # set the top row to fit the data
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
+        for i in range(df.shape[1] - 1):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+
+        self.resInput = QLineEdit()
+        accp = QPushButton("Prikazi prihvacene")
+        deny = QPushButton("Prikazi odbijene")
+        addr = QPushButton("Pretrazi po adresi")
+        uname = QPushButton("Pretrazi po korisnickom imenu")
+
+        accp.clicked.connect(partial(self._submitResSearch, btn="accp", df=dfb))
+        deny.clicked.connect(partial(self._submitResSearch, btn="deny", df=dfb))
+
+        addr.clicked.connect(
+            partial(self._submitResSearch, btn="addr", df=dfb)
+        )
+
+        uname.clicked.connect(
+            partial(self._submitResSearch, btn="uname", df=dfb)
+        )
+
+        layout.addWidget(QLabel("<h2>Pretrazujte rezervacije po statusu, adresi ili korisnickom imenu domacina</h2>"), 0, 0, 1, 4)
+        layout.addWidget(self.resInput, 1, 0, 1, 4)
+        layout.addWidget(accp, 2, 0)
+        layout.addWidget(deny, 2, 1)
+        layout.addWidget(addr, 2, 2)
+        layout.addWidget(uname, 2, 3)
+
+        layout.addWidget(self.table, 3, 0, 1, 4)
+        self.generalLayout.addLayout(layout)
+        pass
+
+    def _hostReg(self):
+        layout1 = QVBoxLayout()
+        layout2 = QFormLayout()
+
+        self._clearScreen()
+
+        # lmao
+        self.regmode = 1
+        self._createRegisterScreen()
+        self.regLabel.setText("<h1>Registrujte domacina</h1>")
+
+        layout1.addLayout(layout2)
+
+        self.generalLayout.addLayout(layout1)
+
+    def _submitEdit(self, mode=None):
+        txt = self.amntInput.text()
+
+        with open("data/sadrzaj.txt", "r") as f:
+            lines = f.readlines()
+            lines = [line[:-1].split(":") for line in lines]
+            amnts = {i: j for i, j in lines}
+
+        if mode == "add":
+            txt = txt.split(":")
+            if len(txt) != 2:
+                err = color_msg("Pogresan unos", "Tomato")
+                self.amntLabel.setText(err)
+                return
+
+            key = txt[0].strip()
+            val = txt[1].strip()
+
+            if not key.isnumeric():
+                err = color_msg("Pogresan unos", "Tomato")
+                self.amntLabel.setText(err)
+                return
+
+            for ch in val:
+                if not(ch.isalpha() or ch == " "):
+                    err = color_msg("Pogresan unos", "Tomato")
+                    self.amntLabel.setText(err)
+                    return
+
+            if key in amnts.keys():
+                err = color_msg("Ta sifra je vec iskoriscena", "Tomato")
+                self.amntLabel.setText(err)
+                return
+            if val in amnts.values():
+                err = color_msg("Takva oprema vec postoji", "Tomato")
+                self.amntLabel.setText(err)
+                return
+
+            with open("data/sadrzaj.txt", "a") as f:
+                f.write(f"{key}:{val}\n")
+
+                succ = color_msg("Uspesno ste dodali opremu", "Lime")
+                self.amntLabel.setText(succ)
+                return
+
+        if mode == "rm":
+            if not txt.isnumeric():
+                err = color_msg("Pogresan unos", "Tomato")
+                self.amntLabel.setText(err)
+                return
+            if txt not in amnts.keys():
+                err = color_msg("Sifra ne postoji", "Tomato")
+                self.amntLabel.setText(err)
+                return
+
+            df = convert.to_df("data/amenities.csv")
+            for i in range(1, 6):
+                for j in range(df.shape[0]):
+                    item = df.iat[j, i]
+                    if item == amnts[txt]:
+                        err = color_msg("Ova oprema je vec registrovana u nekom apartmanu", "Tomato")
+                        self.amntLabel.setText(err)
+                        return
+
+            with open("data/sadrzaj.txt", "w") as f:
+                if txt not in amnts:
+                    err = color_msg("Pogresan unos", "Tomato")
+                    self.amntLabel.setText(err)
+                    return
+
+                del amnts[txt]
+                rows = list(amnts.items())
+                for row in rows:
+                    f.write(f"{row[0]}:{row[1]}\n")
+
+                succ = color_msg("Uspesno ste obrisali opremu", "Lime")
+                self.amntLabel.setText(succ)
+                return
+
+    def _editAmnt(self):
+        self._clearScreen()
+        layout = QGridLayout()
+
+        self.amntInput = QLineEdit()
+        self.amntLabel = QLabel("")
+        add = QPushButton("Dodaj")
+        rm = QPushButton("Obrisi")
+        add.clicked.connect(partial(self._submitEdit, "add"))
+        rm.clicked.connect(partial(self._submitEdit, "rm"))
+
+        layout.addWidget(QLabel("<h2>Dodavanje i brisanje opreme</h2>"), 0, 0, 1, 2)
+        layout.addWidget(self.amntLabel, 1, 0, 1, 2)
+        layout.addWidget(self.amntInput, 2, 0, 1, 2)
+        layout.addWidget(add, 3, 0)
+        layout.addWidget(rm, 3, 1)
+
+        self.generalLayout.addLayout(layout)
+
+    def editBlock(self, mode):
+        txt = self.blockName.text()
+        txt = txt.strip()
+
+        udf = convert.to_df("data/user_data.csv")
+        bdf = convert.to_df("data/blocked_users.csv")
+
+        users = list(udf.iloc[:, 0].squeeze())
+        if bdf.empty:
+            blocked = []
+        else:
+            blocked = list(bdf.iloc[:, 0].squeeze())
+
+        if not(txt in users or txt in blocked):
+            err = color_msg("Pogresan unos/Korisnik ne postoji", "Tomato")
+
+            self._createBlockScreen()
+            self.blockLabel.setText(err)
+            return
+
+        if mode == "block":
+            if txt in blocked:
+                err = color_msg("Korisnik je vec blokiran", "Tomato")
+
+                self._createBlockScreen()
+                self.blockLabel.setText(err)
+                return
+
+            for i in range(udf.shape[0]):
+                name = udf.iat[i, 0]
+                if name == txt:
+                    row = udf.iloc[[i]]
+                    udf = udf.drop(i)
+                    break
+
+            bdf = pd.concat([bdf, row], ignore_index=True)
+            convert.to_csv(bdf, "data/blocked_users.csv")
+            convert.to_csv(udf, "data/user_data.csv")
+
+            succ = color_msg("Uspesno ste blokirali korisnika", "Lime")
+            self._createBlockScreen()
+            self.blockLabel.setText(succ)
+            return
+
+        if mode == "unblock":
+            if txt not in blocked:
+                err = color_msg("Korisnik nije blokiran", "Tomato")
+
+                self._createBlockScreen()
+                self.blockLabel.setText(err)
+                return
+
+            for i in range(bdf.shape[0]):
+                name = bdf.iat[i, 0]
+                if name == txt:
+                    row = bdf.iloc[[i]]
+                    bdf = bdf.drop(i)
+                    break
+
+            udf = pd.concat([udf, row], ignore_index=True)
+            convert.to_csv(udf, "data/user_data.csv")
+            convert.to_csv(bdf, "data/blocked_users.csv")
+
+            succ = color_msg("Uspesno ste odblokirali korisnika", "Lime")
+            self._createBlockScreen()
+            self.blockLabel.setText(succ)
+            return
+
+    def _createBlockScreen(self):
+        self._clearScreen()
+        layout = QGridLayout()
+
+        self.blockLabel = QLabel("")
+        block = QPushButton("Blokiraj")
+        unblock = QPushButton("Odblokiraj")
+        self.blockName = QLineEdit()
+        self.blockName.setPlaceholderText("Unesite korisnicko ime korisnika kojeg bi da (od)blokirate")
+
+        block.clicked.connect(partial(self.editBlock, "block"))
+        unblock.clicked.connect(partial(self.editBlock, "unblock"))
+
+        layout.addWidget(QLabel("<h2>Blokiranje i odblokiranje korisnika.</h2>"), 0, 0, 1, 2)
+        layout.addWidget(self.blockLabel, 1, 0, 1, 2)
+        layout.addWidget(block, 2, 0)
+        layout.addWidget(unblock, 2, 1)
+        layout.addWidget(self.blockName, 3, 0, 1, 2)
+
+        self.generalLayout.addLayout(layout)
+
+    def _showData(self, mode):
+        df = formatDF()
+        txt = self.dataReviewInput.text()
+        tmp = []
+
+        if mode == "r":
+            msg = color_msg("Lista osvezena", "Lime")
+            self._createDataReviewScreen(df=df)
+            self.dataLabel.setText(msg)
+            return
+
+        if mode == "a" or mode == "b":
+            df1 = df[df["Status"] == "Prihvacena"]
+            df2 = df[df["Status"] == "Zavrsena"]
+            df = pd.concat([df1, df2], ignore_index=True)
+
+            if mode == "a":
+                try:
+                    TimeFrame(txt)
+                except InvalidDateError:
+                    err = color_msg("Nepravilan datum!", "Tomato")
+                    self._createDataReviewScreen()
+                    self.dataLabel.setText(err)
+                    return
+
+                for i in range(df.shape[0]):
+                    e = df.at[i, "Kraj"]
+                    s = df.at[i, "Pocetak"]
+                    if compare(txt, ">", s) and compare(txt, "<", e):
+                        apt = df.at[i, "Sifra apartmana"]
+                        host = df.at[i, "Domacin"]
+                        row = [apt, s, e, host]
+                        tmp.append(row)
+
+                header = ["Sifra apartmana", "Pocetak", "Kraj", "Domacin"]
+
+            if mode == "b":
+                for i in range(df.shape[0]):
+                    host = df.at[i, "Domacin"]
+                    if txt == host:
+                        apt = df.at[i, "Sifra apartmana"]
+                        row = [apt, host]
+                        tmp.append(row)
+
+                header = ["Sifra apartmana", "Domacin"]
+
+        if mode == "c" or mode == "d" or mode == "e":
+            e0 = str(datetime.date.today())
+
+            hosts = list(set(df.loc[:, "Domacin"]))
+            dct = {i: {"count": 0, "profit": 0} for i in hosts}
+
+            if mode == "c" or mode == "d":
+                condition = 'compare(s0, "<", s1) and compare(e1, "<", e0)'
+            else:
+                txt = self.dataReviewInput.text().split(":")
+                txt = [i.strip() for i in txt]
+                if len(txt) != 2:
+                    err = color_msg("Nepravilan unos! Format unosa je 'datum:domacin'!", "Tomato")
+                    self._createDataReviewScreen()
+                    self.dataLabel.setText(err)
+                    return
+
+                try:
+                    TimeFrame(txt[0])
+                except InvalidDateError:
+                    err = color_msg("Nepravilan datum!", "Tomato")
+                    self._createDataReviewScreen()
+                    self.dataLabel.setText(err)
+                    return
+
+                condition = 'compare(txt[0], ">", s1) and compare(txt[0], "<", e1) and host == txt[1]'
+
+            if mode == "c":
+                s0 = e0.split("-")
+                s0 = "-".join([str(int(s0[0]) - 1), s0[1], s0[2]])
+                # year - 1
+
+            if mode == "d":
+                s0 = e0.split("-")
+                s0 = "-".join([s0[0], str(int(s0[1]) - 1), s0[2]])
+                # month - 1
+
+            for i in range(df.shape[0]):
+                e1 = df.at[i, "Kraj"]
+                s1 = df.at[i, "Pocetak"]
+                host = df.at[i, "Domacin"]
+
+                if eval(condition):
+                    host = df.at[i, "Domacin"]
+                    price = int(df.at[i, "Ukupna cena (eur)"])
+
+                    dct[host]["count"] += 1
+                    dct[host]["profit"] += price
+
+            if mode == "e":
+                count = dct[txt[1]]["count"]
+                profit = dct[txt[1]]["profit"]
+                row = [txt[1], count, profit]
+                tmp.append(row)
+            else:
+                for host in dct:
+                    count = dct[host]["count"]
+                    profit = dct[host]["profit"]
+                    row = [host, count, profit]
+                    tmp.append(row)
+
+            header = ["Domacin", "Broj rezervacija", "Ukupna zarada"]
+
+        if mode == "f":
+            cities = list(set(df.loc[:, "Grad"].squeeze()))
+            dct = {i: 0 for i in cities}
+
+            for i in range(df.shape[0]):
+                city = df.at[i, "Grad"]
+                dct[city] += 1
+
+            for city in cities:
+                count = dct[city]
+                ratio = f"{count}/{df.shape[0]}"
+                perc = f"{round(eval(ratio) * 100)}%"
+                row = [city, ratio, perc]
+                tmp.append(row)
+
+            # sort by ratio in descending order
+            tmp.sort(key=lambda x: eval(x[1]), reverse=True)
+
+            header = ["Grad", "Odnos", "Procenat"]
+
+        df = pd.DataFrame(tmp, columns=header)
+
+        if not tmp:
+            msg = color_msg("Lista je prazna", "Purple")
+        else:
+            msg = color_msg("Prikazana lista", "Lime")
+
+        self._createDataReviewScreen(df=df)
+        self.dataLabel.setText(msg)
+        return
+
+    def _createDataReviewScreen(self, df=formatDF()):
+        self._clearScreen()
+        layout = QGridLayout()
+
+        self.dataReviewInput = QLineEdit()
+        self.dataLabel = QLabel("")
+        a = QPushButton("Prikazi listu potvrdjenih rezervisanih apartmana za izabran dan realizacije")
+        b = QPushButton("Prikazi listu potvrdjenih rezervisanih apartmana za izabranog domacina")
+        c = QPushButton("Godisnji pregled angazovanja domacina")
+        d = QPushButton("Mesecni pregled angazovanja domacina")
+        e = QPushButton("Ukupan broj i cena potvrdjenih rezervacija za izabran dan i izabranog domacina")
+        f = QPushButton("Pregled zastupljenosti pojedinacnih gradova u odnosu na ukupan broj rezervacija")
+        r = QPushButton("Osvezi listu")
+
+        self.model = tableModel(df)
+        self.table = QTableView()
+        self.table.setModel(self.model)
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
+        for i in range(df.shape[1] - 1):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+
+        a.clicked.connect(partial(self._showData, mode="a"))
+        b.clicked.connect(partial(self._showData, mode="b"))
+        c.clicked.connect(partial(self._showData, mode="c"))
+        d.clicked.connect(partial(self._showData, mode="d"))
+        e.clicked.connect(partial(self._showData, mode="e"))
+        f.clicked.connect(partial(self._showData, mode="f"))
+        r.clicked.connect(partial(self._showData, mode="r"))
+
+        layout.addWidget(QLabel("<h2>Izvestavanje</h2>"), 0, 0, 1, 2)
+        layout.addWidget(self.dataLabel, 1, 0, 1, 2)
+        layout.addWidget(self.dataReviewInput, 2, 0, 1, 2)
+        layout.addWidget(a, 3, 0)
+        layout.addWidget(b, 3, 1)
+        layout.addWidget(c, 4, 0)
+        layout.addWidget(d, 4, 1)
+        layout.addWidget(e, 6, 0)
+        layout.addWidget(f, 6, 1)
+        layout.addWidget(r, 7, 0)
+        layout.addWidget(self.table, 8, 0, 1, 2)
+
+        self.generalLayout.addLayout(layout)
 
     def _createHostRes(self):
         layout = QGridLayout()
@@ -188,7 +706,7 @@ class ProjekatWindow(QMainWindow):
             apt_id = dfr.iat[i, 1]
             if apt_id in ids:
                 row = pd.DataFrame([list(dfr.iloc[i])], columns=header)
-                res_df = res_df.append(row, ignore_index=True)
+                res_df = pd.concat([res_df, row], ignore_index=True)
 
         df = res_df[res_df["Status"] == "Kreirana"]
 
@@ -293,8 +811,7 @@ class ProjekatWindow(QMainWindow):
         if not (
             self.editRooms.text() and
             self.editGuests.text() and
-            self.editPrice.text() and
-            self.editAmnt.text()
+            self.editPrice.text()
         ):
 
             if a == 0:
@@ -339,40 +856,69 @@ class ProjekatWindow(QMainWindow):
         if self._checkEdit(a=0):
             return
 
+        if self.editAvlb.text() == "" and len(self.dates) == 0:
+            err = color_msg("Morate uneti neki opseg!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        if int(self.editGuests.text()) > 9:
+            err = color_msg("Maksimalan broj gostiju je 9!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
         apt = Apartment(self.aptId, save=True)
         apt.type = "Soba" if self.editRooms.text() == "1" else "Ceo"
         apt.rooms = self.editRooms.text()
         apt.spots = self.editGuests.text()
         apt.address = self.editAddr.text()
 
-        # apt.avlb = self.editAvlb.text()
-        invert.finish(self.dates, self.aptId)
-
-        apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
-        apt.price_per_night = self.editPrice.text()
-
-        amnts = self.editAmnt.text().split(",")
-        amnts = [i.strip() for i in amnts]
-
-        # check if every element of amnts is a number
-        if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
-            with open("data/sadrzaj.txt", "r") as f:
-                dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
-
-            for i in range(len(amnts)):
-                amnts[i] = dct[amnts[i]]
-
-        # check if mixed
-        elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
-            err = color_msg("Pogresan unos!", "Tomato")
+        if "," in apt.address:
+            err = color_msg("Ne mozete koristiti zarez u adresi, koristite '|' ili samo razmak", "Tomato")
 
             self._createAptEdit()
             self.editLabel.setText(err)
             return
 
-        # lst = [i.strip() for i in self.editAmnt.text().split(",")]
+        invert.finish(self.aptId, self.dates)
 
-        apt.amenities = amnts + ["None" for _ in range(5)][len(amnts):]
+        apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
+        apt.price_per_night = self.editPrice.text()
+
+        amnts = self.editAmnt.text().split(",")
+        amnts = [i for i in amnts if i != ""]
+        amnts = [i.strip() for i in amnts]
+
+        if amnts:
+            # check if every element of amnts is a number
+            if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+                with open("data/sadrzaj.txt", "r") as f:
+                    dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
+
+                for i in range(len(amnts)):
+                    try:
+                        amnts[i] = dct[amnts[i]]
+                    except KeyError:
+                        err = color_msg("Nepostojeci dodatak!", "Tomato")
+
+                        self._createAptEdit()
+                        self.editLabel.setText(err)
+                        return
+
+            # check if mixed
+            elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+                err = color_msg("Pogresan unos!", "Tomato")
+
+                self._createAptEdit()
+                self.editLabel.setText(err)
+                return
+
+            apt.amenities = [apt.apt_id] + amnts + ["None" for _ in range(5)][len(amnts):]
+        else:
+            apt.amenities = [apt.apt_id] + ["None" for _ in range(5)][len(amnts):]
 
         apt.append()
 
@@ -403,8 +949,9 @@ class ProjekatWindow(QMainWindow):
                 break
 
         i = 0
-        while i < dfr.shape[0]:
-            if dfr.iat[i, 1] == self.rmId.text():
+        tmp = dfr.copy()
+        while i < tmp.shape[0]:
+            if tmp.iat[i, 1] == self.rmId.text():
                 dfr = dfr.drop(i)
 
             i += 1
@@ -420,15 +967,113 @@ class ProjekatWindow(QMainWindow):
 
     def _addTF(self):
         s = self.editAvlb.text()
+        if s == "":
+            err = color_msg("Morate uneti neki opseg!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
         try:
-            invert.add(s, self.dates)
+            self.dates = invert.add(s, self.dates)
             self.editAvlb.clear()
+
+            succ = color_msg("Datumi zabelezeni!", "Lime")
+
+            self.editLabel.setText(succ)
+
         except InvalidDateError:
             err = color_msg("Pogresan datum!", "Tomato")
 
             self._createAptEdit()
             self.editLabel.setText(err)
             return
+
+    def _deact(self):
+        try:
+            int(self.actId.text())
+        except ValueError:
+            err = color_msg("Pogresna sifra!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        df = self.apt_df.copy()
+
+        df = df[df["Sifra"] == self.actId.text()]
+        if df.empty:
+            err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        df = df[df["Status"] == "aktivan"]
+        if df.empty:
+            err = color_msg("Apartman je vec neaktivan!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        df = convert.to_df("data/apartment_data.csv")
+        for i in range(df.shape[0]):
+            if df.iat[i, 0] == self.actId.text():
+                df.at[i, "Status"] = "neaktivan"
+                break
+
+        convert.to_csv(df, "data/apartment_data.csv")
+        self._createAptEdit()
+
+        err = color_msg("Uspesno ste deaktivirali apartman!", "Lime")
+
+        self._createAptEdit()
+        self.editLabel.setText(err)
+        return
+
+    def _actApt(self):
+        try:
+            int(self.actId.text())
+        except ValueError:
+            err = color_msg("Pogresna sifra!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        df = self.apt_df.copy()
+
+        df = df[df["Sifra"] == self.actId.text()]
+        if df.empty:
+            err = color_msg("Pogresna sifra/apartman ne postoji!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        df = df[df["Status"] == "neaktivan"]
+        if df.empty:
+            err = color_msg("Apartman je vec aktivan!", "Tomato")
+
+            self._createAptEdit()
+            self.editLabel.setText(err)
+            return
+
+        df = convert.to_df("data/apartment_data.csv")
+        for i in range(df.shape[0]):
+            if df.iat[i, 0] == self.actId.text():
+                df.at[i, "Status"] = "aktivan"
+                break
+
+        convert.to_csv(df, "data/apartment_data.csv")
+        self._createAptEdit()
+
+        err = color_msg("Uspesno ste aktivirali apartman!", "Lime")
+
+        self._createAptEdit()
+        self.editLabel.setText(err)
+        return
 
     def _editApt(self):
         if self._checkEdit(a=1):
@@ -451,25 +1096,30 @@ class ProjekatWindow(QMainWindow):
         apt.price_per_night = self.editPrice.text()
 
         amnts = self.editAmnt.text().split(",")
-        amnts = [i.strip() for i in amnts]
+        amnts = [i for i in amnts if i != ""]
 
-        # check if every element of amnts is a number
-        if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
-            with open("data/sadrzaj.txt", "r") as f:
-                dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
+        if len(amnts) > 0:
+            amnts = [i.strip() for i in amnts]
 
-            for i in range(len(amnts)):
-                amnts[i] = dct[amnts[i]]
+            # check if every element of amnts is a number
+            if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+                with open("data/sadrzaj.txt", "r") as f:
+                    dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
 
-        # check if mixed
-        elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
-            err = color_msg("Pogresan unos!", "Tomato")
+                for i in range(len(amnts)):
+                    amnts[i] = dct[amnts[i]]
 
-            self._createAptEdit()
-            self.editLabel.setText(err)
-            return
+            # check if mixed
+            elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+                err = color_msg("Pogresan unos!", "Tomato")
 
-        apt.amenities = [self.aptId] + amnts + ["None" for _ in range(5)][len(amnts):]
+                self._createAptEdit()
+                self.editLabel.setText(err)
+                return
+
+            apt.amenities = [self.aptId] + amnts + ["None" for _ in range(5)][len(amnts):]
+        else:
+            apt.amenities = [self.aptId] + ["None" for _ in range(5)][len(amnts):]
 
         apt.save_changes()
 
@@ -516,6 +1166,7 @@ class ProjekatWindow(QMainWindow):
         apt_df = apt_df.iloc[:, [0,1,2,3,5,8,9,10]]
 
         apt_df = apt_df.rename(columns={"Ameniti": "Sadrzaj"})
+        self.apt_df = apt_df.copy()
         amt_df = convert.to_df("data/amenities.csv")
 
         for i in range(apt_df.shape[0]):
@@ -523,7 +1174,12 @@ class ProjekatWindow(QMainWindow):
                 amt = dict(amt_df[amt_df["Sifra apartmana"] == apt_df.iat[i, 0]].squeeze())
                 del amt["Sifra apartmana"]
                 amt = list(amt.values())
-                amt = [i for i in amt if i != "None"]
+                try:
+                    amt = [i for i in amt if i != "None"]
+                except ValueError:
+                    print("something wrong with amenities.csv probably")
+                    return
+
                 amt = ", ".join(amt)
                 apt_df.iat[i, 7] = amt
 
@@ -557,6 +1213,8 @@ class ProjekatWindow(QMainWindow):
         dodaj = QPushButton("Dodaj apartman")
         promeni = QPushButton("Promeni podatke")
         obrisi = QPushButton("Obrisi apartman")
+        activate = QPushButton("Aktiviraj apartman")
+        deactivate = QPushButton("Deaktiviraj apartman")
 
         self.editId = QLineEdit()
         self.editId.setPlaceholderText("Ovde upisite sifru apartmana koji bi da menjate")
@@ -566,16 +1224,24 @@ class ProjekatWindow(QMainWindow):
         self.rmId = QLineEdit()
         self.rmId.setPlaceholderText("Ovde upisite sifru apartmana koji bi da obrisete")
 
+        self.actId = QLineEdit()
+        self.actId.setPlaceholderText("Ovde upisite sifru apartmana koji bi da (de)aktivirate")
+
         self.editId.textChanged.connect(partial(self._idChanged, 1))
         self.rmId.textChanged.connect(partial(self._idChanged, 0))
 
         dodaj.clicked.connect(self._addApt)
         promeni.clicked.connect(self._editApt)
         obrisi.clicked.connect(self._rmApt)
+        activate.clicked.connect(self._actApt)
+        deactivate.clicked.connect(self._deact)
 
-        formLayout.addRow(obrisi, self.rmId)
         formLayout.addRow(dodaj)
+        formLayout.addRow(obrisi, self.rmId)
         formLayout.addRow(promeni, self.editId)
+        formLayout.addRow(activate)
+        formLayout.addRow(deactivate)
+        formLayout.addRow(self.actId)
 
         formLayout.addRow(self.editLabel)
 
@@ -591,10 +1257,10 @@ class ProjekatWindow(QMainWindow):
         formLayout.addRow("Adresa: ", self.editAddr)
         self.editAddr.show()
 
-        formLayout.addRow(QLabel("Dostupnost: Unesite termine (pocetak i kraj) u formatu: 'pocetak, kraj' i pritisnete dugme dodaj, tako ponavljate dok ne unesete sve termine koje zelite"))
+        formLayout.addRow(QLabel("Dostupnost: Unesite termine (pocetak i kraj) u formatu: 'pocetak, kraj' i pritisnete dugme dodaj, tako ponavljate dok ne unesete sve termine koje zelite. (Format datuma YYYY-MM-DD)"))
         formLayout.addRow(self.addTF, self.editAvlb)
 
-        formLayout.addRow("Cena po noci: ", self.editPrice)
+        formLayout.addRow("Cena po noci (eur): ", self.editPrice)
         formLayout.addRow("Sadrzaj: ", self.editAmnt)
 
         aptEditLayout.addWidget(self.table)
@@ -673,8 +1339,6 @@ class ProjekatWindow(QMainWindow):
 
         df = convert.to_df("data/reservations.csv", use_cols=range(8))
         df = df[df["Gost/Kontakt osoba"].str.contains(self.currentUser.username)]
-        if df.empty:
-            self.topLabel.setText("<h2>Nemate rezervacije.</h2>")
 
         self.model = tableModel(df)
         self.table = QTableView()
@@ -691,6 +1355,9 @@ class ProjekatWindow(QMainWindow):
         self.makeSure = QPushButton("Otkazi")
         self.cancelRes = QPushButton("Da, zelim.")
         self.checkLabel = QLabel("")
+
+        if df.empty:
+            self.topLabel.setText("<h2>Nemate rezervacije.</h2>")
 
         self.makeSure.clicked.connect(self._check)
         self.cancelRes.clicked.connect(self._cancelReservation)
@@ -741,6 +1408,31 @@ class ProjekatWindow(QMainWindow):
             self._formMessage(msg=err)
             return
 
+        regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+        if not re.fullmatch(regex, self.registerEmail.text()):
+            print("invalid email")
+            err = color_msg("Nepravilan email", "Tomato")
+
+            self._formMessage(msg=err)
+            return
+
+        for ch in self.registerPhone.text():
+            if not ch.isnumeric():
+                if ch not in ["-", " ", "+", "/"]:
+                    print("invalid phone")
+                    err = color_msg("Nepravilan broj telefona", "Tomato")
+
+                    self._formMessage(msg=err)
+                    return
+
+        unames = list(convert.to_df("data/user_data.csv", use_cols=[0]).squeeze())
+        if self.registerUsername.text() in unames:
+            print("user exists")
+            err = color_msg("Korisnicko ime je zauzeto!", "Tomato")
+
+            self._formMessage(msg=err)
+            return
+
         print("everything checks out, registering...")
 
         registration.register_user(
@@ -748,6 +1440,13 @@ class ProjekatWindow(QMainWindow):
         )
 
         print("saving user details...")
+        if self.regmode:
+            role = "Domacin"
+            msg = "Uspesno ste registrovali domacina."
+        else:
+            role = "Gost"
+            msg = "Uspesno ste se registrovali."
+
         registration.save_user_details({
             "Korisnicko ime": self.registerUsername.text(),
             "Ime": self.registerFName.text(),
@@ -755,12 +1454,12 @@ class ProjekatWindow(QMainWindow):
             "Kontakt telefon": self.registerPhone.text(),
             "Email adresa": self.registerEmail.text(),
             "Pol": self.genderCBox.currentText(),
-            "Uloga": "Gost"
+            "Uloga": role
         })
 
         print(f"registered user: \n\t{self.registerUsername.text()}")
         success = color_msg(
-            f"Uspesno ste se registrovali. {self.registerUsername.text()}", "Lime"
+            f"{msg} {self.registerUsername.text()}", "Lime"
         )
 
         self._formMessage(msg=success)
@@ -773,6 +1472,14 @@ class ProjekatWindow(QMainWindow):
         if not (username and password):
             print("one or both fields left empty")
             err = color_msg("Popunite polja.", "Tomato")
+
+            self._formMessage(msg=err)
+            return
+
+        bdf = convert.to_df("data/blocked_users.csv")
+        names = list(bdf.iloc[:, 0].squeeze())
+        if username in names:
+            err = color_msg("Blokirani ste. Obratite se administratoru za zalbu.", "Tomato")
 
             self._formMessage(msg=err)
             return
@@ -811,6 +1518,7 @@ class ProjekatWindow(QMainWindow):
 
     def _showPopularCities(self):
         df = convert.to_df("data/reservations.csv", use_cols=[2, 7, 16])
+        df = df[df["Grad"] != "gr"]
 
         date = str(datetime.date.today()).split("-")
         date[0] = str(int(date[0]) - 1)
@@ -840,14 +1548,13 @@ class ProjekatWindow(QMainWindow):
         df = pd.DataFrame(pop_cities, columns=["Broj ostvarenih rezervacija", "Grad"])
         self.currentDF = df
         self._createBrowsingScreen()
-        # self.currentDF = convert.to_df("data/apartment_data.csv")
 
     def _submitSearch(self):
-        df = self.baseDF.copy()
+        df = convert.to_df("data/apartment_data.csv")
 
-        # TODO case insensitive search
-        # current is sensitive
         df = df[df["Adresa"].str.contains(self.searchLocation.text())]
+        # case-sensitive
+        # I honestly can't be bothered to make the search case-insensitive right now
 
         # Example usage of multivariable search below:
         #
@@ -933,9 +1640,7 @@ class ProjekatWindow(QMainWindow):
 
         # TODO fix shishana latinica
         self.searchButton = QPushButton("Pretrazi")
-        self.searchButton.clicked.connect(
-            partial(self._submitSearch, mode="search", aprt_id=20)
-        )
+        self.searchButton.clicked.connect(self._submitSearch)
 
         self.popularCities.clicked.connect(self._showPopularCities)
 
@@ -1003,7 +1708,9 @@ class ProjekatWindow(QMainWindow):
         self.genderCBox.addItems(["", "Musko", "Zensko", "Ostalo"])
         formLayout.addRow("Pol:", self.genderCBox)
 
-        registerLayout.addWidget(QLabel('<h1>Registruj se</h1>'))
+        self.regLabel = QLabel('<h1>Registruj se</h1>')
+
+        registerLayout.addWidget(self.regLabel)
         registerLayout.addLayout(formLayout)
         registerLayout.addWidget(self.submitRegistrationButton)
 
@@ -1098,11 +1805,14 @@ class ProjekatWindow(QMainWindow):
             self.resLayout.info8.setText(f"Cena po noci (eur): {apt.price_per_night}")
             self.resLayout.info9.setText(f"Status: {apt.status}")
             dct = apt.amenities
-            del dct["Sifra apartmana"]
+            if dct:
+                del dct["Sifra apartmana"]
 
-            sadrzaj = ", ".join([i for i in dct.values() if i != "None"])
+                sadrzaj = ", ".join([i for i in dct.values() if i != "None"])
 
-            self.resLayout.info10.setText(f"Sadrzaj: \n{sadrzaj}")
+                self.resLayout.info10.setText(f"Sadrzaj: \n{sadrzaj}")
+            else:
+                self.resLayout.info10.setText(f"Sadrzaj: Apartman nema dodatne opreme")
 
         except ValueError:
             print("value error")
@@ -1113,12 +1823,50 @@ class ProjekatWindow(QMainWindow):
         self.resLayout.showForm(int(self.currentApt.spots) - 1)
         self.resLayout.label2.setText(f"Sifra apartmana: {self.currentApt.apt_id}")
         self.resLayout.reservationDuration.clear()
+        self.resLayout.loadRes()
         self.resLayout.label14.setText("Ukupna cena: ")
 
     def _bookApt(self):
         s = self.resLayout.reservationStart.text()
 
+        try:
+            tf = TimeFrame(s)
+        except ValueError:
+            print("invalid date")
+            err = color_msg("Nepravilan datum.", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
+        except InvalidDateError:
+            print("invalid date")
+            err = color_msg("Nepravilan datum.", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
         dur = self.resLayout.reservationDuration.text()
+
+        try:
+            dur = int(dur)
+            if not (0 < dur < 1000):
+                print("bad dur")
+                err = color_msg("Nedozvoljen broj nocenja", "Tomato")
+
+                self.reviewWarning.setText(err)
+                self._reservationForm()
+                return
+
+        except ValueError:
+            print("invalid duration")
+            err = color_msg("Nepravilan broj nocenja", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
         guests = [
             self.resLayout.reservationGuest1.text(),
             self.resLayout.reservationGuest2.text(),
@@ -1142,10 +1890,8 @@ class ProjekatWindow(QMainWindow):
         apt_id = self.requestApt.text()
         uname = self.resLayout.reservationUser.username
 
-        # TODO email validation
-
         try:
-            df = self.baseDF.copy()
+            df = convert.to_df("data/apartment_data.csv")
             apt = df[df["Sifra"] == apt_id].squeeze()
 
             tf = TimeFrame(s, dur)
@@ -1179,7 +1925,15 @@ class ProjekatWindow(QMainWindow):
 
             foo = check_availability(s, tf.end, apt_id, normal_mode=False)
             if foo is not True:
-                cs = foo[0]
+                try:
+                    cs = foo[0]
+                except TypeError:
+                    err = color_msg("Predugacak boravak/apartman tada nije dostupan!", "Tomato")
+
+                    self.reviewWarning.setText(err)
+                    self._reservationForm()
+                    return
+
                 ce = foo[1]
                 err = color_msg(f"Apartman je zauzet od {cs} do {ce}!", "Tomato")
 
@@ -1187,7 +1941,14 @@ class ProjekatWindow(QMainWindow):
                 self._reservationForm()
                 return
 
-            reservation = Reservation(start=s, duration=dur, apartment_id=apt_id, username=uname, guests=guests)
+            try:
+                reservation = Reservation(start=s, duration=dur, apartment_id=apt_id, username=uname, guests=guests)
+            except IndexError:
+                err = color_msg("Unesite ime i prezime gosta sa razmakom izmedju!", "Tomato")
+
+                self.reviewWarning.setText(err)
+                self._reservationForm()
+                return
 
             reservation.reserve()
             res_id = reservation.res_id
@@ -1205,7 +1966,15 @@ class ProjekatWindow(QMainWindow):
     def _createBrowsingScreen(self):
         tableLayout = QHBoxLayout()
         reviewLayout = QVBoxLayout()
-        self.resLayout = ReservationLayout(self.currentUser)
+        try:
+            self.resLayout = ReservationLayout(self.currentUser)
+        except InvalidDateError:
+            err = color_msg("Nepravilan datum.", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
 
         self._clearScreen()
         self._createTopRow()

@@ -1,6 +1,4 @@
 Korisnicko ime,Ime,Prezime,Kontakt telefon,Email adresa,Pol,Uloga
-Otibitepar,Elena,Jovanović,254-542-3975,ElenaJovanovic@einrot.com,Zensko,Domacin
-Hund1986,Iva,Lončar,308-352-8450,IvaLoncar@teleworm.us,Zensko,Domacin
 Whons1950,Grgur,Barišić,508-219-1657,GrgurBarisic@gustr.com,Musko,Domacin
 Farretionly,Maja,Grubišić,615-947-7966,MajaGrubisic@superrito.com,Zensko,Domacin
 Bliguld,Zdravka,Rukavina,847-528-3259,ZdravkaRukavina@dayrep.com,Zensko,Domacin
@@ -35,7 +33,6 @@ Rems1949,Marina,Pavičić,828-429-3551,MarinaPavicic@fleckens.hu,Zensko,Gost
 Joaroarry,Ivo,Hrvat,240-818-4711,IvoHrvat@teleworm.us,Musko,Gost
 Therver,Olga,Radić,860-793-9096,OlgaRadic@armyspy.com,Zensko,Gost
 Brod1966,Svetoslav,Kovačević,760-255-8697,SvetoslavKovacevic@cuvox.de,Musko,Gost
-Faceink,Snježana,Petković,404-476-3407,SnjezanaPetkovic@armyspy.com,Zensko,Gost
 Pletent49,Jakov,Zagorec,660-529-4495,JakovZagorec@teleworm.us,Musko,Gost
 Elbectern,Mislav,Tomić,210-687-9867,MislavTomic@rhyta.com,Musko,Gost
 Tionat,Margareta,Pavlović,513-294-0116,MargaretaPavlovic@teleworm.us,Zensko,Gost
@@ -200,5 +197,8 @@ Burrofted,Đurđa,Petković,732-454-8536,DurdaPetkovic@rhyta.com,Zensko,Gost
 Faideringed,Marica,Pranjić,717-478-7039,MaricaPranjic@superrito.com,Zensko,Gost
 Seciplaccont1942,Zlatko,Topić,662-688-6716,ZlatkoTopic@fleckens.hu,Musko,Gost
 testuser,testname,testlname,123456789,test@mail.com,Musko,Gost
-test,testname,testlname,494949,ijsoafj@gmam,Musko,Gost
-uname,fname,lname,123,123,Musko,Gost
+admin,admin,admin,1234567890,admin@admin.admin,Musko,Admin
+fafaegaegerg,iu,iuj,123123123123123,a@a.aa,Musko,Gost
+imenkop,Imenko,Prezimic,111/222 3333,imenko@prezimic.com,Musko,Domacin
+Otibitepar,Elena,Jovanović,254-542-3975,ElenaJovanovic@einrot.com,Zensko,Admin
+bajo19,Bajo,Pivljanin,0198398172,ayy@lmao.com,Musko,Domacin

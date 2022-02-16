@@ -21,6 +21,38 @@ class InvalidSearchError(Error):
     pass
 
 
+def compute_discount(start, duration, end):
+    discount = 0.95
+
+    lookup = [
+        "01-01", "01-02", "01-07", "01-27",
+        "02-15", "02-16",
+        "04-15", "04-16", "04-17", "04-18", "04-22", "04-23", "04-24", "04-25",
+        "05-01", "05-02", "05-09",
+        "06-28",
+        "07-09",
+        "10-05", "10-21",
+        "11-11",
+        "12-25",
+    ]
+
+    duration = int(duration)
+
+    y, m, d = start.split("-")
+    dt = datetime.date(int(y), int(m), int(d))
+    if dt.weekday() > 3 and duration <= 3:
+        discount *= 0.90
+
+    s = start
+    e = end
+    for date in lookup:
+        d = f"{y}-{date}"
+        if compare(s, "<", d) and compare(d, "<", e):
+            discount *= 1.05
+
+    return discount
+
+
 def compare(date1, sign, date2) -> bool:
     try:
         y1, m1, d1 = [int(i) for i in date1.split("-")]
@@ -121,11 +153,11 @@ class Apartment:
     def append(self):
         row = pd.DataFrame([self.row_data()], columns=self.header)
 
-        df = self.df.append(row, ignore_index=True)
-        amnt = pd.DataFrame([[self.apt_id, *self.amenities]], columns=["Sifra apartmana", "Dodatak 1",
+        df = pd.concat([self.df, row], ignore_index=True)
+        amnt = pd.DataFrame([[*self.amenities]], columns=["Sifra apartmana", "Dodatak 1",
                                                                        "Dodatak 2", "Dodatak 3",
                                                                        "Dodatak 4", "Dodatak 5"])
-        dfa = self.dfa.append(amnt, ignore_index=True)
+        dfa = pd.concat([self.dfa, amnt], ignore_index=True)
 
         convert.to_csv(df, "data/apartment_data.csv")
         convert.to_csv(dfa, "data/amenities.csv")
@@ -165,7 +197,6 @@ class User:
             # select by username
             if username is not None:
                 user_details = df[df["Korisnicko ime"] == username].squeeze()
-                # this is probably bad -----^
 
             # select by id
             else:
@@ -191,12 +222,18 @@ class TimeFrame:
         self.duration = duration
         self.end = end
 
-        self.year, self.month, self.day = [int(i) for i in start.split("-")]
+        try:
+            self.year, self.month, self.day = [int(i) for i in start.split("-")]
+        except ValueError:
+            raise InvalidDateError
 
         if self.end == "":
             self.compute_end()
 
-        self.date_check()
+        try:
+            self.date_check()
+        except InvalidDateError:
+            raise InvalidDateError
 
     def date_check(self, start=""):
         if start == "":
@@ -336,9 +373,18 @@ class Reservation(TimeFrame):
         if df.empty:
             self.popust = 1
         else:
-            self.popust = 0.95
+            s = self.start
+            d = self.duration
+            e = self.end
+            self.popust = compute_discount(s, d, e)
 
-        self.city = " ".join(self.apartment.address.split(" | ")[1].split()[:-1])
+        try:
+            if "|" in self.apartment.address:
+                self.city = " ".join(self.apartment.address.split(" | ")[1].split()[:-1])
+            else:
+                self.city = " ".join(self.apartment.address.split(",")[1].split()[:-1])
+        except IndexError:
+            self.city = "Neodredjen"
 
         spots_left = int(self.apartment.spots) - 1
         guests = ["ne postoji" for _ in range(8)]
@@ -374,7 +420,7 @@ class Reservation(TimeFrame):
 
     def reserve(self):
         rowdf = pd.DataFrame([self.row_data()], columns=convert.headers("data/reservations.csv"))
-        self.df = self.df.append(rowdf, ignore_index=True)
+        self.df = pd.concat([self.df, rowdf], ignore_index=True)
         convert.to_csv(self.df, "data/reservations.csv")
 
 
@@ -453,7 +499,6 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
         s_i = res["Pocetak"]
         e_i = res["Kraj"]
 
-        # is sn >= ei
         if not (compare(s_n, ">=", e_i) or compare(e_n, "<=", s_i)):
             print(f"conflict with {s_i}, {e_i}")
             if normal_mode:
@@ -465,9 +510,6 @@ def check_availability(start, end, apt_id, df=None, normal_mode=True):
 
 def update_reservations():
     df = convert.to_df("data/reservations.csv")
-    # 4 - kraj
-    # 7 - status
-    # df = dfb[dfb["Status"].str.contains("Prihvacena")]
 
     for i in range(df.shape[0]):
         date = df.iat[i, 4]
@@ -481,15 +523,8 @@ def update_reservations():
 
 
 def free_time(apt_id, tf_lst=None):
-    # if desired is None:
-    #     desired = []
-
     if tf_lst:
         res_df = pd.DataFrame([[tf.start, tf.end] for tf in tf_lst], columns=["Pocetak", "Kraj"])
-        # date = str(datetime.date.today())
-        # for tf in res_df:
-        #     if compare(date, ">", tf[0]):
-        #         raise InvalidDateError
 
     else:
         res_df = convert.to_df("data/reservations.csv", use_cols=[1, 2, 3, 4, 7])
@@ -541,8 +576,6 @@ def free_time(apt_id, tf_lst=None):
         # case 3
         elif compare(cs, "<=", s) and compare(ce, "<", e):
             s = ce
-            # pairs.append([ce, e])
-            # return pairs
 
         # case 4
         elif compare(cs, ">", s) and compare(ce, "<", e):
@@ -551,7 +584,7 @@ def free_time(apt_id, tf_lst=None):
 
 
 # What a terrible day to have eyes
-class ReservationLayout(QGridLayout): #QFormLayout):
+class ReservationLayout(QGridLayout):
     def __init__(self, user):
         super().__init__()
 
@@ -561,9 +594,14 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self._addToLayout()
         self.hideForm()
 
-        r = convert.to_df("data/reservations.csv", use_cols=[6])
-        self.r = r[r["Gost/Kontakt osoba"].str.contains(user.username)]
+        self.r = None
+        self.loadRes()
+
         self.apt = None
+
+    def loadRes(self):
+        self.r = convert.to_df("data/reservations.csv", use_cols=[6])
+        self.r = self.r[self.r["Gost/Kontakt osoba"].str.contains(self.reservationUser.username)]
 
     def _updatePrice(self):
         try:
@@ -574,7 +612,18 @@ class ReservationLayout(QGridLayout): #QFormLayout):
 
         price = int(self.apt.price_per_night) * dr
         if not self.r.empty:
-            priceNew = round(price * 0.95)
+            st = self.reservationStart.text()
+            dur = self.reservationDuration.text()
+
+            try:
+                end = TimeFrame(st, int(dur)).end
+            except InvalidDateError:
+                self.info11.setText("<h4>Pogresan datum!</h4>")
+                return
+
+            discount = compute_discount(st, dur, end)
+
+            priceNew = round(price * discount)
             string = f"Ukupna cena: {priceNew} eur " + f"<s>{price} eur</s>\nOstvarili ste popust!"
         else:
             string = f"Ukupna cena: {price} eur"
@@ -621,12 +670,17 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.info8 = QLabel("")
         self.info9 = QLabel("")
         self.info10 = QLabel("")
+        self.info11 = QLabel("")
 
         self.reservationStart = QLineEdit()
+        self.reservationStart.setPlaceholderText("format: YYYY-MM-DD")
         self.reservationDuration = QLineEdit()
 
         # the internet said .clear() would trigger this >:(
-        self.reservationDuration.textChanged.connect(self._updatePrice)
+        try:
+            self.reservationDuration.textChanged.connect(self._updatePrice)
+        except InvalidDateError:
+            self.info11.setText("<h4>Pogresan datum!</h4>")
 
         self.reservationGuest1 = QLineEdit()
         self.reservationGuest2 = QLineEdit()
@@ -672,7 +726,8 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.addWidget(self.info7, 10, 0)
         self.addWidget(self.info8, 11, 0)
         self.addWidget(self.info9, 12, 0)
-        self.addWidget(self.info10, 13, 0)
+        self.addWidget(self.info10, 13, 0, 2, 1)
+        self.addWidget(self.info11, 14, 0, 2, 1)
         self.addWidget(self.label0, 0, 1)
         self.addWidget(self.label1, 1, 1)
         self.addWidget(self.label2, 2, 1, 1, 2)
@@ -739,6 +794,7 @@ class ReservationLayout(QGridLayout): #QFormLayout):
         self.info8.show()
         self.info9.show()
         self.info10.show()
+        self.info11.show()
 
     def showForm(self, n):
         self._showGuests(n)

@@ -41,7 +41,8 @@ def save_user_details(user_dict: dict) -> None:
         # df = pd.read_csv(filepath_or_buffer="data/user_data.csv", delimiter=",")
         df = convert.to_df("data/user_data.csv")
 
-        df = df.append(data, ignore_index=True)
+        # df = df.append(data, ignore_index=True)
+        df = pd.concat([df, data], ignore_index=True)
 
         convert.to_csv(df, "data/user_data.csv")
 

@@ -8,7 +8,6 @@ Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci
 7,Soba,1,2,(42.443908 | -83.190562),Perry Street 4171 | Southfield 48075,24/7,Vjekoslav Petrović,32,neaktivan,da
 8,Ceo,2,4,(30.512035 | -87.076124),American Drive 1916 | Pace 32571,24/7,Zdenko Vidović,34,neaktivan,da
 9,Ceo,3,6,(39.909338 | -96.654181),Sigley Road 4667 | Marysville 66508,24/7,Vinko Horvat,41,aktivan,da
-10,Soba,1,1,(41.370003 | -83.20072),Olive Street 1531 | Fremont 43420,24/7,Sanja Vuković,28,aktivan,da
 11,Soba,1,2,(35.261138 | -80.88441),Swick Hill Street 2508 | Charlotte 28202,24/7,Danica Jović,30,neaktivan,da
 12,Soba,1,1,(45.642622 | -122.767162),Terra Street 4064 | Vancouver 98660,24/7,Ksenija Perić,28,aktivan,da
 13,Soba,1,3,(40.074852 | -75.140042),Callison Lane 3101 | Philadelphia 19108,24/7,Blaženka Novosel,32,neaktivan,da
@@ -73,7 +72,7 @@ Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci
 72,Ceo,3,9,(43.212631 | -88.198986),Oakridge Farm Lane 3657 | Copperas Cove 53051,24/7,Elena Jovanović,31,aktivan,ne
 73,Soba,1,2,(34.091874 | -118.68934),New York Avenue 2513 | Philadelphia 91302,24/7,Blaženka Novosel,30,aktivan,da
 74,Soba,1,1,(40.155594 | -75.324042),Argonne Street 2786 | Fremont 19403,24/7,Sanja Vuković,28,neaktivan,da
-75,Soba,1,2,(28.160338 | -80.7486),Rosemont Avenue 4356 | Copperas Cove 32935,24/7,Elena Jovanović,30,neaktivan,da
+75,Soba,1,2,(28.160338 | -80.7486),Rosemont Avenue 4356 | Copperas Cove 32935,24/7,Elena Jovanović,30,aktivan,da
 76,Soba,1,3,(38.907325 | -85.903214),Lucy Lane 2878 | Pace 47274,24/7,Zdenko Vidović,26,aktivan,da
 77,Soba,1,3,(47.045293 | -122.951571),Pinnickinick Street 2948 | Philadelphia 98501,24/7,Blaženka Novosel,26,aktivan,da
 78,Ceo,2,2,(40.047073 | -75.195483),Franklee Lane 4907 | Warminster 19034,24/7,Mojmir Bačić,36,neaktivan,da
@@ -97,3 +96,9 @@ Sifra,Tip,Broj soba,Broj gostiju,Lokacija,Adresa,Dostupnost,Domacin,Cena po noci
 97,Ceo,3,3,(40.743169 | -74.572631),Hedge Street 3222 | Garden City 07924,24/7,Klara Pranjić,33,neaktivan,da
 98,Ceo,3,3,(38.243032 | -85.488622),Gregory Lane 2322 | Carroll 40299,24/7,Slavica Tomić,39,neaktivan,da
 99,Ceo,3,9,(33.522047 | -84.108811),Elk Creek Road 1539 | Rochester 30281,24/7,Ozren Jovanović,39,neaktivan,da
+100,Soba,1,1,(22.179981 | -3.64202),oijoij,:(,Sanja Vuković,10,neaktivan,da
+101,Ceo,2,2,(48.288564 | -44.985635),cxzxcx,:(,Sanja Vuković,1,aktivan,da
+102,Soba,1,1,(15.896609 | -9.348394),oidjaoijsdf,:(,Sanja Vuković,12,aktivan,da
+103,Ceo,10,3,(11.554275 | -35.188045),dnijdns,:(,Sanja Vuković,100,aktivan,da
+104,Ceo,3,6,(46.412923 | -13.062322),Kej dr Zoran Djindjica 37,:(,zdravko Djuric,20,aktivan,da
+105,Soba,1,1,(81.626368 | -22.803221),jofioijoi,:(,Bajo Pivljanin,20,neaktivan,da
