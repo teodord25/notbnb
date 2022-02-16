@@ -235,8 +235,8 @@ class ProjekatWindow(QMainWindow):
                 adminMenu.addAction("Pretraga rezervacija", self._resSearch)
                 adminMenu.addAction("Registracija novih domacina", self._hostReg)
                 adminMenu.addAction("Kreiranje i brisanje dodatne opreme", self._editAmnt)
-                adminMenu.addAction("Blokiranje korisnika", self._blockUsr)
-                adminMenu.addAction("Izvestavanje", self._reviewData)
+                adminMenu.addAction("Blokiranje korisnika", self._createBlockScreen)
+                adminMenu.addAction("Izvestavanje", self._createDataReviewScreen)
 
     def _regNormal(self):
         self.regmode = 0
@@ -417,10 +417,97 @@ class ProjekatWindow(QMainWindow):
 
         self.generalLayout.addLayout(layout)
 
-    def _blockUsr(self):
-        pass
+    def editBlock(self, mode):
+        txt = self.blockName.text()
+        txt = txt.strip()
 
-    def _reviewData(self):
+        udf = convert.to_df("data/user_data.csv")
+        bdf = convert.to_df("data/blocked_users.csv")
+
+        users = list(udf.iloc[:, 0].squeeze())
+        if bdf.empty:
+            blocked = []
+        else:
+            blocked = list(bdf.iloc[:, 0].squeeze())
+
+        if not(txt in users or txt in blocked):
+            err = color_msg("Pogresan unos/Korisnik ne postoji", "Tomato")
+
+            self._createBlockScreen()
+            self.blockLabel.setText(err)
+            return
+
+        # row = pd.DataFrame([[]])
+        if mode == "block":
+            if txt in blocked:
+                err = color_msg("Korisnik je vec blokiran", "Tomato")
+
+                self._createBlockScreen()
+                self.blockLabel.setText(err)
+                return
+
+            for i in range(udf.shape[0]):
+                name = udf.iat[i, 0]
+                if name == txt:
+                    row = udf.iloc[[i]]
+                    udf = udf.drop(i)
+                    break
+
+            bdf = pd.concat([bdf, row], ignore_index=True)
+            convert.to_csv(bdf, "data/blocked_users.csv")
+            convert.to_csv(udf, "data/user_data.csv")
+
+            succ = color_msg("Uspesno ste blokirali korisnika", "Lime")
+            self._createBlockScreen()
+            self.blockLabel.setText(succ)
+            return
+
+        if mode == "unblock":
+            if txt not in blocked:
+                err = color_msg("Korisnik nije blokiran", "Tomato")
+
+                self._createBlockScreen()
+                self.blockLabel.setText(err)
+                return
+
+            for i in range(bdf.shape[0]):
+                name = bdf.iat[i, 0]
+                if name == txt:
+                    row = bdf.iloc[[i]]
+                    bdf = bdf.drop(i)
+                    break
+
+            udf = pd.concat([udf, row], ignore_index=True)
+            convert.to_csv(udf, "data/user_data.csv")
+            convert.to_csv(bdf, "data/blocked_users.csv")
+
+            succ = color_msg("Uspesno ste odblokirali korisnika", "Lime")
+            self._createBlockScreen()
+            self.blockLabel.setText(succ)
+            return
+
+    def _createBlockScreen(self):
+        self._clearScreen()
+        layout = QGridLayout()
+
+        self.blockLabel = QLabel("")
+        block = QPushButton("Blokiraj")
+        unblock = QPushButton("Odblokiraj")
+        self.blockName = QLineEdit()
+        self.blockName.setPlaceholderText("Unesite korisnicko ime korisnika kojeg bi da (od)blokirate")
+
+        block.clicked.connect(partial(self.editBlock, "block"))
+        unblock.clicked.connect(partial(self.editBlock, "unblock"))
+
+        layout.addWidget(QLabel("<h2>Blokiranje i odblokiranje korisnika.</h2>"), 0, 0, 1, 2)
+        layout.addWidget(self.blockLabel, 1, 0, 1, 2)
+        layout.addWidget(block, 2, 0)
+        layout.addWidget(unblock, 2, 1)
+        layout.addWidget(self.blockName, 3, 0, 1, 2)
+
+        self.generalLayout.addLayout(layout)
+
+    def _createDataReviewScreen(self):
         pass
 
     def _createHostRes(self):
@@ -1207,6 +1294,14 @@ class ProjekatWindow(QMainWindow):
         if not (username and password):
             print("one or both fields left empty")
             err = color_msg("Popunite polja.", "Tomato")
+
+            self._formMessage(msg=err)
+            return
+
+        bdf = convert.to_df("data/blocked_users.csv")
+        names = list(bdf.iloc[:, 0].squeeze())
+        if username in names:
+            err = color_msg("Blokirani ste. Obratite se administratoru za zalbu.", "Tomato")
 
             self._formMessage(msg=err)
             return

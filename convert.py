@@ -21,7 +21,7 @@ def headers(filename):
             "Dodatak 3", "Dodatak 4", "Dodatak 5"
         ]
 
-    if filename == "data/user_data.csv":
+    if filename == "data/user_data.csv" or filename == "data/blocked_users.csv":
         header = [
             "Korisnicko ime", "Ime", "Prezime",
             "Kontakt telefon", "Email adresa", "Pol", "Uloga"
