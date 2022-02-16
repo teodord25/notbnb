@@ -21,6 +21,38 @@ class InvalidSearchError(Error):
     pass
 
 
+def compute_discount(start, duration, end):
+    discount = 0.95
+
+    lookup = [
+        "01-01", "01-02", "01-07", "01-27",
+        "02-15", "02-16",
+        "04-15", "04-16", "04-17", "04-18", "04-22", "04-23", "04-24", "04-25",
+        "05-01", "05-02", "05-09",
+        "06-28",
+        "07-09",
+        "10-05", "10-21",
+        "11-11",
+        "12-25",
+    ]
+
+    duration = int(duration)
+
+    y, m, d = start.split("-")
+    dt = datetime.date(int(y), int(m), int(d))
+    if dt.weekday() > 3 and duration <= 3:
+        discount *= 0.90
+
+    s = start
+    e = end
+    for date in lookup:
+        d = f"{y}-{date}"
+        if compare(s, "<", d) and compare(d, "<", e):
+            discount *= 1.05
+
+    return discount
+
+
 def compare(date1, sign, date2) -> bool:
     try:
         y1, m1, d1 = [int(i) for i in date1.split("-")]
@@ -340,7 +372,10 @@ class Reservation(TimeFrame):
         if df.empty:
             self.popust = 1
         else:
-            self.popust = 0.95
+            s = self.start
+            d = self.duration
+            e = self.end
+            self.popust = compute_discount(s, d, e)
 
         try:
             if "|" in self.apartment.address:
@@ -590,7 +625,12 @@ class ReservationLayout(QGridLayout): #QFormLayout):
 
         price = int(self.apt.price_per_night) * dr
         if not self.r.empty:
-            priceNew = round(price * 0.95)
+            st = self.reservationStart.text()
+            dur = self.reservationDuration.text()
+            end = TimeFrame(st, int(dur)).end
+            discount = compute_discount(st, dur, end)
+
+            priceNew = round(price * discount)
             string = f"Ukupna cena: {priceNew} eur " + f"<s>{price} eur</s>\nOstvarili ste popust!"
         else:
             string = f"Ukupna cena: {price} eur"
