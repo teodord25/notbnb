@@ -192,7 +192,10 @@ class TimeFrame:
         self.duration = duration
         self.end = end
 
-        self.year, self.month, self.day = [int(i) for i in start.split("-")]
+        try:
+            self.year, self.month, self.day = [int(i) for i in start.split("-")]
+        except ValueError:
+            raise InvalidDateError
 
         if self.end == "":
             self.compute_end()

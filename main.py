@@ -54,11 +54,11 @@ def formatDF():
     rdf = rdf.reindex(header, axis=1)
 
     rdf = rdf[rdf["Ukupna cena (eur)"] != "c"]
+    rdf = rdf.reset_index(drop=True)
 
     tuples = []
 
     for i in range(rdf.shape[0]):
-        # res = rdf.at[i, "Sifra rezervacije"]
         apt = rdf.at[i, "Sifra apartmana"]
         row = adf[adf["Sifra"] == apt].squeeze()
         name1 = row["Domacin"]
@@ -507,8 +507,178 @@ class ProjekatWindow(QMainWindow):
 
         self.generalLayout.addLayout(layout)
 
-    def _createDataReviewScreen(self):
-        pass
+    def _showData(self, mode):
+        df = formatDF()
+        txt = self.dataReviewInput.text()
+        tmp = []
+
+        if mode == "r":
+            msg = color_msg("Lista osvezena", "Lime")
+            self._createDataReviewScreen(df=df)
+            self.dataLabel.setText(msg)
+            return
+
+        if mode == "a" or mode == "b":
+            df1 = df[df["Status"] == "Prihvacena"]
+            df2 = df[df["Status"] == "Zavrsena"]
+            df = pd.concat([df1, df2], ignore_index=True)
+
+            if mode == "a":
+                try:
+                    TimeFrame(txt)
+                except InvalidDateError:
+                    err = color_msg("Nepravilan datum!", "Tomato")
+                    self._createDataReviewScreen()
+                    self.dataLabel.setText(err)
+                    return
+
+                for i in range(df.shape[0]):
+                    e = df.at[i, "Kraj"]
+                    s = df.at[i, "Pocetak"]
+                    if compare(txt, ">", s) and compare(txt, "<", e):
+                        apt = df.at[i, "Sifra apartmana"]
+                        host = df.at[i, "Domacin"]
+                        row = [apt, s, e, host]
+                        tmp.append(row)
+
+                header = ["Sifra apartmana", "Pocetak", "Kraj", "Domacin"]
+
+            if mode == "b":
+                for i in range(df.shape[0]):
+                    host = df.at[i, "Domacin"]
+                    if txt == host:
+                        apt = df.at[i, "Sifra apartmana"]
+                        row = [apt, host]
+                        tmp.append(row)
+
+                header = ["Sifra apartmana", "Domacin"]
+
+        if mode == "c" or mode == "d" or mode == "e":
+            e0 = str(datetime.date.today())
+
+            # count = 0
+            # profit = 0
+            hosts = list(set(df.loc[:, "Domacin"]))
+            dct = {i: {"count": 0, "profit": 0} for i in hosts}
+
+            if mode == "c" or mode == "d":
+                condition = 'compare(s0, "<", s1) and compare(e1, "<", e0)'
+            else:
+                txt = self.dataReviewInput.text().split(":")
+                txt = [i.strip() for i in txt]
+                if len(txt) != 2:
+                    err = color_msg("Nepravilan unos! Format unosa je 'datum:domacin'!", "Tomato")
+                    self._createDataReviewScreen()
+                    self.dataLabel.setText(err)
+                    return
+
+                try:
+                    TimeFrame(txt[0])
+                except InvalidDateError:
+                    err = color_msg("Nepravilan datum!", "Tomato")
+                    self._createDataReviewScreen()
+                    self.dataLabel.setText(err)
+                    return
+
+                condition = 'compare(txt[0], ">", s1) and compare(txt[0], "<", e1) and host == txt[1]'
+
+            if mode == "c":
+                s0 = e0.split("-")
+                s0 = "-".join([str(int(s0[0]) - 1), s0[1], s0[2]])
+                # year - 1
+
+            if mode == "d":
+                s0 = e0.split("-")
+                s0 = "-".join([s0[0], str(int(s0[1]) - 1), s0[2]])
+                # month - 1
+
+            for i in range(df.shape[0]):
+                e1 = df.at[i, "Kraj"]
+                s1 = df.at[i, "Pocetak"]
+                host = df.at[i, "Domacin"]
+
+                if eval(condition):
+                    host = df.at[i, "Domacin"]
+                    price = int(df.at[i, "Ukupna cena (eur)"])
+
+                    dct[host]["count"] += 1
+                    dct[host]["profit"] += price
+
+            if mode == "e":
+                count = dct[txt[1]]["count"]
+                profit = dct[txt[1]]["profit"]
+                row = [txt[1], count, profit]
+                tmp.append(row)
+            else:
+                for host in dct:
+                    count = dct[host]["count"]
+                    profit = dct[host]["profit"]
+                    row = [host, count, profit]
+                    tmp.append(row)
+
+            header = ["Domacin", "Broj rezervacija", "Ukupna zarada"]
+
+        if mode == "e":
+            pass
+
+        if mode == "f":
+            pass
+
+        df = pd.DataFrame(tmp, columns=header)
+
+        if not tmp:
+            msg = color_msg("Lista je prazna", "Purple")
+        else:
+            msg = color_msg("Prikazana lista", "Lime")
+
+        self._createDataReviewScreen(df=df)
+        self.dataLabel.setText(msg)
+        return
+
+    def _createDataReviewScreen(self, df=formatDF()):
+        self._clearScreen()
+        layout = QGridLayout()
+
+        self.dataReviewInput = QLineEdit()
+        self.dataLabel = QLabel("")
+        a = QPushButton("Prikazi listu potvrdjenih rezervisanih apartmana za izabran dan realizacije")
+        b = QPushButton("Prikazi listu potvrdjenih rezervisanih apartmana za izabranog domacina")
+        c = QPushButton("Godisnji pregled angazovanja domacina")
+        d = QPushButton("Mesecni pregled angazovanja domacina")
+        e = QPushButton("Ukupan broj i cena potvrdjenih rezervacija za izabran dan i izabranog domacina")
+        f = QPushButton("Pregled zastupljenosti pojedinacnih gradova u odnosu na ukupan broj rezervacija")
+        r = QPushButton("Osvezi listu")
+
+        self.model = tableModel(df)
+        self.table = QTableView()
+        self.table.setModel(self.model)
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(df.shape[1] - 1, QHeaderView.Stretch)
+        for i in range(df.shape[1] - 1):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+
+        a.clicked.connect(partial(self._showData, mode="a"))
+        b.clicked.connect(partial(self._showData, mode="b"))
+        c.clicked.connect(partial(self._showData, mode="c"))
+        d.clicked.connect(partial(self._showData, mode="d"))
+        e.clicked.connect(partial(self._showData, mode="e"))
+        f.clicked.connect(partial(self._showData, mode="f"))
+        r.clicked.connect(partial(self._showData, mode="r"))
+
+        layout.addWidget(QLabel("<h2>Izvestavanje</h2>"), 0, 0, 1, 2)
+        layout.addWidget(self.dataLabel, 1, 0, 1, 2)
+        layout.addWidget(self.dataReviewInput, 2, 0, 1, 2)
+        layout.addWidget(a, 3, 0)
+        layout.addWidget(b, 3, 1)
+        layout.addWidget(c, 4, 0)
+        layout.addWidget(d, 4, 1)
+        layout.addWidget(e, 6, 0)
+        layout.addWidget(f, 6, 1)
+        layout.addWidget(r, 7, 0)
+        layout.addWidget(self.table, 8, 0, 1, 2)
+
+        self.generalLayout.addLayout(layout)
 
     def _createHostRes(self):
         layout = QGridLayout()
@@ -710,7 +880,6 @@ class ProjekatWindow(QMainWindow):
             self.editLabel.setText(err)
             return
 
-        # apt.avlb = self.editAvlb.text()
         invert.finish(self.aptId, self.dates)
 
         apt.host = " ".join([self.currentUser.fname, self.currentUser.lname])
@@ -741,8 +910,6 @@ class ProjekatWindow(QMainWindow):
             self._createAptEdit()
             self.editLabel.setText(err)
             return
-
-        # lst = [i.strip() for i in self.editAmnt.text().split(",")]
 
         apt.amenities = amnts + ["None" for _ in range(5)][len(amnts):]
 
@@ -1369,7 +1536,6 @@ class ProjekatWindow(QMainWindow):
         df = pd.DataFrame(pop_cities, columns=["Broj ostvarenih rezervacija", "Grad"])
         self.currentDF = df
         self._createBrowsingScreen()
-        # self.currentDF = convert.to_df("data/apartment_data.csv")
 
     def _submitSearch(self):
         df = convert.to_df("data/apartment_data.csv")
@@ -1747,7 +1913,15 @@ class ProjekatWindow(QMainWindow):
 
             foo = check_availability(s, tf.end, apt_id, normal_mode=False)
             if foo is not True:
-                cs = foo[0]
+                try:
+                    cs = foo[0]
+                except TypeError:
+                    err = color_msg("Predugacak boravak/apartman tada nije dostupan!", "Tomato")
+
+                    self.reviewWarning.setText(err)
+                    self._reservationForm()
+                    return
+
                 ce = foo[1]
                 err = color_msg(f"Apartman je zauzet od {cs} do {ce}!", "Tomato")
 

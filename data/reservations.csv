@@ -19,7 +19,6 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 18,31,2020-08-26,6,2020-09-01,204,Maja Grubišić (Farretionly),Odbijena,Milenko Jozić,Zdenka Kralj,Andrea Vidaković,Bernarda Matković,Ksenija Ivanković,Danijela Jurišić,Šimun Delić,Andrea Pavić,Philadelphia
 19,31,2022-05-09,5,2022-05-14,170,Doris Marković (Anxich),Kreirana,Zrina Stanić,Tuga Čerkez,Zrina Jurišić,Borislav Novak,Prvoslav Debeljak,Iva Ivančić,Ranko Mikulić,Bernarda Matković,Philadelphia
 20,76,2020-10-03,4,2020-10-07,104,Radojka Milić (Desed2000),Odbijena,Neven Novaković,Berivoj Marušić,Nikola Klarić,Perica Grgić,Borislav Novak,Elena Miletić,testname testlname,Zlatko Topić,Pace
-21,19,2020-07-09,1,2020-07-10,22,Petar Lončar (Thoromem),Odbijena,Nediljko Jerković,Milica Petković,Ljiljana Matković,Andrea Pavić,Zrina Stanić,Nika Tadić,Gojko Ivanec,Perica Grgić,Grant
 22,4,2021-06-26,12,2021-07-08,396,Ozren Jovanović (Quichaved),Odbijena,Slavko Perković,Prvoš Tadić,Roko Stipanov,Darko Stanić,Slavko Perković,Darijo Horvatinčić,Mihovil Kovačić,Leonardo Jakšić,Burr Ridge
 23,15,2020-10-15,6,2020-10-21,168,Ivo Hrvat (Joaroarry),Odbijena,Elizabeta Poljak,Pribislav Bosanac,Spomenka Mihaljević,Ana Kos,Tuga Čerkez,Nadica Tkalčić,Perica Grgić,Grgur Perković,Bluffton
 24,65,2020-11-11,7,2020-11-18,224,Štefanija Miletić (Wiler1948),Odbijena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Everett
@@ -41,7 +40,6 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 43,5,2022-11-14,10,2022-11-24,240,Jasmina Dujmović (Hoset1970),Prihvacena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Everett
 44,11,2022-10-06,7,2022-10-13,210,Radojka Milić (Desed2000),Prihvacena,Višeslav Perić,Sanela Matković,Elena Petković,Bogdan Jukić,Andrea Vidaković,Mateja Obad,Andrea Vidaković,Romana Barić,Charlotte
 45,11,2020-10-14,7,2020-10-21,210,Danica Jović (Thoughty1944),Odbijena,Đurđa Petković,Leona Duvnjak,Vjeran Živković,Tihomil Ivančić,Jasminka Jukić,Leona Brkić,Ivana Perković,Antonio Živković,Charlotte
-46,19,2021-10-04,2,2021-10-06,44,Berislava Bošnjak (Alose1972),Odbijena,Blago Obad,Vedrana Matijević,Spomenka Mihaljević,Tamara Novosel,Divna Topić,Elena Petković,Mihovil Kovačić,Leona Brkić,Grant
 47,89,2021-04-13,11,2021-04-24,286,Đurđica Matković (Ploust69),Zavrsena,Vedrana Matijević,Slavko Perković,Davorin Petković,Stanka Grgić,Božo Brkić,Berivoj Marušić,Daniel Pavlović,Siniša Petrović,Rochester
 48,71,2022-04-23,2,2022-04-25,52,Mateo Herceg (Bobselp),Odustanak,Blago Obad,Ljubomir Marić,Zdenka Kralj,Spomenka Mihaljević,Kažimir Pavičić,Leon Bašić,Ranko Mikulić,Elvis Kolar,Charlotte
 49,23,2022-02-16,2,2022-02-18,56,Klara Pranjić (Lowee1969),Prihvacena,Karlo Marjanović,Ana Kos,testname testlname,Teha Rukavina,Snežana Bošnjak,Aleksandra Duvnjak,Dubravka Lovrić,Nikola Klarić,Antioch
@@ -60,7 +58,6 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 62,95,2020-12-16,13,2020-12-29,390,Svetoslav Kovačević (Brod1966),Odbijena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Copperas Cove
 63,60,2020-09-01,9,2020-09-10,216,Jasmin Bošnjak (Staided),Odustanak,Aleksandra Duvnjak,Ana Kos,Snežana Bošnjak,Dragutin Kralj,Saša Jukić,Ratko Tomić,Sara Miletić,Zdenka Kralj,Antioch
 64,27,2020-02-18,14,2020-03-03,420,Grgur Barišić (Whons1950),Odustanak,Ivana Perković,Ognjen Marjanović,Nadica Tkalčić,Elena Petković,Prvoslav Debeljak,Nika Tadić,Ivana Perković,Nina Horvatinčić,Charlotte
-65,81,2022-09-27,13,2022-10-10,416,Štefanija Miletić (Wiler1948),Prihvacena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Grant
 66,58,2021-11-24,4,2021-11-28,128,Nenad Cindrić (Thermised02),Zavrsena,Tihomil Jerković,Tomislav Jelić,Božo Varga,Dragutin Kralj,Neven Novaković,Elizabeta Poljak,Velimir Klarić,Ana Popović,Fremont
 67,26,2020-04-01,7,2020-04-08,210,Sanja Vuković (Ariend),Odbijena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Fremont
 68,93,2021-07-23,2,2021-07-25,52,Zdenko Vidović (Camesquill),Odbijena,Mihovil Kovačić,Leona Brkić,Zrina Jurišić,Tihomil Vučković,Divna Topić,Leona Duvnjak,Nika Tadić,Desimir Novaković,Pace
@@ -100,8 +97,16 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 106,70,2020-11-17,14,2021-00-01,364,Zdenko Vidović (Camesquill),Odbijena,testname testlname,Diana Jurić,Darijo Janković,Prvoslav Debeljak,Mladen Pejić,Dubravka Tadić,Marica Pranjić,Elena Miletić,Laurinburg
 107,46,2020-09-09,12,2020-09-21,408,Emil Ivanović (Himmenting),Odustanak,testname testlname,Dragutin Kralj,Slavko Perković,Snežana Bošnjak,Stanka Grgić,Ljubomir Marić,Višeslav Perić,Bogdana Matić,Fremont
 108,59,2021-04-18,9,2021-04-27,288,Mateo Herceg (Bobselp),Zavrsena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Boston
-109,31,2022-01-19,15,2022-02-03,510,Držislav Hrvatin (Whily1995),Zavrsena,Prvoslav Debeljak,Elena Petković,Divna Topić,Grgur Perković,Ljubomir Marić,testname testlname,Cvjetko Zagorec,Mladen Pejić,Philadelphia
+109,31,2021-01-19,15,2021-02-03,510,Držislav Hrvatin (Whily1995),Zavrsena,Prvoslav Debeljak,Elena Petković,Divna Topić,Grgur Perković,Ljubomir Marić,testname testlname,Cvjetko Zagorec,Mladen Pejić,Philadelphia
 110,55,2022-09-02,8,2022-09-10,288,Držislav Hrvatin (Whily1995),Kreirana,Roko Stipanov,fname lname,Zrina Stanić,Danijela Jurišić,Tomislav Jelić,Milica Petković,Marica Pranjić,Zdenka Kralj,Bluffton
 111,73,2022-04-25,1,2022-04-26,30,Milena Barić (Luctly1975),Prihvacena,Nika Tadić,Perica Grgić,Bogdana Matić,Antonio Živković,Nediljko Jerković,Ognjen Marjanović,Dragana Lučić,Davorin Petković,Philadelphia
 112,87,2020-04-10,13,2020-04-23,338,Grgur Barišić (Whons1950),Zavrsena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Southfield
 113,58,2020-02-19,11,2020-03-01,352,Sanja Vuković (Ariend),Zavrsena,Matija Mikulić,Blago Janković,Blago Janković,Ankica Mijatović,Ankica Mijatović,Zdenka Kralj,Mihovil Kovačić,Leona Brkić,Fremont
+114,103,2022-02-16,brn,2022-02-20,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+115,103,2022-03-01,brn,2024-08-05,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+116,103,2022-02-21,8,2022-03-01,800,fname lname (uname),Kreirana,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Neodredjen
+117,59,2022-02-01,9,2022-02-10,288,Mateo Herceg (Bobselp),Zavrsena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Boston
+116,31,2022-01-19,15,2022-02-03,510,Držislav Hrvatin (Whily1995),Zavrsena,Prvoslav Debeljak,Elena Petković,Divna Topić,Grgur Perković,Ljubomir Marić,testname testlname,Cvjetko Zagorec,Mladen Pejić,Philadelphia
+117,55,2022-02-01,8,2022-02-09,288,Držislav Hrvatin (Whily1995),Kreirana,Roko Stipanov,fname lname,Zrina Stanić,Danijela Jurišić,Tomislav Jelić,Milica Petković,Marica Pranjić,Zdenka Kralj,Bluffton
+118,87,2022-01-25,13,2022-02-07,338,Grgur Barišić (Whons1950),Zavrsena,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Southfield
+119,58,2022-02-01,11,2022-03-01,352,Sanja Vuković (Ariend),Zavrsena,Matija Mikulić,Blago Janković,Blago Janković,Ankica Mijatović,Ankica Mijatović,Zdenka Kralj,Mihovil Kovačić,Leona Brkić,Fremont
