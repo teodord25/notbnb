@@ -178,8 +178,6 @@ class ProjekatWindow(QMainWindow):
         # TODO should I keep it fixed?
         self.setFixedSize(1280, 720)
 
-        # TODO TESTING
-        #self.currentUser = User(username="Otibitepar")
         self.currentUser = User()
 
         self.baseDF = convert.to_df("data/apartment_data.csv")
