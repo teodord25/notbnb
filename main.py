@@ -618,11 +618,25 @@ class ProjekatWindow(QMainWindow):
 
             header = ["Domacin", "Broj rezervacija", "Ukupna zarada"]
 
-        if mode == "e":
-            pass
-
         if mode == "f":
-            pass
+            cities = list(set(df.loc[:, "Grad"].squeeze()))
+            dct = {i: 0 for i in cities}
+
+            for i in range(df.shape[0]):
+                city = df.at[i, "Grad"]
+                dct[city] += 1
+
+            for city in cities:
+                count = dct[city]
+                ratio = f"{count}/{df.shape[0]}"
+                perc = f"{round(eval(ratio) * 100)}%"
+                row = [city, ratio, perc]
+                tmp.append(row)
+
+            # sort by ratio in descending order
+            tmp.sort(key=lambda x: eval(x[1]), reverse=True)
+
+            header = ["Grad", "Odnos", "Procenat"]
 
         df = pd.DataFrame(tmp, columns=header)
 
