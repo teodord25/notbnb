@@ -123,10 +123,7 @@ class ProjekatWindow(QMainWindow):
         # fixed size forces bspwm to make the window floating
         # but it's still resizable (???)
         self.setFixedSize(1280, 720)
-
-        # TODO TESTING
-        # self.currentUser = User(username="Otibitepar")
-
+        
         self.baseDF = convert.to_df("data/apartment_data.csv")
         self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
                                                     "Adresa", "Cena po noci (eur)"]]
