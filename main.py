@@ -1,7 +1,6 @@
 from collections import Counter
 from functools import partial
 import datetime
-import random
 import sys
 import re
 
@@ -181,6 +180,7 @@ class ProjekatWindow(QMainWindow):
 
         # TODO TESTING
         self.currentUser = User(username="Otibitepar")
+        # self.currentUser = User()
 
         self.baseDF = convert.to_df("data/apartment_data.csv")
         self.currentDF = self.baseDF.copy().loc[:, ["Sifra", "Tip", "Broj soba", "Broj gostiju",
@@ -215,9 +215,7 @@ class ProjekatWindow(QMainWindow):
         apartmentMenu = menu.addMenu("&Apartmani")
 
         userMenu.addAction('Prijavi se', self._createLoginScreen)
-
         userMenu.addAction('Registruj se', self._regNormal)
-
         userMenu.addAction('Odjavi se', self.logOut)
 
         apartmentMenu.addAction('Pretraga i rezervacija apartmana', self._createBrowsingScreen)
@@ -274,8 +272,6 @@ class ProjekatWindow(QMainWindow):
         for i in range(df.shape[1] - 1):
             header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
 
-
-        # self.resInput.setPlaceholderText()
         self.resInput = QLineEdit()
         accp = QPushButton("Prikazi prihvacene")
         deny = QPushButton("Prikazi odbijene")
@@ -437,7 +433,6 @@ class ProjekatWindow(QMainWindow):
             self.blockLabel.setText(err)
             return
 
-        # row = pd.DataFrame([[]])
         if mode == "block":
             if txt in blocked:
                 err = color_msg("Korisnik je vec blokiran", "Tomato")
@@ -556,8 +551,6 @@ class ProjekatWindow(QMainWindow):
         if mode == "c" or mode == "d" or mode == "e":
             e0 = str(datetime.date.today())
 
-            # count = 0
-            # profit = 0
             hosts = list(set(df.loc[:, "Domacin"]))
             dct = {i: {"count": 0, "profit": 0} for i in hosts}
 
@@ -715,7 +708,6 @@ class ProjekatWindow(QMainWindow):
             apt_id = dfr.iat[i, 1]
             if apt_id in ids:
                 row = pd.DataFrame([list(dfr.iloc[i])], columns=header)
-                # res_df = res_df.append(row, ignore_index=True)
                 res_df = pd.concat([res_df, row], ignore_index=True)
 
         df = res_df[res_df["Status"] == "Kreirana"]
@@ -821,8 +813,7 @@ class ProjekatWindow(QMainWindow):
         if not (
             self.editRooms.text() and
             self.editGuests.text() and
-            self.editPrice.text() and
-            self.editAmnt.text()
+            self.editPrice.text()
         ):
 
             if a == 0:
@@ -900,32 +891,36 @@ class ProjekatWindow(QMainWindow):
         apt.price_per_night = self.editPrice.text()
 
         amnts = self.editAmnt.text().split(",")
+        amnts = [i for i in amnts if i != ""]
         amnts = [i.strip() for i in amnts]
 
-        # check if every element of amnts is a number
-        if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
-            with open("data/sadrzaj.txt", "r") as f:
-                dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
+        if amnts:
+            # check if every element of amnts is a number
+            if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+                with open("data/sadrzaj.txt", "r") as f:
+                    dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
 
-            for i in range(len(amnts)):
-                try:
-                    amnts[i] = dct[amnts[i]]
-                except KeyError:
-                    err = color_msg("Nepostojeci dodatak!", "Tomato")
+                for i in range(len(amnts)):
+                    try:
+                        amnts[i] = dct[amnts[i]]
+                    except KeyError:
+                        err = color_msg("Nepostojeci dodatak!", "Tomato")
 
-                    self._createAptEdit()
-                    self.editLabel.setText(err)
-                    return
+                        self._createAptEdit()
+                        self.editLabel.setText(err)
+                        return
 
-        # check if mixed
-        elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
-            err = color_msg("Pogresan unos!", "Tomato")
+            # check if mixed
+            elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+                err = color_msg("Pogresan unos!", "Tomato")
 
-            self._createAptEdit()
-            self.editLabel.setText(err)
-            return
+                self._createAptEdit()
+                self.editLabel.setText(err)
+                return
 
-        apt.amenities = amnts + ["None" for _ in range(5)][len(amnts):]
+            apt.amenities = [apt.apt_id] + amnts + ["None" for _ in range(5)][len(amnts):]
+        else:
+            apt.amenities = [apt.apt_id] + ["None" for _ in range(5)][len(amnts):]
 
         apt.append()
 
@@ -987,7 +982,6 @@ class ProjekatWindow(QMainWindow):
 
             succ = color_msg("Datumi zabelezeni!", "Lime")
 
-            # self._createAptEdit()
             self.editLabel.setText(succ)
 
         except InvalidDateError:
@@ -1104,25 +1098,30 @@ class ProjekatWindow(QMainWindow):
         apt.price_per_night = self.editPrice.text()
 
         amnts = self.editAmnt.text().split(",")
-        amnts = [i.strip() for i in amnts]
+        amnts = [i for i in amnts if i != ""]
 
-        # check if every element of amnts is a number
-        if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
-            with open("data/sadrzaj.txt", "r") as f:
-                dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
+        if len(amnts) > 0:
+            amnts = [i.strip() for i in amnts]
 
-            for i in range(len(amnts)):
-                amnts[i] = dct[amnts[i]]
+            # check if every element of amnts is a number
+            if eval(" and ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+                with open("data/sadrzaj.txt", "r") as f:
+                    dct = {i: j[:-1] for i, j in [k.split(":") for k in f.readlines()]}
 
-        # check if mixed
-        elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
-            err = color_msg("Pogresan unos!", "Tomato")
+                for i in range(len(amnts)):
+                    amnts[i] = dct[amnts[i]]
 
-            self._createAptEdit()
-            self.editLabel.setText(err)
-            return
+            # check if mixed
+            elif eval(" or ".join([str(i) for i in [i.isnumeric() for i in amnts]])):
+                err = color_msg("Pogresan unos!", "Tomato")
 
-        apt.amenities = [self.aptId] + amnts + ["None" for _ in range(5)][len(amnts):]
+                self._createAptEdit()
+                self.editLabel.setText(err)
+                return
+
+            apt.amenities = [self.aptId] + amnts + ["None" for _ in range(5)][len(amnts):]
+        else:
+            apt.amenities = [self.aptId] + ["None" for _ in range(5)][len(amnts):]
 
         apt.save_changes()
 
@@ -1260,10 +1259,10 @@ class ProjekatWindow(QMainWindow):
         formLayout.addRow("Adresa: ", self.editAddr)
         self.editAddr.show()
 
-        formLayout.addRow(QLabel("Dostupnost: Unesite termine (pocetak i kraj) u formatu: 'pocetak, kraj' i pritisnete dugme dodaj, tako ponavljate dok ne unesete sve termine koje zelite"))
+        formLayout.addRow(QLabel("Dostupnost: Unesite termine (pocetak i kraj) u formatu: 'pocetak, kraj' i pritisnete dugme dodaj, tako ponavljate dok ne unesete sve termine koje zelite. (Format datuma YYYY-MM-DD)"))
         formLayout.addRow(self.addTF, self.editAvlb)
 
-        formLayout.addRow("Cena po noci: ", self.editPrice)
+        formLayout.addRow("Cena po noci (eur): ", self.editPrice)
         formLayout.addRow("Sadrzaj: ", self.editAmnt)
 
         aptEditLayout.addWidget(self.table)
@@ -1521,6 +1520,7 @@ class ProjekatWindow(QMainWindow):
 
     def _showPopularCities(self):
         df = convert.to_df("data/reservations.csv", use_cols=[2, 7, 16])
+        df = df[df["Grad"] != "gr"]
 
         date = str(datetime.date.today()).split("-")
         date[0] = str(int(date[0]) - 1)
@@ -1943,7 +1943,14 @@ class ProjekatWindow(QMainWindow):
                 self._reservationForm()
                 return
 
-            reservation = Reservation(start=s, duration=dur, apartment_id=apt_id, username=uname, guests=guests)
+            try:
+                reservation = Reservation(start=s, duration=dur, apartment_id=apt_id, username=uname, guests=guests)
+            except IndexError:
+                err = color_msg("Unesite ime i prezime gosta sa razmakom izmedju!", "Tomato")
+
+                self.reviewWarning.setText(err)
+                self._reservationForm()
+                return
 
             reservation.reserve()
             res_id = reservation.res_id
@@ -1961,7 +1968,15 @@ class ProjekatWindow(QMainWindow):
     def _createBrowsingScreen(self):
         tableLayout = QHBoxLayout()
         reviewLayout = QVBoxLayout()
-        self.resLayout = ReservationLayout(self.currentUser)
+        try:
+            self.resLayout = ReservationLayout(self.currentUser)
+        except InvalidDateError:
+            err = color_msg("Nepravilan datum.", "Tomato")
+
+            self.reviewWarning.setText(err)
+            self._reservationForm()
+            return
+
 
         self._clearScreen()
         self._createTopRow()
