@@ -21,7 +21,8 @@ Functionalities of this application include, but are not strictly limited to:
 - Registration of new hosts
 - Creation/deletion of amenities that can be assigned to apartments by the host
 - Blocking of users based on their username
-#### Data listing such as:
+- Data listing
+##### Data listing such as:
 - Number of confirmed reservations for a specific date/host,
 - Yearly/monthly number of reservations and profit for a specific date/host
 - Ratio of reservations per city and total reservations
