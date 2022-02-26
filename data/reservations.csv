@@ -42,7 +42,7 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 45,11,2020-10-14,7,2020-10-21,210,Danica Jović (Thoughty1944),Odbijena,Đurđa Petković,Leona Duvnjak,Vjeran Živković,Tihomil Ivančić,Jasminka Jukić,Leona Brkić,Ivana Perković,Antonio Živković,Charlotte
 47,89,2021-04-13,11,2021-04-24,286,Đurđica Matković (Ploust69),Zavrsena,Vedrana Matijević,Slavko Perković,Davorin Petković,Stanka Grgić,Božo Brkić,Berivoj Marušić,Daniel Pavlović,Siniša Petrović,Rochester
 48,71,2022-04-23,2,2022-04-25,52,Mateo Herceg (Bobselp),Odustanak,Blago Obad,Ljubomir Marić,Zdenka Kralj,Spomenka Mihaljević,Kažimir Pavičić,Leon Bašić,Ranko Mikulić,Elvis Kolar,Charlotte
-49,23,2022-02-16,2,2022-02-18,56,Klara Pranjić (Lowee1969),Prihvacena,Karlo Marjanović,Ana Kos,testname testlname,Teha Rukavina,Snežana Bošnjak,Aleksandra Duvnjak,Dubravka Lovrić,Nikola Klarić,Antioch
+49,23,2022-02-16,2,2022-02-18,56,Klara Pranjić (Lowee1969),Zavrsena,Karlo Marjanović,Ana Kos,testname testlname,Teha Rukavina,Snežana Bošnjak,Aleksandra Duvnjak,Dubravka Lovrić,Nikola Klarić,Antioch
 50,0,2020-11-24,3,2020-11-27,90,Jasmin Bošnjak (Staided),Odustanak,Leona Brkić,Jasminka Ćosić,Vojmil Kralj,Marica Pranjić,Spomenka Mihaljević,Sanela Matković,Sanela Matković,Danijela Jurišić,Copperas Cove
 51,0,2022-11-08,13,2022-11-21,390,Milenko Marjanović (Mothesseze),Prihvacena,Zdenka Kralj,Kristijan Đurić,Štefanija Crnić,Mladen Pejić,Andrea Vidaković,Ana Popović,Srećko Bosanac,Tihomil Čerkez,Copperas Cove
 52,60,2021-05-20,2,2021-05-22,48,Jakov Zagorec (Pletent49),Odustanak,Nina Horvatinčić,Dunja Marić,Bernarda Matković,Zlatko Topić,Tihomil Ivančić,Elena Petković,Ognjen Šimić,Gojko Ivanec,Antioch
@@ -116,3 +116,7 @@ Sifra rezervacije,Sifra apartmana,Pocetak,Broj nocenja,Kraj,Ukupna cena (eur),Go
 124,6,2024-02-29,3,2024-03-03,63,Bajo Pivljanin (bajo19),Kreirana,Livia Djuric,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Warminster
 126,105,2022-02-16,brn,2022-04-04,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
 127,105,2022-05-05,brn,2024-08-05,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+128,106,2022-02-20,brn,2022-03-01,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+129,106,2022-04-01,brn,2024-08-09,c,g,Prihvacena,g1,g2,g3,g4,g5,g6,g7,g8,gr
+130,9,2022-03-01,2,2022-03-03,82,Imenko Prezimic (petar),Kreirana,Imenko Prezimic,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Marysville
+131,106,2022-03-02,2,2022-03-04,57,Imenko Prezimic (petar),Prihvacena,Imenko Prezimic,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,ne postoji,Neodredjen

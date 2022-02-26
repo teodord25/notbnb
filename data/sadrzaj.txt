@@ -5,3 +5,4 @@
 5:klima uredjaj
 7:prozor
 8:pitka voda
+9:kuhinjaa
