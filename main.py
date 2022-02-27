@@ -173,9 +173,6 @@ class ProjekatWindow(QMainWindow):
 
         self.setWindowTitle("Airbnb (not)")
 
-        # fixed size forces bspwm to make the window floating
-        # but it's still resizable (???)
-        # TODO should I keep it fixed?
         self.setFixedSize(1280, 720)
 
         self.currentUser = User()
