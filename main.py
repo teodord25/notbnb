@@ -171,7 +171,7 @@ class ProjekatWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Airbnb (not)")
+        self.setWindowTitle("Notbnb")
 
         self.setFixedSize(1280, 720)
 
