@@ -2086,10 +2086,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# the option is called stretch
-# you can change the ratios by passing a number in .addWidget or .addLayout
-# e.g. .addWidget(widget_one, 1) .addWidget(widget_two, 9)
-#   this will make widget_two take up 9 times as much space as widget_one
-
-# assuming non reserved apartments are always available may have been the wrong move in this case
